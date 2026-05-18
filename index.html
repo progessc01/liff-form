@@ -156,7 +156,7 @@ function submitForm(){
 
   if (!data || !data.coupon) {
     document.getElementById("result").innerHTML =
-      "❌ 沒有收到折價券";
+      "⚠️ 此車已有未使用折價券，請先使用後再領取";
     return;
   }
 
