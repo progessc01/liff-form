@@ -1,0 +1,73 @@
+let userId = "";
+let liffReady = false;
+
+// 1️⃣ 初始化 LIFF
+async function init() {
+  try {
+
+    await liff.init({
+      liffId: "2010119461-UygVR0vm"
+    });
+
+    const profile = await liff.getProfile();
+    userId = profile.userId;
+
+    liffReady = true;
+
+    document.getElementById("result").innerHTML = "✔ 系統已準備完成";
+
+  } catch (err) {
+    console.log(err);
+    document.getElementById("result").innerHTML =
+      "❌ LIFF 初始化失敗：" + JSON.stringify(err);
+  }
+}
+
+init();
+
+
+// 2️⃣ 送出問卷
+async function submitForm() {
+
+  console.log("click submit");
+
+  // 🚨 防呆1：LIFF還沒好
+  if (!liffReady || !userId) {
+    alert("系統尚未載入完成，請稍後再試");
+    return;
+  }
+
+  // 3️⃣ 收資料
+  const data = {
+    userId: userId,
+    q1: document.getElementById("q1").value,
+    q2: document.getElementById("q2").value,
+    q3: document.getElementById("q3").value,
+    q4: document.getElementById("q4").value,
+    q5: document.getElementById("q5").value,
+    q6: document.getElementById("q6").value
+  };
+
+  console.log("send data:", data);
+
+  document.getElementById("result").innerHTML = "送出中...";
+
+  try {
+
+    const res = await fetch("https://script.google.com/macros/s/AKfycbxysLCZuHOMiXcndUwEUr6_y5Ri51BDkebsuQJr-8QUHHrYCXiU0xFoJK9t3dYtdgLlMQ/exec", {
+      method: "POST",
+      body: JSON.stringify(data)
+    });
+
+    const text = await res.text();
+    console.log("response:", text);
+
+    document.getElementById("result").innerHTML =
+      "🎉 感謝填寫問卷！";
+
+  } catch (err) {
+    console.log("error:", err);
+    document.getElementById("result").innerHTML =
+      "❌ 送出失敗，請看 console";
+  }
+}
