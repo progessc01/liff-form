@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安建快速洗車｜滿意度問卷</title>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <style>
+    body {
+      font-family: Arial;
+      background:#f5f5f5;
+      margin:0;
+      padding:20px;
+    }
+
+    .box {
+      max-width:420px;
+      margin:auto;
+      background:#fff;
+      padding:20px;
+      border-radius:12px;
+      box-shadow:0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    h2 { text-align:center; }
+
+    .q {
+      margin-top:15px;
+      font-weight:bold;
+      font-size:14px;
+      line-height:1.5;
+    }
+
+    select, textarea {
+      width:100%;
+      padding:10px;
+      margin-top:6px;
+      border-radius:8px;
+      border:1px solid #ccc;
+      font-size:14px;
+    }
+
+    textarea {
+      height:80px;
+      resize:none;
+    }
+
+    button {
+      width:100%;
+      margin-top:15px;
+      padding:12px;
+      background:#06C755;
+      color:white;
+      border:none;
+      border-radius:8px;
+      font-size:16px;
+    }
+
+    #result {
+      margin-top:15px;
+      text-align:center;
+      font-weight:bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+
+  <h2>🚗 安建快速洗車</h2>
+  <p style="text-align:center;">滿意度問卷（完成可獲折扣）</p>
+
+  <!-- 1 -->
+  <div class="q">1️⃣ 本次洗車整體滿意度</div>
+  <select id="q1">
+    <option value="">請選擇</option>
+    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+  </select>
+
+  <!-- 2 -->
+  <div class="q">2️⃣ 車輛清潔效果是否符合期待？</div>
+  <select id="q2">
+    <option value="">請選擇</option>
+    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+  </select>
+
+  <!-- 3 -->
+  <div class="q">3️⃣服務人員態度與說明是否良好？</div>
+  <select id="q3">
+    <option value="">請選擇</option>
+    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+  </select>
+
+  <!-- 4 -->
+  <div class="q">4️⃣ 整體等待時間是否合理？</div>
+  <select id="q4">
+    <option value="">請選擇</option>
+    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+  </select>
+
+  <!-- 5 -->
+  <div class="q">5️⃣ 價格與服務是否匹配？</div>
+  <select id="q5">
+    <option value="">請選擇</option>
+    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+  </select>
+
+  <!-- 6 -->
+  <div class="q">6️⃣需要改善的地方?留下聯絡方式讓我們可以聯繫您。</div>
+  <textarea id="q6" placeholder="請輸入您的建議，"></textarea>
+
+  <button onclick="submitForm()">送出問卷</button>
+
+  <div id="result"></div>
+
+</div>
+
+<script>
+
+let userId = "";
+
+async function init() {
+  try {
+    await liff.init({
+      liffId: "2010119461-UygVR0vm"
+    });
+
+    const profile = await liff.getProfile();
+    userId = profile.userId;
+
+  } catch (err) {
+    document.getElementById("result").innerHTML =
+      "❌ LIFF 初始化失敗";
+  }
+}
+
+init();
+
+async function submitForm() {
+
+  const data = {
+    userId: userId,
+    q1: document.getElementById("q1").value,
+    q2: document.getElementById("q2").value,
+    q3: document.getElementById("q3").value,
+    q4: document.getElementById("q4").value,
+    q5: document.getElementById("q5").value,
+    q6: document.getElementById("q6").value
+  };
+
+  document.getElementById("result").innerHTML = "送出中...";
+
+ fetch("https://script.google.com/macros/s/AKfycbyCzusDqmq4ic7_SOctZ9Obu2CXmCBDWLkBIhxafB3aAXQkKMa_RrCcTut2WQo7uNh8/exec", {
+  method: "POST",
+  body: JSON.stringify({
+    userId: userId,
+    score: score
+  })
+})
+.then(res => res.text())
+.then(res => {
+  console.log("server:", res);
+
+  document.getElementById("result").innerHTML =
+    "🎉 感謝填寫問卷！";
+})
+.catch(err => {
+  console.log("error:", err);
+  document.getElementById("result").innerHTML =
+    "❌ 送出失敗";
+});
+
+</script>
+
+</body>
+</html>
