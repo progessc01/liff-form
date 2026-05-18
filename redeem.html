@@ -13,19 +13,15 @@ body{
 }
 
 .box{
-  max-width:400px;
+  max-width:420px;
   margin:auto;
   background:white;
   padding:20px;
   border-radius:10px;
 }
 
-#reader{
-  width:100%;
-}
-
 .info{
-  margin-top:15px;
+  margin-top:12px;
   font-size:18px;
 }
 
@@ -45,17 +41,11 @@ button{
 
 <div class="box">
 
-  <h2>📷 核銷掃碼</h2>
+  <h2>🎫 折價券核銷</h2>
 
-  <div id="reader"></div>
-
-  <div class="info">
-    🚗 車牌：<span id="plate">等待掃描</span>
-  </div>
-
-  <div class="info">
-    🎫 CODE：<span id="code">等待掃描</span>
-  </div>
+  <div class="info">🚗 車牌：<span id="plate">讀取中...</span></div>
+  <div class="info">🎫 CODE：<span id="code">讀取中...</span></div>
+  <div class="info">📌 狀態：<span id="state">檢查中...</span></div>
 
   <button onclick="redeem()">確認核銷</button>
 
@@ -63,78 +53,54 @@ button{
 
 </div>
 
-<script src="https://unpkg.com/html5-qrcode"></script>
-
 <script>
 
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
 
-let currentCode = "";
-let scanning = true;
+const urlParams = new URLSearchParams(window.location.search);
+const code = urlParams.get("code");
 
-// 📷 開啟相機
-const qr = new Html5Qrcode("reader");
+let currentCode = code;
 
-qr.start(
-  { facingMode: "environment" },
-  {
-    fps: 10,
-    qrbox: 250
-  },
-  (decodedText) => {
+document.getElementById("code").innerText = code || "無資料";
 
-    if(!scanning) return;
+if(!code){
+  document.getElementById("msg").innerText = "❌ 沒有CODE";
+}
 
-    scanning = false;
+// 👉 一進來就查券
+fetch(GAS_URL, {
+  method: "POST",
+  body: new URLSearchParams({
+    type: "check",
+    code: code
+  })
+})
+.then(r => r.text())
+.then(t => JSON.parse(t))
+.then(data => {
 
-    document.getElementById("msg").innerHTML = "🔍 解析中...";
-
-    // 👉 從 QR 取得 code
-    const url = new URL(decodedText);
-    const code = url.searchParams.get("code") || decodedText;
-
-    currentCode = code;
-
-    document.getElementById("code").innerText = code;
-
-    // 查券
-    fetch(GAS_URL, {
-      method: "POST",
-      body: new URLSearchParams({
-        type: "check",
-        code: code
-      })
-    })
-    .then(r => r.text())
-    .then(t => JSON.parse(t))
-    .then(data => {
-
-      if(data.status !== "OK"){
-        document.getElementById("msg").innerHTML = "❌ 查無此券";
-        scanning = true;
-        return;
-      }
-
-      document.getElementById("plate").innerText = data.plate;
-      document.getElementById("msg").innerHTML = "✅ 可核銷";
-
-    })
-    .catch(err => {
-      document.getElementById("msg").innerHTML = "❌ 載入失敗";
-      scanning = true;
-    });
-
+  if(data.status !== "OK"){
+    document.getElementById("msg").innerText = "❌ 查無此券";
+    return;
   }
-);
+
+  document.getElementById("plate").innerText = data.plate;
+  document.getElementById("state").innerText = data.state;
+
+})
+.catch(err => {
+  document.getElementById("msg").innerText = "❌ 系統錯誤";
+});
 
 function redeem(){
 
   if(!currentCode){
-    alert("沒有掃到CODE");
+    alert("沒有CODE");
     return;
   }
 
-  document.getElementById("msg").innerHTML = "⏳ 核銷中...";
+  document.getElementById("msg").innerText = "⏳ 核銷中...";
 
   fetch(GAS_URL, {
     method: "POST",
@@ -148,18 +114,16 @@ function redeem(){
   .then(data => {
 
     if(data.status === "OK"){
-      document.getElementById("msg").innerHTML = "🎉 核銷成功";
+      document.getElementById("msg").innerText = "🎉 核銷成功";
     }
 
     if(data.status === "USED"){
-      document.getElementById("msg").innerHTML = "⚠️ 已使用";
+      document.getElementById("msg").innerText = "⚠️ 已使用";
     }
 
     if(data.status === "NOT_FOUND"){
-      document.getElementById("msg").innerHTML = "❌ 查無券";
+      document.getElementById("msg").innerText = "❌ 查無券";
     }
-
-    scanning = true;
 
   });
 
