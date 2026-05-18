@@ -111,7 +111,7 @@
 
 <script>
 
-
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
 
 function submitForm(){
 
@@ -125,56 +125,40 @@ function submitForm(){
   const result = document.getElementById("result");
 
   if(!q1 || !q2 || !q3 || !q4 || !q5 || !plate){
-    result.style.color = "red";
-    result.innerHTML = "⚠️ 請完成所有必填項目";
+    result.innerHTML = "⚠️ 請填完整";
     return;
   }
 
-  result.style.color = "black";
-  result.innerHTML = "⏳ 送出中...";
+  result.innerHTML = "⏳ 處理中...";
 
-  fetch("https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec", {
-  method: "POST",
-  body: JSON.stringify({
-    type: "survey"
+  // 🚀 重點：不用 JSON，不用 headers
+  const formData = new URLSearchParams();
+  formData.append("type", "survey");
+  formData.append("plate", plate);
+  formData.append("q1", q1);
+  formData.append("q2", q2);
+  formData.append("q3", q3);
+  formData.append("q4", q4);
+  formData.append("q5", q5);
+  formData.append("q6", q6);
+
+  fetch(GAS_URL, {
+    method: "POST",
+    body: formData
   })
-})
-.then(r => r.text())
-.then(t => console.log("OK:", t))
-.catch(e => console.log("ERR:", e));
 
-  .then(res => res.text())
-  .then(text => {
+  .then(r => r.text())
+  .then(t => {
 
-    console.log("GAS RAW:", text);
+    console.log("RAW:", t);
 
-    try {
-      return JSON.parse(text);
-    } catch (e) {
-      throw new Error("JSON解析失敗：" + text);
-    }
+    return JSON.parse(t);
   })
 
   .then(data => {
 
-    console.log("GAS DATA:", data);
+    console.log("DATA:", data);
 
-    // =========================
-    // ❌ 系統錯誤
-    // =========================
-    if(data.status === "INVALID_TYPE"){
-      result.innerHTML = "❌ GAS TYPE錯誤（前端沒送type）";
-      return;
-    }
-
-    if(data.status === "ERROR"){
-      result.innerHTML = "❌ GAS錯誤：" + data.message;
-      return;
-    }
-
-    // =========================
-    // ❌ 沒拿到 coupon
-    // =========================
     if(!data.coupon){
       result.innerHTML = "❌ 無法取得折價券";
       return;
@@ -182,17 +166,12 @@ function submitForm(){
 
     let warning = "";
 
-    // =========================
-    // 🟡 已存在未使用券
-    // =========================
     if(data.status === "EXIST"){
-      warning = "⚠️ 此車已有未使用折價券";
+      warning = "⚠️ 已有未使用折價券";
     }
 
-    const coupon = data.coupon;
-
     const qrData =
-      "https://progessc01.github.io/liff-form/redeem.html?code=" + coupon;
+      "https://progessc01.github.io/liff-form/redeem.html?code=" + data.coupon;
 
     const qrUrl =
       "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
@@ -201,19 +180,15 @@ function submitForm(){
     result.innerHTML = `
       <div style="text-align:center;">
 
-        ${warning ? `<div style="color:red;margin-bottom:10px;">${warning}</div>` : ""}
+        ${warning ? `<div style="color:red;">${warning}</div>` : ""}
 
         <h3>🎉 折價券</h3>
 
-        <div style="font-size:20px;font-weight:bold;margin-bottom:10px;">
-          ${coupon}
+        <div style="font-size:20px;font-weight:bold;">
+          ${data.coupon}
         </div>
 
         <img src="${qrUrl}" width="240">
-
-        <div style="color:#666;font-size:14px;margin-top:10px;">
-          請截圖此 QR Code 使用
-        </div>
 
       </div>
     `;
@@ -221,12 +196,8 @@ function submitForm(){
   })
 
   .catch(err => {
-
-    console.log("ERROR:", err);
-
-    result.style.color = "red";
+    console.log(err);
     result.innerHTML = "❌ 系統錯誤：" + err.message;
-
   });
 
 }

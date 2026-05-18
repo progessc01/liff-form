@@ -3,308 +3,163 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>安建快速洗車｜核銷系統</title>
-
-<script src="https://unpkg.com/html5-qrcode"></script>
+<title>核銷系統</title>
 
 <style>
-
 body{
-  font-family:Arial;
+  font-family: Arial;
+  padding:20px;
   background:#f5f5f5;
-  padding:15px;
-  text-align:center;
+}
+
+.box{
+  max-width:400px;
+  margin:auto;
+  background:white;
+  padding:20px;
+  border-radius:10px;
 }
 
 #reader{
   width:100%;
-  max-width:700px;
-  margin:auto;
-  overflow:hidden;
-  border-radius:12px;
-  background:white;
 }
 
-#reader video{
-  width:100% !important;
-  height:auto !important;
-  max-height:70vh;
-  object-fit:cover;
-}
-
-.box{
-  max-width:700px;
-  margin:15px auto;
-  background:white;
-  padding:20px;
-  border-radius:12px;
-  text-align:left;
-}
-
-.row{
-  font-size:22px;
-  margin:15px 0;
-}
-
-.label{
-  font-weight:bold;
+.info{
+  margin-top:15px;
+  font-size:18px;
 }
 
 button{
   width:100%;
-  padding:15px;
-  font-size:20px;
-  border:none;
-  border-radius:10px;
+  padding:12px;
+  margin-top:15px;
   background:#06C755;
   color:white;
-  cursor:pointer;
+  border:none;
+  font-size:16px;
 }
-
-#status{
-  text-align:center;
-  margin-top:15px;
-  font-size:20px;
-  font-weight:bold;
-}
-
 </style>
 </head>
 
 <body>
 
-<h2>🚗 安建快速洗車核銷系統</h2>
-
-<div id="reader"></div>
-
 <div class="box">
 
-  <div class="row">
-    <span class="label">🚗 車牌：</span>
-    <span id="plate">等待掃描...</span>
+  <h2>📷 核銷掃碼</h2>
+
+  <div id="reader"></div>
+
+  <div class="info">
+    🚗 車牌：<span id="plate">等待掃描</span>
   </div>
 
-  <div class="row">
-    <span class="label">🎟️ CODE：</span>
-    <span id="code">---</span>
+  <div class="info">
+    🎫 CODE：<span id="code">等待掃描</span>
   </div>
 
-  <button onclick="redeemCoupon()">
-    確認核銷
-  </button>
+  <button onclick="redeem()">確認核銷</button>
 
-  <div id="status"></div>
+  <div id="msg" style="margin-top:10px;"></div>
 
 </div>
 
+<script src="https://unpkg.com/html5-qrcode"></script>
+
 <script>
 
-const GAS_URL =
-"https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
 
 let currentCode = "";
-let isProcessing = false;
+let scanning = true;
 
-// =========================
-// 擷取 CODE
-// =========================
-function extractCode(text){
+// 📷 開啟相機
+const qr = new Html5Qrcode("reader");
 
-  if(!text) return "";
-
-  // QR是網址
-  if(text.includes("code=")){
-    return text.split("code=")[1];
-  }
-
-  // 純CODE
-  return text;
-}
-
-// =========================
-// 掃描成功
-// =========================
-function onScanSuccess(decodedText){
-
-  if(isProcessing) return;
-
-  isProcessing = true;
-
-  const code = extractCode(decodedText);
-
-  currentCode = code;
-
-  document.getElementById("code").innerText = code;
-
-  document.getElementById("status").innerText =
-    "🔍 搜尋中，請稍後...";
-
-  fetch(GAS_URL,{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body:JSON.stringify({
-      type:"check",
-      code:code
-    })
-  })
-
-  .then(res => res.text())
-
-  .then(text => {
-
-    console.log("RAW:", text);
-
-    const data = JSON.parse(text);
-
-    // 查無
-    if(data.status === "NOT_FOUND"){
-
-      document.getElementById("status").innerText =
-        "❌ 查無此券";
-
-      isProcessing = false;
-      return;
-    }
-
-    // 已使用
-    if(data.used){
-
-      document.getElementById("plate").innerText =
-        data.plate || "";
-
-      document.getElementById("status").innerText =
-        "🔴 此券已使用";
-
-      isProcessing = false;
-      return;
-    }
-
-    // 成功
-    document.getElementById("plate").innerText =
-      data.plate || "";
-
-    document.getElementById("status").innerText =
-      "🟢 可核銷";
-
-  })
-
-  .catch(err => {
-
-    console.log(err);
-
-    document.getElementById("status").innerText =
-      "❌ LOAD FAILED";
-
-    isProcessing = false;
-
-  });
-
-}
-
-// =========================
-// 啟動掃描器
-// =========================
-const html5QrCode = new Html5Qrcode("reader");
-
-html5QrCode.start(
-  { facingMode:"environment" },
+qr.start(
+  { facingMode: "environment" },
   {
-    fps:15,
-
-    qrbox:function(w,h){
-
-      const minEdge = Math.min(w,h);
-
-      return{
-        width:minEdge * 0.7,
-        height:minEdge * 0.7
-      };
-    }
+    fps: 10,
+    qrbox: 250
   },
-  onScanSuccess
+  (decodedText) => {
+
+    if(!scanning) return;
+
+    scanning = false;
+
+    document.getElementById("msg").innerHTML = "🔍 解析中...";
+
+    // 👉 從 QR 取得 code
+    const url = new URL(decodedText);
+    const code = url.searchParams.get("code") || decodedText;
+
+    currentCode = code;
+
+    document.getElementById("code").innerText = code;
+
+    // 查券
+    fetch(GAS_URL, {
+      method: "POST",
+      body: new URLSearchParams({
+        type: "check",
+        code: code
+      })
+    })
+    .then(r => r.text())
+    .then(t => JSON.parse(t))
+    .then(data => {
+
+      if(data.status !== "OK"){
+        document.getElementById("msg").innerHTML = "❌ 查無此券";
+        scanning = true;
+        return;
+      }
+
+      document.getElementById("plate").innerText = data.plate;
+      document.getElementById("msg").innerHTML = "✅ 可核銷";
+
+    })
+    .catch(err => {
+      document.getElementById("msg").innerHTML = "❌ 載入失敗";
+      scanning = true;
+    });
+
+  }
 );
 
-// =========================
-// 核銷
-// =========================
-function redeemCoupon(){
+function redeem(){
 
   if(!currentCode){
-
-    document.getElementById("status").innerText =
-      "⚠️ 尚未掃描";
-
+    alert("沒有掃到CODE");
     return;
   }
 
-  document.getElementById("status").innerText =
-    "核銷中...";
+  document.getElementById("msg").innerHTML = "⏳ 核銷中...";
 
-  fetch(GAS_URL,{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body:JSON.stringify({
-      type:"redeem",
-      code:currentCode
+  fetch(GAS_URL, {
+    method: "POST",
+    body: new URLSearchParams({
+      type: "redeem",
+      code: currentCode
     })
   })
-
-  .then(res => res.text())
-
-  .then(text => {
-
-    console.log("REDEEM:", text);
-
-    const data = JSON.parse(text);
+  .then(r => r.text())
+  .then(t => JSON.parse(t))
+  .then(data => {
 
     if(data.status === "OK"){
-
-      document.getElementById("status").innerText =
-        "🟢 核銷成功";
-
+      document.getElementById("msg").innerHTML = "🎉 核銷成功";
     }
 
-    else if(data.status === "USED"){
-
-      document.getElementById("status").innerText =
-        "🔴 此券已使用";
-
+    if(data.status === "USED"){
+      document.getElementById("msg").innerHTML = "⚠️ 已使用";
     }
 
-    else{
-
-      document.getElementById("status").innerText =
-        "❌ 查無此券";
+    if(data.status === "NOT_FOUND"){
+      document.getElementById("msg").innerHTML = "❌ 查無券";
     }
 
-    // 重置
-    document.getElementById("plate").innerText =
-      "等待掃描...";
-
-    document.getElementById("code").innerText =
-      "---";
-
-    currentCode = "";
-
-    setTimeout(() => {
-      isProcessing = false;
-    }, 1500);
-
-  })
-
-  .catch(err => {
-
-    console.log(err);
-
-    document.getElementById("status").innerText =
-      "❌ 核銷失敗";
-
-    isProcessing = false;
+    scanning = true;
 
   });
 
