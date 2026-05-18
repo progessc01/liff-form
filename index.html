@@ -148,11 +148,28 @@ function submitForm(){
 })
 .then(data => {
 
-  document.getElementById("result").style.color = "green";
-  document.getElementById("result").innerHTML =
-    "🎉 折價券：" + data.coupon;
+  const coupon = data.coupon;
 
-})
+  const qrUrl =
+    "https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl="
+    + encodeURIComponent(coupon);
+
+  document.getElementById("result").innerHTML = `
+    <div style="text-align:center;">
+      <h3>🎉 折價券</h3>
+      <div style="font-size:20px;font-weight:bold;margin-bottom:10px;">
+        ${coupon}
+      </div>
+
+      <img src="${qrUrl}" style="width:220px;height:220px;" />
+
+      <p style="color:#666;font-size:14px;">
+        請截圖此 QR Code 使用
+      </p>
+    </div>
+  `;
+
+});
 .catch(err => {
 
   console.log(err);
