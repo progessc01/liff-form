@@ -130,7 +130,7 @@ function submitForm(){
   result.style.color = "black";
   result.innerHTML = "⏳ 送出中...";
 
-  fetch("你的GAS網址", {
+  fetch("https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec", {
   method: "POST",
   body: JSON.stringify({ q1,q2,q3,q4,q5,q6 })
 })
