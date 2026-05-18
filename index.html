@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>安建快速洗車｜滿意度問卷</title>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+    }
+
+    .box {
+      max-width: 400px;
+      margin: auto;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #06C755;
+      color: white;
+      border: none;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+    }
+  </style>
+</head>
+
+<body>
+<div class="box">
+
+  <h2>🚗 安建快速洗車</h2>
+  <p>請填寫滿意度問卷（完成可獲 NT$30 折扣）</p>
+
+  <input id="score" type="number" min="1" max="5" placeholder="滿意度 1~5">
+
+  <button onclick="sendData()">送出問卷</button>
+
+  <div id="result"></div>
+
+</div>
+
+<script>
+let userId = "";
+
+liff.init({
+  liffId: "你的LIFF_ID"
+}).then(() => {
+
+  return liff.getProfile();
+
+}).then(profile => {
+
+  userId = profile.userId;
+
+}).catch(err => {
+  console.log("LIFF init error", err);
+});
+
+function sendData() {
+
+  let score = document.getElementById("score").value;
+
+  if (!score) {
+    alert("請輸入滿意度");
+    return;
+  }
+
+  document.getElementById("result").innerHTML = "送出中...";
+
+  fetch("你的AppsScript網址", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      userId: userId,
+      score: score
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+
+    document.getElementById("result").innerHTML =
+      "🎉 感謝回饋！<br><br>您的折扣碼：<br><b>" + data.coupon + "</b>";
+
+  })
+  .catch(err => {
+    document.getElementById("result").innerHTML =
+      "❌ 發生錯誤，請重新整理";
+  });
+
+}
+</script>
+
+</body>
+</html>
