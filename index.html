@@ -66,14 +66,9 @@
 let userId = "";
 let liffReady = false;
 
-// 🚨 初始化 LIFF
 async function init() {
 
   try {
-
-    if (typeof liff === "undefined") {
-      throw new Error("LIFF SDK 未載入");
-    }
 
     await liff.init({
       liffId: "2010119461-UygVR0vm"
@@ -88,38 +83,34 @@ async function init() {
       "✔ 系統已準備完成";
 
   } catch (err) {
-    console.log(err);
     document.getElementById("result").innerHTML =
-      "❌ LIFF 初始化失敗：" + (err.message || JSON.stringify(err));
+      "❌ LIFF 初始化失敗：" + err.message;
   }
 }
 
 init();
 
-
-// 🚨 送出問卷
 async function submitForm() {
 
-  console.log("submit click");
-
-  // ✔ 防呆：LIFF沒好
   if (!liffReady || !userId) {
-    alert("系統尚未載入完成，請稍後再試");
+    alert("系統尚未載入完成");
     return;
   }
 
-  // ✔ 正確抓值（避免 undefined）
+  // 🚨 1️⃣ 正確抓值（避免 undefined）
+  const q1 = document.getElementById("q1").value;
+  const q2 = document.getElementById("q2").value;
+  const q3 = document.getElementById("q3").value;
+  const q4 = document.getElementById("q4").value;
+  const q5 = document.getElementById("q5").value;
+  const q6 = document.getElementById("q6").value;
+
   const data = {
-    userId: userId,
-    q1: document.getElementById("q1").value,
-    q2: document.getElementById("q2").value,
-    q3: document.getElementById("q3").value,
-    q4: document.getElementById("q4").value,
-    q5: document.getElementById("q5").value,
-    q6: document.getElementById("q6").value
+    userId,
+    q1, q2, q3, q4, q5, q6
   };
 
-  console.log("send:", data);
+  console.log("SEND:", data);
 
   document.getElementById("result").innerHTML = "送出中...";
 
@@ -133,19 +124,12 @@ async function submitForm() {
       }
     );
 
-    const resultText = await res.text();
-    console.log("raw response:", resultText);
+    const result = await res.json();
 
-    let result;
+    console.log("RESULT:", result);
 
-    try {
-      result = JSON.parse(resultText);
-    } catch (e) {
-      throw new Error("API回傳不是JSON：" + resultText);
-    }
-
-    if (!result.coupon) {
-      throw new Error("沒有 coupon 回傳");
+    if (!result.coupon || !result.qr) {
+      throw new Error("後端沒有回 coupon 或 qr");
     }
 
     document.getElementById("result").innerHTML =
@@ -157,13 +141,12 @@ async function submitForm() {
 
   } catch (err) {
 
-    console.log("ERROR:", err);
+    console.log(err);
 
     document.getElementById("result").innerHTML =
       "❌ 送出失敗：" + err.message;
   }
 }
-
 </script>
 
 </body>
