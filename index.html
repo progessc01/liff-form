@@ -135,7 +135,9 @@ function submitForm(){
 
   fetch("https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec", {
   method: "POST",
-  body: JSON.stringify({ type: "survey" })
+  body: JSON.stringify({
+    type: "survey"
+  })
 })
 .then(r => r.text())
 .then(t => console.log("OK:", t))
