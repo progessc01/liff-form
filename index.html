@@ -31,31 +31,15 @@
       background:#06C755;
       color:white;
       border:none;
+      cursor:pointer;
     }
 
     #result{
       margin-top:15px;
       text-align:center;
       font-weight:bold;
+      color:red;
     }
-  </style>
-</head>
-
-<body>
-
-<!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>安建快速洗車｜問卷</title>
-
-  <style>
-    body { font-family: Arial; background:#f5f5f5; padding:20px; }
-    .box { max-width:420px; margin:auto; background:#fff; padding:20px; border-radius:10px; }
-    select, textarea, button { width:100%; margin-top:10px; padding:10px; }
-    button { background:#06C755; color:#fff; border:none; cursor:pointer; }
-    #result { margin-top:15px; text-align:center; font-weight:bold; color:red; }
   </style>
 </head>
 
@@ -146,17 +130,34 @@ function submitForm(){
     return;
   }
 
-  // 成功
-  result.style.color = "green";
-  result.innerHTML = "✔ 已送出問卷（測試版）";
+  result.style.color = "black";
+  result.innerHTML = "⏳ 送出中...";
 
-  console.log({
-    q1,q2,q3,q4,q5,q6
+  // 🔥 這裡就是你要的 fetch
+  fetch("https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec", {   // 👈 👈 這裡要換
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      q1,q2,q3,q4,q5,q6
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+
+    result.style.color = "green";
+    result.innerHTML =
+      "🎉 折價券：" + data.coupon;
+
+  })
+  .catch(err => {
+
+    console.log(err);
+    result.style.color = "red";
+    result.innerHTML =
+      "❌ 送出失敗，請稍後再試";
+
   });
 
 }
-
-</script>
-
-</body>
-</html>
