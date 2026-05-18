@@ -66,13 +66,24 @@
 let userId = "";
 let liffReady = false;
 
+/* =========================
+   1️⃣ LIFF 初始化（穩定版）
+========================= */
 async function init() {
-
   try {
+
+    if (typeof liff === "undefined") {
+      throw new Error("LIFF SDK 未載入");
+    }
 
     await liff.init({
       liffId: "2010119461-UygVR0vm"
     });
+
+    if (!liff.isLoggedIn()) {
+      liff.login();
+      return;
+    }
 
     const profile = await liff.getProfile();
 
@@ -90,6 +101,9 @@ async function init() {
 
 init();
 
+/* =========================
+   2️⃣ 送出問卷（修正版）
+========================= */
 async function submitForm() {
 
   if (!liffReady || !userId) {
@@ -97,20 +111,15 @@ async function submitForm() {
     return;
   }
 
-  // 🚨 1️⃣ 正確抓值（避免 undefined）
-  const q1 = document.getElementById("q1").value;
-  const q2 = document.getElementById("q2").value;
-  const q3 = document.getElementById("q3").value;
-  const q4 = document.getElementById("q4").value;
-  const q5 = document.getElementById("q5").value;
-  const q6 = document.getElementById("q6").value;
-
   const data = {
     userId,
-    q1, q2, q3, q4, q5, q6
+    q1: document.getElementById("q1").value,
+    q2: document.getElementById("q2").value,
+    q3: document.getElementById("q3").value,
+    q4: document.getElementById("q4").value,
+    q5: document.getElementById("q5").value,
+    q6: document.getElementById("q6").value
   };
-
-  console.log("SEND:", data);
 
   document.getElementById("result").innerHTML = "送出中...";
 
@@ -120,33 +129,35 @@ async function submitForm() {
       "https://script.google.com/macros/s/AKfycbyCzusDqmq4ic7_SOctZ9Obu2CXmCBDWLkBIhxafB3aAXQkKMa_RrCcTut2WQo7uNh8/exec",
       {
         method: "POST",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
+        },
         body: JSON.stringify(data)
       }
     );
 
-    const result = await res.json();
+    const text = await res.text();
+    console.log("RAW RESPONSE:", text);
 
-    console.log("RESULT:", result);
+    const result = JSON.parse(text);
 
     if (!result.coupon || !result.qr) {
-      throw new Error("後端沒有回 coupon 或 qr");
+      throw new Error("後端沒有回傳 coupon 或 qr");
     }
 
-    document.getElementById("result").innerHTML =
-      `
+    document.getElementById("result").innerHTML = `
       🎉 完成！<br><br>
       折扣碼：<b>${result.coupon}</b><br><br>
       <img src="${result.qr}" width="200">
-      `;
+    `;
 
   } catch (err) {
-
     console.log(err);
-
     document.getElementById("result").innerHTML =
       "❌ 送出失敗：" + err.message;
   }
 }
+
 </script>
 
 </body>
