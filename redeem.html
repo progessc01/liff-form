@@ -1,29 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>核銷系統</title>
+  <title>掃碼核銷系統</title>
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      text-align: center;
+    }
+
+    #reader {
+      width: 300px;
+      margin: auto;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
 </head>
+
 <body>
 
-<h2>核銷系統</h2>
+<h2>🚗 安建快速洗車 - 掃碼核銷</h2>
 
-<input id="code" placeholder="輸入QR code">
-<button onclick="redeem()">核銷</button>
+<div id="reader"></div>
 
-<div id="result"></div>
+<div id="result">等待掃碼...</div>
 
 <script>
 
-function redeem() {
+function onScanSuccess(decodedText) {
 
-  const code = document.getElementById("code").value;
+  document.getElementById("result").innerHTML =
+    "掃描成功：" + decodedText + "<br>核銷中...";
 
-  fetch("https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec", {
+  fetch("你的GAS網址", {
     method: "POST",
     body: JSON.stringify({
       type: "redeem",
-      code: code
+      code: decodedText
     })
   })
   .then(res => res.json())
@@ -31,12 +53,12 @@ function redeem() {
 
     if (data.status === "OK") {
       document.getElementById("result").innerHTML =
-        "🟢 核銷成功 車牌：" + data.plate;
+        "🟢 核銷成功<br>車牌：" + data.plate;
     }
 
     else if (data.status === "USED") {
       document.getElementById("result").innerHTML =
-        "🔴 已使用";
+        "🔴 此券已使用";
     }
 
     else {
@@ -44,9 +66,24 @@ function redeem() {
         "❌ 查無此券";
     }
 
+  })
+  .catch(err => {
+    document.getElementById("result").innerHTML =
+      "❌ 系統錯誤：" + err.message;
   });
 
 }
+
+const html5QrCode = new Html5Qrcode("reader");
+
+html5QrCode.start(
+  { facingMode: "environment" },   // 後鏡頭
+  {
+    fps: 10,
+    qrbox: 250
+  },
+  onScanSuccess
+);
 
 </script>
 
