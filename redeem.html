@@ -1,84 +1,80 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <title>安建快速洗車｜核銷系統</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <script src="https://unpkg.com/html5-qrcode"></script>
+<title>安建快速洗車｜核銷系統</title>
 
-  <style>
-    body {
-      font-family: Arial;
-      padding: 15px;
-      text-align: center;
-      background: #f5f5f5;
-    }
+<script src="https://unpkg.com/html5-qrcode"></script>
 
-    h2 {
-      margin-bottom: 10px;
-    }
+<style>
 
-    /* 📷 相機放大 */
-    #reader {
-      width: 100%;
-      max-width: 650px;
-      margin: auto;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    #reader video  {
-  width: 100% !important;
-  height: auto !important;
-  max-height: 70vh;
-  object-fit: cover;
+body{
+  font-family:Arial;
+  background:#f5f5f5;
+  padding:15px;
+  text-align:center;
 }
 
-    /* 資訊區 */
-    .box {
-      background: white;
-      max-width: 650px;
-      margin: 15px auto;
-      padding: 15px;
-      border-radius: 10px;
-      text-align: left;
-    }
+#reader{
+  width:100%;
+  max-width:700px;
+  margin:auto;
+  overflow:hidden;
+  border-radius:12px;
+  background:white;
+}
 
-    .row {
-      font-size: 20px;
-      margin: 12px 0;
-    }
+#reader video{
+  width:100% !important;
+  height:auto !important;
+  max-height:70vh;
+  object-fit:cover;
+}
 
-    .label {
-      font-weight: bold;
-    }
+.box{
+  max-width:700px;
+  margin:15px auto;
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  text-align:left;
+}
 
-    button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 10px;
-      font-size: 18px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
+.row{
+  font-size:22px;
+  margin:15px 0;
+}
 
-    .confirm {
-      background: #06C755;
-      color: white;
-    }
+.label{
+  font-weight:bold;
+}
 
-    .status {
-      text-align: center;
-      margin-top: 10px;
-      font-weight: bold;
-    }
-  </style>
+button{
+  width:100%;
+  padding:15px;
+  font-size:20px;
+  border:none;
+  border-radius:10px;
+  background:#06C755;
+  color:white;
+  cursor:pointer;
+}
+
+#status{
+  text-align:center;
+  margin-top:15px;
+  font-size:20px;
+  font-weight:bold;
+}
+
+</style>
 </head>
 
 <body>
 
-<h2>🚗 安建快速洗車核銷</h2>
+<h2>🚗 安建快速洗車核銷系統</h2>
 
 <div id="reader"></div>
 
@@ -94,159 +90,222 @@
     <span id="code">---</span>
   </div>
 
-  <button class="confirm" onclick="redeem()">確認核銷</button>
+  <button onclick="redeemCoupon()">
+    確認核銷
+  </button>
 
-  <div class="status" id="status"></div>
+  <div id="status"></div>
 
 </div>
 
 <script>
 
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+const GAS_URL =
+"https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
 
 let currentCode = "";
-let currentPlate = "";
 let isProcessing = false;
 
 // =========================
-// QR解析（支援 URL / code）
+// 擷取 CODE
 // =========================
-function extractCode(text) {
+function extractCode(text){
 
-  if (!text) return "";
+  if(!text) return "";
 
-  if (text.includes("code=")) {
+  // QR是網址
+  if(text.includes("code=")){
     return text.split("code=")[1];
   }
 
+  // 純CODE
   return text;
 }
 
 // =========================
-// 📷 掃描成功
+// 掃描成功
 // =========================
-function onScanSuccess(decodedText) {
+function onScanSuccess(decodedText){
 
-  // 🔥 防止連續掃描
-  if (isProcessing) return;
+  if(isProcessing) return;
 
   isProcessing = true;
 
   const code = extractCode(decodedText);
+
   currentCode = code;
 
   document.getElementById("code").innerText = code;
-  document.getElementById("status").innerText = "🔍 搜尋中，請稍後...";
 
-  fetch(GAS_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
+  document.getElementById("status").innerText =
+    "🔍 搜尋中，請稍後...";
+
+  fetch(GAS_URL,{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
     },
-    body: JSON.stringify({
-      type: "check",
-      code: code
+    body:JSON.stringify({
+      type:"check",
+      code:code
     })
   })
-  .then(res => res.json())
-  .then(data => {
 
-    if (!data || data.error) {
-      document.getElementById("status").innerText = "❌ 查無此券";
+  .then(res => res.text())
+
+  .then(text => {
+
+    console.log("RAW:", text);
+
+    const data = JSON.parse(text);
+
+    // 查無
+    if(data.status === "NOT_FOUND"){
+
+      document.getElementById("status").innerText =
+        "❌ 查無此券";
+
       isProcessing = false;
       return;
     }
 
-    currentPlate = data.plate;
-    document.getElementById("plate").innerText = data.plate;
+    // 已使用
+    if(data.used){
 
-    document.getElementById("status").innerText = "✔ 可核銷";
+      document.getElementById("plate").innerText =
+        data.plate || "";
+
+      document.getElementById("status").innerText =
+        "🔴 此券已使用";
+
+      isProcessing = false;
+      return;
+    }
+
+    // 成功
+    document.getElementById("plate").innerText =
+      data.plate || "";
+
+    document.getElementById("status").innerText =
+      "🟢 可核銷";
 
   })
+
   .catch(err => {
+
+    console.log(err);
+
     document.getElementById("status").innerText =
-      "❌ 系統錯誤：" + err.message;
+      "❌ LOAD FAILED";
 
     isProcessing = false;
+
   });
 
 }
 
 // =========================
-// 📷 啟動相機
+// 啟動掃描器
 // =========================
 const html5QrCode = new Html5Qrcode("reader");
 
 html5QrCode.start(
-  { facingMode: "environment" },
+  { facingMode:"environment" },
   {
-    fps: 15,
-    qrbox: function(viewfinderWidth, viewfinderHeight) {
-  const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-  return {
-    width: minEdge * 0.7,
-    height: minEdge * 0.7
-  };
-}
+    fps:15,
+
+    qrbox:function(w,h){
+
+      const minEdge = Math.min(w,h);
+
+      return{
+        width:minEdge * 0.7,
+        height:minEdge * 0.7
+      };
+    }
   },
   onScanSuccess
 );
 
 // =========================
-// ✅ 核銷
+// 核銷
 // =========================
-function redeem() {
+function redeemCoupon(){
 
-  if (!currentCode) {
-    document.getElementById("status").innerText = "⚠️ 尚未掃描";
+  if(!currentCode){
+
+    document.getElementById("status").innerText =
+      "⚠️ 尚未掃描";
+
     return;
   }
 
-  document.getElementById("status").innerText = "核銷中...";
+  document.getElementById("status").innerText =
+    "核銷中...";
 
-  fetch(GAS_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
+  fetch(GAS_URL,{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
     },
-    body: JSON.stringify({
-      type: "redeem",
-      code: currentCode
+    body:JSON.stringify({
+      type:"redeem",
+      code:currentCode
     })
   })
-  .then(res => res.json())
-  .then(data => {
 
-    if (data.status === "OK") {
+  .then(res => res.text())
+
+  .then(text => {
+
+    console.log("REDEEM:", text);
+
+    const data = JSON.parse(text);
+
+    if(data.status === "OK"){
+
       document.getElementById("status").innerText =
         "🟢 核銷成功";
+
     }
 
-    else if (data.status === "USED") {
+    else if(data.status === "USED"){
+
       document.getElementById("status").innerText =
         "🔴 此券已使用";
+
     }
 
-    else {
+    else{
+
       document.getElementById("status").innerText =
         "❌ 查無此券";
     }
 
-    // 🔥 核銷後解鎖
-    isProcessing = false;
+    // 重置
+    document.getElementById("plate").innerText =
+      "等待掃描...";
 
-    // 🔄 清畫面（方便下一台車）
+    document.getElementById("code").innerText =
+      "---";
+
     currentCode = "";
-    currentPlate = "";
-    document.getElementById("code").innerText = "---";
-    document.getElementById("plate").innerText = "等待掃描...";
+
+    setTimeout(() => {
+      isProcessing = false;
+    }, 1500);
 
   })
+
   .catch(err => {
+
+    console.log(err);
+
     document.getElementById("status").innerText =
-      "❌ 系統錯誤：" + err.message;
+      "❌ 核銷失敗";
 
     isProcessing = false;
+
   });
 
 }
