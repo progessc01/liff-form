@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>核銷系統</title>
+</head>
+<body>
+
+<h2>核銷系統</h2>
+
+<input id="code" placeholder="輸入QR code">
+<button onclick="redeem()">核銷</button>
+
+<div id="result"></div>
+
+<script>
+
+function redeem() {
+
+  const code = document.getElementById("code").value;
+
+  fetch("https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec", {
+    method: "POST",
+    body: JSON.stringify({
+      type: "redeem",
+      code: code
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+
+    if (data.status === "OK") {
+      document.getElementById("result").innerHTML =
+        "🟢 核銷成功 車牌：" + data.plate;
+    }
+
+    else if (data.status === "USED") {
+      document.getElementById("result").innerHTML =
+        "🔴 已使用";
+    }
+
+    else {
+      document.getElementById("result").innerHTML =
+        "❌ 查無此券";
+    }
+
+  });
+
+}
+
+</script>
+
+</body>
+</html>
