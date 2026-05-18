@@ -121,11 +121,10 @@ async function submitForm() {
       body: JSON.stringify(data)
     });
 
-    const text = await res.text();
-    console.log(text);
+    const result = await res.json();
 
-    document.getElementById("result").innerHTML =
-      "🎉 感謝填寫問卷！";
+document.getElementById("result").innerHTML =
+  "🎉 完成！你的折扣碼：<br><b>" + result.coupon + "</b>";
 
   } catch (err) {
     document.getElementById("result").innerHTML =
