@@ -1,18 +1,43 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>安建快速洗車｜問卷</title>
-
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <title>安建快速洗車問卷</title>
 
   <style>
-    body { font-family: Arial; background:#f5f5f5; padding:20px; }
-    .box { max-width:420px; margin:auto; background:#fff; padding:20px; border-radius:10px; }
-    select, textarea, button { width:100%; margin-top:10px; padding:10px; }
-    button { background:#06C755; color:#fff; border:none; }
-    #result { margin-top:15px; text-align:center; font-weight:bold; }
+    body{
+      font-family: Arial;
+      background:#f5f5f5;
+      padding:20px;
+    }
+
+    .box{
+      max-width:400px;
+      margin:auto;
+      background:white;
+      padding:20px;
+      border-radius:10px;
+    }
+
+    select, textarea, button{
+      width:100%;
+      margin-top:10px;
+      padding:10px;
+    }
+
+    button{
+      background:#06C755;
+      color:white;
+      border:none;
+    }
+
+    #result{
+      margin-top:15px;
+      text-align:center;
+      font-weight:bold;
+    }
   </style>
 </head>
 
@@ -22,40 +47,24 @@
 
   <h2>🚗 安建快速洗車</h2>
 
-  <div>1️⃣ 整體滿意度</div>
-  <select id="q1">
+  <div>整體滿意度</div>
+
+  <select id="score">
     <option value="">請選擇</option>
-    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+    <option>1</option>
+    <option>2</option>
+    <option>3</option>
+    <option>4</option>
+    <option>5</option>
   </select>
 
-  <div>2️⃣ 清潔效果</div>
-  <select id="q2">
-    <option value="">請選擇</option>
-    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
-  </select>
+  <div>建議</div>
 
-  <div>3️⃣ 服務態度</div>
-  <select id="q3">
-    <option value="">請選擇</option>
-    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
-  </select>
+  <textarea id="msg"></textarea>
 
-  <div>4️⃣ 等待時間</div>
-  <select id="q4">
-    <option value="">請選擇</option>
-    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
-  </select>
-
-  <div>5️⃣ 價格滿意度</div>
-  <select id="q5">
-    <option value="">請選擇</option>
-    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
-  </select>
-
-  <div>6️⃣ 建議（選填）</div>
-  <textarea id="q6"></textarea>
-
-  <button onclick="submitForm()">送出問卷</button>
+  <button onclick="submitForm()">
+    送出
+  </button>
 
   <div id="result"></div>
 
@@ -63,88 +72,19 @@
 
 <script>
 
-let userId = "";
-let liffReady = false;
+function submitForm(){
 
-/* =========================
-   1️⃣ LIFF 初始化（穩定版）
-========================= */
-async function init() {
+  const score =
+    document.getElementById("score").value;
 
-  try {
+  const msg =
+    document.getElementById("msg").value;
 
-    await liff.init({
-      liffId: "2010119461-UygVR0vm"
-    });
+  document.getElementById("result").innerHTML =
+    "已送出（目前只是測試）";
 
-    if (!liff.isLoggedIn()) {
-      liff.login();
-      return;
-    }
-
-    const profile = await liff.getProfile();
-
-    userId = profile.userId;
-    liffReady = true;
-
-    document.getElementById("result").innerHTML =
-      "✔ 系統已準備完成";
-
-  } catch (err) {
-    document.getElementById("result").innerHTML =
-      "❌ LIFF 初始化失敗：" + err.message;
-  }
-}
-
-init();
-
-/* =========================
-   2️⃣ 送出問卷（穩定版）
-========================= */
-async function submitForm() {
-
-  if (!liffReady || !userId) {
-    alert("系統尚未載入完成，請稍後再試");
-    return;
-  }
-
-  const data = {
-    userId: userId,
-    q1: document.getElementById("q1").value,
-    q2: document.getElementById("q2").value,
-    q3: document.getElementById("q3").value,
-    q4: document.getElementById("q4").value,
-    q5: document.getElementById("q5").value,
-    q6: document.getElementById("q6").value
-  };
-
-  document.getElementById("result").innerHTML = "送出中...";
-
-  try {
- const res = await
-  fetch("https://script.google.com/macros/s/AKfycbyCzusDqmq4ic7_SOctZ9Obu2CXmCBDWLkBIhxafB3aAXQkKMa_RrCcTut2WQo7uNh8/exec", {
-  method: "POST",
-  headers: {
-    "Content-Type": "text/plain"
-  },
-  body: JSON.stringify(data)
-});
-
-    const text = await res.text();
-    console.log("response:", text);
-
-    if (text !== "OK") {
-      throw new Error(text);
-    }
-
-    document.getElementById("result").innerHTML =
-      "🎉 感謝填寫問卷！";
-
-  } catch (err) {
-    console.log(err);
-    document.getElementById("result").innerHTML =
-      "❌ 送出失敗：" + err.message;
-  }
+  console.log(score);
+  console.log(msg);
 }
 
 </script>
