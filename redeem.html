@@ -57,90 +57,59 @@ button{
 
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
 
-const urlParams = new URLSearchParams(window.location.search);
-const code = urlParams.get("code");
+const params = new URLSearchParams(location.search);
+const code = params.get("code");
 
-let currentCode = code;
+document.getElementById("code").innerText = code;
 
-document.getElementById("code").innerText = code || "無資料";
-
-if(!code){
-  document.getElementById("msg").innerText = "❌ 沒有CODE";
-}
-
-// 👉 一進來就查券
-fetch(GAS_URL, {
-  method: "POST",
-  body: new URLSearchParams({
-    type: "check",
-    code: code
+fetch(GAS_URL,{
+  method:"POST",
+  body:new URLSearchParams({
+    type:"check",
+    code:code
   })
 })
-.then(r => r.text())
-.then(t => JSON.parse(t))
-.then(data => {
+.then(r=>r.text())
+.then(t=>JSON.parse(t))
+.then(data=>{
 
   if(data.status !== "OK"){
-    document.getElementById("msg").innerText = "❌ 查無此券";
+    document.getElementById("msg").innerText = "❌ 查無券";
     return;
   }
 
   document.getElementById("plate").innerText = data.plate;
   document.getElementById("state").innerText = data.state;
-
-})
-.catch(err => {
-  document.getElementById("msg").innerText = "❌ 系統錯誤";
 });
 
 function redeem(){
 
-  if(!currentCode){
-    alert("沒有CODE");
-    return;
-  }
-
-  document.getElementById("msg").innerText = "⏳ 核銷中...";
-
-  fetch(GAS_URL, {
-    method: "POST",
-    body: new URLSearchParams({
-      type: "redeem",
-      code: currentCode
+  fetch(GAS_URL,{
+    method:"POST",
+    body:new URLSearchParams({
+      type:"redeem",
+      code:code
     })
   })
-  .then(r => r.text())
-  .then(t => JSON.parse(t))
- .then(data => {
+  .then(r=>r.text())
+  .then(t=>JSON.parse(t))
+  .then(data=>{
 
-  console.log(data);
+    if(data.status === "OK"){
+      document.getElementById("state").innerText = "已使用";
+      document.getElementById("msg").innerText = "🎉 核銷成功";
+    }
 
-  if(data.status === "OK"){
+    if(data.status === "USED"){
+      document.getElementById("msg").innerText = "⚠️ 已使用";
+    }
 
-    document.getElementById("msg").innerText = "🎉 核銷成功";
+    if(data.status === "NOT_FOUND"){
+      document.getElementById("msg").innerText = "❌ 查無券";
+    }
 
-    // 🔥 立即更新畫面狀態（不用重整）
-    document.getElementById("state").innerText = "已使用";
+  });
 
-    // 🔥 鎖定按鈕避免重刷
-    document.querySelector("button").disabled = true;
-    document.querySelector("button").innerText = "已核銷";
-
-  }
-
-  else if(data.status === "USED"){
-
-    document.getElementById("msg").innerText = "⚠️ 已使用";
-
-    document.getElementById("state").innerText = "已使用";
-  }
-
-  else if(data.status === "NOT_FOUND"){
-
-    document.getElementById("msg").innerText = "❌ 查無券";
-  }
-
-});
 }
 
 </script>

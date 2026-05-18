@@ -115,91 +115,67 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_Ikxd
 
 function submitForm(){
 
+  const plate = document.getElementById("plate").value;
   const q1 = document.getElementById("q1").value;
   const q2 = document.getElementById("q2").value;
   const q3 = document.getElementById("q3").value;
   const q4 = document.getElementById("q4").value;
   const q5 = document.getElementById("q5").value;
   const q6 = document.getElementById("q6").value;
-  const plate = document.getElementById("plate").value;
-  const result = document.getElementById("result");
 
-  if(!q1 || !q2 || !q3 || !q4 || !q5 || !plate){
-    result.innerHTML = "⚠️ 請填完整";
-    return;
-  }
+  const result = document.getElementById("result");
 
   result.innerHTML = "⏳ 處理中...";
 
-  // 🚀 重點：不用 JSON，不用 headers
-  const formData = new URLSearchParams();
-  formData.append("type", "survey");
-  formData.append("plate", plate);
-  formData.append("q1", q1);
-  formData.append("q2", q2);
-  formData.append("q3", q3);
-  formData.append("q4", q4);
-  formData.append("q5", q5);
-  formData.append("q6", q6);
+  const form = new URLSearchParams();
+  form.append("type","survey");
+  form.append("plate",plate);
+  form.append("q1",q1);
+  form.append("q2",q2);
+  form.append("q3",q3);
+  form.append("q4",q4);
+  form.append("q5",q5);
+  form.append("q6",q6);
 
-  fetch(GAS_URL, {
-    method: "POST",
-    body: formData
+  fetch(GAS_URL,{
+    method:"POST",
+    body:form
   })
+  .then(r=>r.text())
+  .then(t=>JSON.parse(t))
+  .then(data=>{
 
-  .then(r => r.text())
-  .then(t => {
+    const coupon = data.coupon;
 
-    console.log("RAW:", t);
-
-    return JSON.parse(t);
-  })
-
-  .then(data => {
-
-    console.log("DATA:", data);
-
-    if(!data.coupon){
+    if(!coupon){
       result.innerHTML = "❌ 無法取得折價券";
       return;
     }
 
-    let warning = "";
+    let warn = "";
 
     if(data.status === "EXIST"){
-      warning = "⚠️ 已有未使用折價券";
+      warn = "⚠️ 已有未使用折價券";
     }
 
-    const qrData =
-"https://progessc01.github.io/liff-form/redeem.html?code=" + coupon;
+    const qr = "https://progessc01.github.io/liff-form/redeem.html?code=" + coupon;
 
-const qrUrl =
-"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data="
-+ encodeURIComponent(qrData);
+    const qrUrl =
+      "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
+      encodeURIComponent(qr);
 
     result.innerHTML = `
       <div style="text-align:center;">
-
-        ${warning ? `<div style="color:red;">${warning}</div>` : ""}
-
-        <h3>🎉 折價券</h3>
-
-        <div style="font-size:20px;font-weight:bold;">
-          ${data.coupon}
-        </div>
-
-        <img src="${qrUrl}" width="240">
-
+        ${warn ? `<div style="color:red;">${warn}</div>` : ""}
+        <h3>🎫 折價券</h3>
+        <div style="font-size:22px;">${coupon}</div>
+        <img src="${qrUrl}" width="220">
       </div>
     `;
-
-  })
-
-  .catch(err => {
-    console.log(err);
-    result.innerHTML = "❌ 系統錯誤：" + err.message;
   });
 
 }
 
 </script>
+</body>
+</html>
