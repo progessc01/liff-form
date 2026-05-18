@@ -38,7 +38,6 @@
       margin-top:15px;
       text-align:center;
       font-weight:bold;
-      color:red;
     }
   </style>
 </head>
@@ -100,7 +99,7 @@
   </select>
 
   <div>6️⃣ 建議（選填）</div>
-  <textarea id="q6" placeholder="可以填寫建議..."></textarea>
+  <textarea id="q6"></textarea>
 
   <button onclick="submitForm()">送出問卷</button>
 
@@ -121,9 +120,7 @@ function submitForm(){
 
   const result = document.getElementById("result");
 
-  // ======================
-  // 必填檢查
-  // ======================
+  // ✅ 必填檢查
   if(!q1 || !q2 || !q3 || !q4 || !q5){
     result.style.color = "red";
     result.innerHTML = "⚠️ 請完成所有必填項目";
@@ -133,12 +130,8 @@ function submitForm(){
   result.style.color = "black";
   result.innerHTML = "⏳ 送出中...";
 
-  // 🔥 這裡就是你要的 fetch
-  fetch("https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec", {   // 👈 👈 這裡要換
+  fetch("你的GAS網址", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
     body: JSON.stringify({
       q1,q2,q3,q4,q5,q6
     })
@@ -147,17 +140,20 @@ function submitForm(){
   .then(data => {
 
     result.style.color = "green";
-    result.innerHTML =
-      "🎉 折價券：" + data.coupon;
+    result.innerHTML = "🎉 折價券：" + data.coupon;
 
   })
   .catch(err => {
 
     console.log(err);
     result.style.color = "red";
-    result.innerHTML =
-      "❌ 送出失敗，請稍後再試";
+    result.innerHTML = "❌ 送出失敗";
 
   });
 
 }
+
+</script>
+
+</body>
+</html>
