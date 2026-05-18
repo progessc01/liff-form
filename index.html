@@ -159,8 +159,8 @@ function submitForm(){
   const coupon = data.coupon;
 
   const qrUrl =
-    "https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl="
-    + encodeURIComponent(coupon);
+    "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data="
+  + encodeURIComponent(coupon);
 
   const resultDiv = document.getElementById("result");
 
