@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>LIFF 測試</title>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+
+<body>
+
+<h1>LIFF 測試頁</h1>
+
+<div id="result">
+  初始化中...
+</div>
+
+<script>
+
+async function main() {
+
+  try {
+
+    await liff.init({
+      liffId: "2010119461-UygVR0vm"
+    });
+
+    document.getElementById("result").innerHTML =
+      "✅ LIFF 初始化成功";
+
+    const profile = await liff.getProfile();
+
+    console.log(profile);
+
+  } catch(err) {
+
+    console.log(err);
+
+    document.getElementById("result").innerHTML =
+      "❌ LIFF 初始化失敗<br><br>" +
+      JSON.stringify(err);
+
+  }
+
+}
+
+main();
+
+</script>
+
+</body>
+</html>
