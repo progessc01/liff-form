@@ -14,8 +14,16 @@
     }
 
     #reader {
-      width: 300px;
+      width: 100%;
+      max-width: 500px;
       margin: auto;
+    }
+
+    #reader video {
+      width: 100% !important;
+      height: 420px !important;
+      object-fit: cover;
+      border-radius: 10px;
     }
 
     #result {
@@ -23,12 +31,18 @@
       font-size: 18px;
       font-weight: bold;
     }
+
+    .code-box {
+      margin-top: 10px;
+      font-size: 16px;
+      color: #333;
+    }
   </style>
 </head>
 
 <body>
 
-<h2>🚗 安建快速洗車 - 掃碼核銷</h2>
+<h2>🚗 安建快速洗車 - 核銷系統</h2>
 
 <div id="reader"></div>
 
@@ -36,16 +50,44 @@
 
 <script>
 
+const urlParams = new URLSearchParams(window.location.search);
+const urlCode = urlParams.get("code");
+
+// =========================
+// 🔥 如果 QR 是網址直接帶入
+// =========================
+if (urlCode) {
+  redeem(urlCode);
+}
+
+// =========================
+// 📷 掃描成功
+// =========================
 function onScanSuccess(decodedText) {
+  redeem(decodedText);
+}
+
+const html5QrCode = new Html5Qrcode("reader");
+
+html5QrCode.start(
+  { facingMode: "environment" },
+  { fps: 10, qrbox: 350 },
+  onScanSuccess
+);
+
+// =========================
+// 🚀 核銷核心
+// =========================
+function redeem(code) {
 
   document.getElementById("result").innerHTML =
-    "掃描成功：" + decodedText + "<br>核銷中...";
+    "掃描成功：" + code + "<br>核銷中...";
 
   fetch("你的GAS網址", {
     method: "POST",
     body: JSON.stringify({
       type: "redeem",
-      code: decodedText
+      code: code
     })
   })
   .then(res => res.json())
@@ -73,17 +115,6 @@ function onScanSuccess(decodedText) {
   });
 
 }
-
-const html5QrCode = new Html5Qrcode("reader");
-
-html5QrCode.start(
-  { facingMode: "environment" },   // 後鏡頭
-  {
-    fps: 10,
-    qrbox: 250
-  },
-  onScanSuccess
-);
 
 </script>
 

@@ -181,8 +181,10 @@ function submitForm(){
   }
 
   const qrUrl =
-    "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data="
-    + encodeURIComponent(coupon);
+  "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data="
+  + encodeURIComponent(
+    "https://progessc01.github.io/liff-form/redeem.html?code=" + coupon
+  );
 
   document.getElementById("result").innerHTML = `
     <div style="text-align:center;">
