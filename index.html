@@ -1,54 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安建快速洗車｜問卷</title>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <style>
+    body { font-family: Arial; background:#f5f5f5; padding:20px; }
+    .box { max-width:420px; margin:auto; background:#fff; padding:20px; border-radius:10px; }
+    select, textarea, button { width:100%; margin-top:10px; padding:10px; }
+    button { background:#06C755; color:#fff; border:none; }
+    #result { margin-top:15px; text-align:center; font-weight:bold; }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+
+  <h2>🚗 安建快速洗車</h2>
+
+  <div>1️⃣ 整體滿意度</div>
+  <select id="q1">
+    <option value="">請選擇</option>
+    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+  </select>
+
+  <div>2️⃣ 清潔效果</div>
+  <select id="q2">
+    <option value="">請選擇</option>
+    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+  </select>
+
+  <div>3️⃣ 服務態度</div>
+  <select id="q3">
+    <option value="">請選擇</option>
+    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+  </select>
+
+  <div>4️⃣ 等待時間</div>
+  <select id="q4">
+    <option value="">請選擇</option>
+    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+  </select>
+
+  <div>5️⃣ 價格滿意度</div>
+  <select id="q5">
+    <option value="">請選擇</option>
+    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+  </select>
+
+  <div>6️⃣ 建議（選填）</div>
+  <textarea id="q6"></textarea>
+
+  <button onclick="submitForm()">送出問卷</button>
+
+  <div id="result"></div>
+
+</div>
+
+<script>
+
 let userId = "";
 let liffReady = false;
 
-// 1️⃣ 初始化 LIFF
+// 🚨 初始化 LIFF
 async function init() {
+
   try {
+
+    if (typeof liff === "undefined") {
+      throw new Error("LIFF SDK 未載入");
+    }
 
     await liff.init({
       liffId: "2010119461-UygVR0vm"
     });
 
     const profile = await liff.getProfile();
-    userId = profile.userId;
 
+    userId = profile.userId;
     liffReady = true;
 
     document.getElementById("result").innerHTML = "✔ 系統已準備完成";
 
   } catch (err) {
-    console.log(err);
     document.getElementById("result").innerHTML =
-      "❌ LIFF 初始化失敗：" + JSON.stringify(err);
+      "❌ LIFF 初始化失敗：" + err.message;
   }
 }
 
 init();
 
-
-// 2️⃣ 送出問卷
+// 🚨 送出
 async function submitForm() {
 
-  console.log("click submit");
-
-  // 🚨 防呆1：LIFF還沒好
   if (!liffReady || !userId) {
-    alert("系統尚未載入完成，請稍後再試");
+    alert("系統尚未載入完成");
     return;
   }
 
-  // 3️⃣ 收資料
   const data = {
-    userId: userId,
-    q1: document.getElementById("q1").value,
-    q2: document.getElementById("q2").value,
-    q3: document.getElementById("q3").value,
-    q4: document.getElementById("q4").value,
-    q5: document.getElementById("q5").value,
-    q6: document.getElementById("q6").value
+    userId,
+    q1: q1.value,
+    q2: q2.value,
+    q3: q3.value,
+    q4: q4.value,
+    q5: q5.value,
+    q6: q6.value
   };
-
-  console.log("send data:", data);
 
   document.getElementById("result").innerHTML = "送出中...";
 
@@ -60,14 +122,18 @@ async function submitForm() {
     });
 
     const text = await res.text();
-    console.log("response:", text);
+    console.log(text);
 
     document.getElementById("result").innerHTML =
       "🎉 感謝填寫問卷！";
 
   } catch (err) {
-    console.log("error:", err);
     document.getElementById("result").innerHTML =
-      "❌ 送出失敗，請看 console";
+      "❌ 送出失敗";
   }
 }
+
+</script>
+
+</body>
+</html>
