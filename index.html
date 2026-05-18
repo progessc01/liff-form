@@ -154,24 +154,43 @@ function submitForm(){
 
   console.log("GAS回傳：", data);
 
-  if (!data || !data.coupon) {
+  let coupon = null;
+  let warning = "";
+
+  // =========================
+  // 🟡 已有未使用券
+  // =========================
+  if (data.status === "EXIST") {
+
+    warning = "⚠️ 此車已有未使用折價券，請先使用後再領取";
+    coupon = data.coupon;
+  }
+
+  // =========================
+  // 🟢 新券
+  // =========================
+  else if (data.status === "OK") {
+    coupon = data.coupon;
+  }
+
+  // =========================
+  // ❌ 沒資料（防呆）
+  // =========================
+  if (!coupon) {
     document.getElementById("result").innerHTML =
-      "⚠️ 此車已有未使用折價券，請先使用後再領取";
+      "❌ 無法取得折價券";
     return;
   }
 
-  const coupon = data.coupon;
-
   const qrUrl =
     "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data="
-  + encodeURIComponent(coupon);
-
-  const resultDiv = document.getElementById("result");
-
-  resultDiv.innerHTML = "";
+    + encodeURIComponent(coupon);
 
   const html = `
     <div style="text-align:center;">
+
+      ${warning ? `<div style="color:red;margin-bottom:10px;">${warning}</div>` : ""}
+
       <h3>🎉 折價券</h3>
 
       <div style="font-size:20px;font-weight:bold;margin-bottom:10px;">
@@ -183,16 +202,17 @@ function submitForm(){
       <div style="color:#666;font-size:14px;margin-top:10px;">
         請截圖此 QR Code 使用
       </div>
+
     </div>
   `;
 
-  resultDiv.innerHTML = html;
+  document.getElementById("result").innerHTML = html;
 
 })
 .catch(err => {
 
   console.log(err);
-  document.getElementById("result").style.color = "red";
+
   document.getElementById("result").innerHTML =
     "❌ 送出失敗：" + err.message;
 
