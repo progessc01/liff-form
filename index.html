@@ -140,39 +140,58 @@ function submitForm(){
     },
     body: JSON.stringify({
       type: "survey",
-      plate,
-      q1, q2, q3, q4, q5, q6
+      plate: plate,
+      q1: q1,
+      q2: q2,
+      q3: q3,
+      q4: q4,
+      q5: q5,
+      q6: q6
     })
   })
 
   .then(res => res.text())
   .then(text => {
 
-    console.log("GAS原始回應:", text);
+    console.log("GAS RAW:", text);
 
     try {
       return JSON.parse(text);
     } catch (e) {
-      throw new Error("GAS回傳不是JSON：" + text);
+      throw new Error("JSON解析失敗：" + text);
     }
   })
 
   .then(data => {
 
-    console.log("解析後:", data);
+    console.log("GAS DATA:", data);
 
+    // =========================
+    // ❌ 系統錯誤
+    // =========================
     if(data.status === "INVALID_TYPE"){
-      result.innerHTML = "❌ 系統錯誤：TYPE未傳";
+      result.innerHTML = "❌ GAS TYPE錯誤（前端沒送type）";
       return;
     }
 
+    if(data.status === "ERROR"){
+      result.innerHTML = "❌ GAS錯誤：" + data.message;
+      return;
+    }
+
+    // =========================
+    // ❌ 沒拿到 coupon
+    // =========================
     if(!data.coupon){
-      result.innerHTML = "❌ 無法取得折價券（請檢查GAS）";
+      result.innerHTML = "❌ 無法取得折價券";
       return;
     }
 
     let warning = "";
 
+    // =========================
+    // 🟡 已存在未使用券
+    // =========================
     if(data.status === "EXIST"){
       warning = "⚠️ 此車已有未使用折價券";
     }
@@ -210,7 +229,7 @@ function submitForm(){
 
   .catch(err => {
 
-    console.log(err);
+    console.log("ERROR:", err);
 
     result.style.color = "red";
     result.innerHTML = "❌ 系統錯誤：" + err.message;
