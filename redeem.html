@@ -27,11 +27,12 @@
       overflow: hidden;
     }
 
-    #reader video {
-      width: 100% !important;
-      height: 480px !important;
-      object-fit: cover;
-    }
+    #reader video  {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 70vh;
+  object-fit: cover;
+}
 
     /* 資訊區 */
     .box {
@@ -179,8 +180,14 @@ const html5QrCode = new Html5Qrcode("reader");
 html5QrCode.start(
   { facingMode: "environment" },
   {
-    fps: 10,
-    qrbox: 400
+    fps: 15,
+    qrbox: function(viewfinderWidth, viewfinderHeight) {
+  const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+  return {
+    width: minEdge * 0.7,
+    height: minEdge * 0.7
+  };
+}
   },
   onScanSuccess
 );
