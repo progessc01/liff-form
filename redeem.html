@@ -114,7 +114,7 @@ function onScanSuccess(decodedText) {
   document.getElementById("status").innerText = "掃描成功，等待核銷...";
 
   // 👉 先查資料（取得車牌）
-  fetch("你的GAS網址", {
+  fetch("https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
