@@ -1,3 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安建快速洗車問卷</title>
+
+  <style>
+    body{
+      font-family: Arial;
+      background:#f5f5f5;
+      padding:20px;
+    }
+
+    .box{
+      max-width:400px;
+      margin:auto;
+      background:white;
+      padding:20px;
+      border-radius:10px;
+    }
+
+    select, textarea, button{
+      width:100%;
+      margin-top:10px;
+      padding:10px;
+    }
+
+    button{
+      background:#06C755;
+      color:white;
+      border:none;
+      cursor:pointer;
+    }
+
+    #result{
+      margin-top:15px;
+      text-align:center;
+      font-weight:bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+
+  <h2>🚗 安建快速洗車問卷</h2>
+
+  <div>1️⃣ 整體滿意度 *</div>
+  <select id="q1">
+    <option value="">請選擇</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+  </select>
+
+  <div>2️⃣ 清潔效果 *</div>
+  <select id="q2">
+    <option value="">請選擇</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+  </select>
+
+  <div>3️⃣ 服務態度 *</div>
+  <select id="q3">
+    <option value="">請選擇</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+  </select>
+
+  <div>4️⃣ 等待時間 *</div>
+  <select id="q4">
+    <option value="">請選擇</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+  </select>
+
+  <div>5️⃣ 價格滿意度 *</div>
+  <select id="q5">
+    <option value="">請選擇</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+  </select>
+  <div>6️⃣ 車牌號碼 *</div>
+  <input type="text" id="plate" placeholder="例如：ABC-1234" />
+
+  <div>7️⃣ 建議（選填）</div>
+  <textarea id="q6"></textarea>
+
+  <button onclick="submitForm()">送出問卷</button>
+
+  <div id="result"></div>
+
+</div>
+
 <script>
 
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
