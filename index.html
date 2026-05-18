@@ -111,7 +111,7 @@
 
 <script>
 
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+
 
 function submitForm(){
 
@@ -133,22 +133,13 @@ function submitForm(){
   result.style.color = "black";
   result.innerHTML = "⏳ 送出中...";
 
-  fetch(GAS_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      type: "survey",
-      plate: plate,
-      q1: q1,
-      q2: q2,
-      q3: q3,
-      q4: q4,
-      q5: q5,
-      q6: q6
-    })
-  })
+  fetch("https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec", {
+  method: "POST",
+  body: JSON.stringify({ type: "survey" })
+})
+.then(r => r.text())
+.then(t => console.log("OK:", t))
+.catch(e => console.log("ERR:", e));
 
   .then(res => res.text())
   .then(text => {
