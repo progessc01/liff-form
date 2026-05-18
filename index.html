@@ -70,11 +70,8 @@ let liffReady = false;
    1️⃣ LIFF 初始化（穩定版）
 ========================= */
 async function init() {
-  try {
 
-    if (typeof liff === "undefined") {
-      throw new Error("LIFF SDK 未載入");
-    }
+  try {
 
     await liff.init({
       liffId: "2010119461-UygVR0vm"
@@ -102,17 +99,17 @@ async function init() {
 init();
 
 /* =========================
-   2️⃣ 送出問卷（修正版）
+   2️⃣ 送出問卷（穩定版）
 ========================= */
 async function submitForm() {
 
   if (!liffReady || !userId) {
-    alert("系統尚未載入完成");
+    alert("系統尚未載入完成，請稍後再試");
     return;
   }
 
   const data = {
-    userId,
+    userId: userId,
     q1: document.getElementById("q1").value,
     q2: document.getElementById("q2").value,
     q3: document.getElementById("q3").value,
@@ -125,31 +122,20 @@ async function submitForm() {
 
   try {
 
-    const res = await fetch(
-      "https://script.google.com/macros/s/AKfycbyCzusDqmq4ic7_SOctZ9Obu2CXmCBDWLkBIhxafB3aAXQkKMa_RrCcTut2WQo7uNh8/exec",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "text/plain;charset=utf-8"
-        },
-        body: JSON.stringify(data)
-      }
-    );
+    const res = await fetch("https://script.google.com/macros/s/AKfycbxxQYoWCm_Z27eJTbZkkbfqpvE5qCNNXGN_33ltEBP4pnvW_E6q6oRvuI834Z2rCQka/exec", {
+      method: "POST",
+      body: JSON.stringify(data)
+    });
 
     const text = await res.text();
-    console.log("RAW RESPONSE:", text);
+    console.log("response:", text);
 
-    const result = JSON.parse(text);
-
-    if (!result.coupon || !result.qr) {
-      throw new Error("後端沒有回傳 coupon 或 qr");
+    if (text !== "OK") {
+      throw new Error(text);
     }
 
-    document.getElementById("result").innerHTML = `
-      🎉 完成！<br><br>
-      折扣碼：<b>${result.coupon}</b><br><br>
-      <img src="${result.qr}" width="200">
-    `;
+    document.getElementById("result").innerHTML =
+      "🎉 感謝填寫問卷！";
 
   } catch (err) {
     console.log(err);
