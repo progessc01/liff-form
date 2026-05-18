@@ -111,22 +111,36 @@ function redeem(){
   })
   .then(r => r.text())
   .then(t => JSON.parse(t))
-  .then(data => {
+ .then(data => {
 
-    if(data.status === "OK"){
-      document.getElementById("msg").innerText = "🎉 核銷成功";
-    }
+  console.log(data);
 
-    if(data.status === "USED"){
-      document.getElementById("msg").innerText = "⚠️ 已使用";
-    }
+  if(data.status === "OK"){
 
-    if(data.status === "NOT_FOUND"){
-      document.getElementById("msg").innerText = "❌ 查無券";
-    }
+    document.getElementById("msg").innerText = "🎉 核銷成功";
 
-  });
+    // 🔥 立即更新畫面狀態（不用重整）
+    document.getElementById("state").innerText = "已使用";
 
+    // 🔥 鎖定按鈕避免重刷
+    document.querySelector("button").disabled = true;
+    document.querySelector("button").innerText = "已核銷";
+
+  }
+
+  else if(data.status === "USED"){
+
+    document.getElementById("msg").innerText = "⚠️ 已使用";
+
+    document.getElementById("state").innerText = "已使用";
+  }
+
+  else if(data.status === "NOT_FOUND"){
+
+    document.getElementById("msg").innerText = "❌ 查無券";
+  }
+
+});
 }
 
 </script>
