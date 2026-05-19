@@ -107,12 +107,21 @@
     <option value="5">5</option>
   </select>
   <div>6️⃣ 車牌號碼 *</div>
-  <input type="text" id="plate" placeholder="例如：ABC-1234" />
+
+<div style="display:flex; gap:10px; align-items:center;">
+
+  <input type="text" id="plate" placeholder="例如：ABC-1234" style="flex:1;" />
+
+  <button type="button" onclick="findCoupon()">
+    找回CODE
+  </button>
+
+</div>
 
   <div>7️⃣ 提供您寶貴的建議，(有疑問的話)留下您聯絡方式，我們會盡快聯絡您!（選填）</div>
   <textarea id="q6"></textarea>
 
-  <button onclick="submitForm()">送出問卷</button>
+  <button type="button" onclick="submitForm()">送出問卷</button>
 
   <div id="result"></div>
 
@@ -133,6 +142,13 @@ function submitForm(){
   const q6 = document.getElementById("q6").value;
 
   const result = document.getElementById("result");
+ // 🚨 必填檢查（前五題 + 車牌）
+  if(!plate || !q1 || !q2 || !q3 || !q4 || !q5){
+    result.style.color = "red";
+    result.innerHTML = "⚠️ 請完成所有必填項目";
+    return;
+  }
+ result.style.color = "black";
 
   result.innerHTML = "⏳ 處理中...";
 
@@ -174,13 +190,22 @@ function submitForm(){
       encodeURIComponent(qr);
 
     result.innerHTML = `
-      <div style="text-align:center;">
-        ${warn ? `<div style="color:red;">${warn}</div>` : ""}
-        <h3>🎫 折價券</h3>
-        <div style="font-size:22px;">${coupon}</div>
-        <img src="${qrUrl}" width="220">
-      </div>
-    `;
+  <div style="text-align:center;">
+
+    ${warn ? `<div style="color:red;">${warn}</div>` : ""}
+
+    <h3>🎫 折價券</h3>
+
+    <div style="font-size:22px;">${coupon}</div>
+
+    <img src="${qrUrl}" width="220">
+
+    <p style="margin-top:12px; font-size:14px; color:#555;">
+      📌 請截圖保存此畫面，以利後續兌換使用
+    </p>
+
+  </div>
+`;
   });
 
 }
