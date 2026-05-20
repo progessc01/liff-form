@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安建洗車 VIP管理系統</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="container">
+
+    <h1>安建洗車 VIP管理系統</h1>
+
+    <button onclick="location.href='vip-search.html'">
+      1. 卡號查詢
+    </button>
+
+    <button onclick="location.href='vip-sell.html'">
+      2. 我要賣卡
+    </button>
+
+    <button onclick="location.href='vip-refund.html'">
+      3. 退款申請
+    </button>
+
+    <button onclick="checkPassword()">
+      4. 異常紀錄
+    </button>
+
+  </div>
+
+<script>
+
+function checkPassword() {
+
+  const password = prompt("請輸入管理密碼");
+
+  if(password === "1234") {
+
+    location.href = "vip-abnormal.html";
+
+  } else {
+
+    alert("密碼錯誤");
+
+  }
+
+}
+
+</script>
+
+</body>
+</html>
