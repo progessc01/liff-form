@@ -30,6 +30,25 @@ const phoneLast3 = localStorage.getItem("phoneLast3");
 
 const content = document.getElementById("content");
 
+const cardStatus = localStorage.getItem("useCardStatus");
+
+if(cardStatus === "REFUND") {
+
+  content.innerHTML = `
+    <div class="card">
+
+      <h2>此卡已退款</h2>
+
+      <p style="color:red;">
+        已退款卡片無法使用
+      </p>
+
+    </div>
+  `;
+
+  throw new Error("REFUND CARD");
+}
+
 if(!customerName || !phoneLast3) {
   alert("請先登入會員");
   location.href = "customer-login.html";

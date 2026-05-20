@@ -87,6 +87,10 @@ function useCard() {
   .then(r => r.text())
   .then(t => JSON.parse(t))
   .then(data => {
+    if(data.status === "REFUND") {
+  result.innerHTML = "❌ 此卡片已退款，無法使用";
+  return;
+}
 
     if(data.status === "LOGIN_ERROR") {
       result.innerHTML = "❌ 分店帳號或密碼錯誤";

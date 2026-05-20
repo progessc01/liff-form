@@ -141,8 +141,11 @@ function render() {
 
       <p>第 ${page + 1} 張 / 共 ${pages.length} 張</p>
 
-      <button type="button" onclick="useCard('${c.cardNo}')" ${disabledUse}>
-        我要使用
+<button type="button"
+onclick="useCard('${c.cardNo}', '${c.status}')"
+${disabledUse}>
+  我要使用
+</button>
       </button>
 
       <button type="button" onclick="viewLog('${c.cardNo}')">
@@ -167,8 +170,12 @@ function prevPage() {
   }
 }
 
-function useCard(cardNo) {
+function useCard(cardNo, status) {
+
   localStorage.setItem("useCardNo", cardNo);
+
+  localStorage.setItem("useCardStatus", status);
+
   location.href = "customer-use.html";
 }
 
