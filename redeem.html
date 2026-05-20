@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -27,12 +28,24 @@ body{
 
 button{
   width:100%;
-  padding:12px;
-  margin-top:15px;
+  padding:14px;
+  margin-top:18px;
   background:#06C755;
   color:white;
   border:none;
-  font-size:16px;
+  font-size:18px;
+  border-radius:8px;
+}
+
+button:disabled{
+  background:#999;
+}
+
+#msg{
+  margin-top:15px;
+  font-size:18px;
+  font-weight:bold;
+  text-align:center;
 }
 </style>
 </head>
@@ -43,46 +56,128 @@ button{
 
   <h2>🎫 折價券核銷</h2>
 
-  <div class="info">🚗 車牌：<span id="plate">讀取中...</span></div>
-  <div class="info">🎫 CODE：<span id="code">讀取中...</span></div>
-  <div class="info">📌 狀態：<span id="state">檢查中...</span></div>
+  <div class="info">
+    🚗 車牌：<span id="plate">讀取中...</span>
+  </div>
 
-  <button onclick="redeem()">確認核銷</button>
+  <div class="info">
+    🎫 CODE：<span id="code">讀取中...</span>
+  </div>
 
-  <div id="msg" style="margin-top:10px;"></div>
+  <div class="info">
+    💰 折價：<span id="discount">判斷中...</span>
+  </div>
+
+  <div class="info">
+    📌 狀態：<span id="state">檢查中...</span>
+  </div>
+
+  <button id="redeemBtn" onclick="redeem()">
+    確認核銷
+  </button>
+
+  <div id="msg"></div>
 
 </div>
 
 <script>
 
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+const GAS_URL =
+"https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
 
 const params = new URLSearchParams(location.search);
 const code = params.get("code");
 
-document.getElementById("code").innerText = code;
+const plateEl = document.getElementById("plate");
+const codeEl = document.getElementById("code");
+const stateEl = document.getElementById("state");
+const msgEl = document.getElementById("msg");
+const btnEl = document.getElementById("redeemBtn");
+const discountEl = document.getElementById("discount");
 
-fetch(GAS_URL,{
-  method:"POST",
-  body:new URLSearchParams({
-    type:"check",
-    code:code
-  })
-})
-.then(r=>r.text())
-.then(t=>JSON.parse(t))
-.then(data=>{
+// =========================
+// CODE 防呆
+// =========================
+if(!code){
 
-  if(data.status !== "OK"){
-    document.getElementById("msg").innerText = "❌ 查無券";
-    return;
+  msgEl.innerText = "❌ 無效QRCode";
+  codeEl.innerText = "無";
+
+  btnEl.disabled = true;
+
+}else{
+
+  codeEl.innerText = code;
+
+  // =========================
+  // 判斷折價金額
+  // =========================
+  if(code.includes("AJ-30")){
+    discountEl.innerText = "30元";
+  }
+  else if(code.includes("AJ-20")){
+    discountEl.innerText = "20元";
+  }
+  else{
+    discountEl.innerText = "未知";
   }
 
-  document.getElementById("plate").innerText = data.plate;
-  document.getElementById("state").innerText = data.state;
-});
+  // =========================
+  // 查詢券
+  // =========================
+  fetch(GAS_URL,{
+    method:"POST",
+    body:new URLSearchParams({
+      type:"check",
+      code:code
+    })
+  })
+  .then(r=>r.text())
+  .then(t=>JSON.parse(t))
+  .then(data=>{
 
+    console.log(data);
+
+    if(data.status !== "OK"){
+
+      msgEl.innerText = "❌ 查無券";
+      plateEl.innerText = "-";
+      stateEl.innerText = "-";
+
+      btnEl.disabled = true;
+
+      return;
+    }
+
+    plateEl.innerText = data.plate || "-";
+    stateEl.innerText = data.state || "-";
+
+    // 已使用
+    if(data.state === "已使用"){
+
+      msgEl.innerText = "⚠️ 此券已使用";
+      btnEl.disabled = true;
+    }
+
+  })
+  .catch(err=>{
+
+    console.log(err);
+
+    msgEl.innerText = "❌ 系統錯誤";
+    btnEl.disabled = true;
+
+  });
+
+}
+
+// =========================
+// 核銷
+// =========================
 function redeem(){
+
+  btnEl.disabled = true;
+  btnEl.innerText = "核銷中...";
 
   fetch(GAS_URL,{
     method:"POST",
@@ -95,18 +190,44 @@ function redeem(){
   .then(t=>JSON.parse(t))
   .then(data=>{
 
+    console.log(data);
+
     if(data.status === "OK"){
-      document.getElementById("state").innerText = "已使用";
-      document.getElementById("msg").innerText = "🎉 核銷成功";
+
+      stateEl.innerText = "已使用";
+      msgEl.innerText = "🎉 核銷成功";
+
+      return;
     }
 
     if(data.status === "USED"){
-      document.getElementById("msg").innerText = "⚠️ 已使用";
+
+      stateEl.innerText = "已使用";
+      msgEl.innerText = "⚠️ 此券已使用";
+
+      return;
     }
 
     if(data.status === "NOT_FOUND"){
-      document.getElementById("msg").innerText = "❌ 查無券";
+
+      msgEl.innerText = "❌ 查無券";
+
+      return;
     }
+
+    msgEl.innerText = "❌ 核銷失敗";
+
+  })
+  .catch(err=>{
+
+    console.log(err);
+
+    msgEl.innerText = "❌ 系統錯誤";
+
+  })
+  .finally(()=>{
+
+    btnEl.innerText = "確認核銷";
 
   });
 
@@ -116,3 +237,4 @@ function redeem(){
 
 </body>
 </html>
+```
