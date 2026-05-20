@@ -10,40 +10,81 @@
 
 <div class="container">
 
-  <h1>安建洗車 會員登入</h1>
+  <h1>會員登入</h1>
 
-  <input type="text" id="account" placeholder="帳號">
+  <input type="text" id="customerName" placeholder="請輸入姓名">
+
   <br><br>
 
-  <input type="password" id="password" placeholder="密碼">
+  <input type="password" id="phoneLast3" placeholder="請輸入手機末三碼">
+
   <br><br>
 
-  <button onclick="loginCustomer()">
-  登入
-</button>
+  <button type="button" onclick="loginCustomer()">登入</button>
 
-<br><br>
+  <br><br>
 
-<button onclick="location.href='customer-register.html'">
-  註冊
-</button>
+  <button type="button" onclick="location.href='customer-register.html'">
+    註冊
+  </button>
+
+  <br><br>
+
+  <div id="result"></div>
 
 </div>
 
 <script>
-function login() {
 
-  const acc = document.getElementById("account").value;
-  const pw = document.getElementById("password").value;
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
 
-  // 先做假登入（之後你再接後端）
-  if(acc && pw) {
-    localStorage.setItem("user", acc);
-    location.href = "customer-home.html";
-  } else {
-    alert("請輸入帳號密碼");
+function loginCustomer() {
+
+  const name = document.getElementById("customerName").value.trim();
+  const phoneLast3 = document.getElementById("phoneLast3").value.trim();
+  const result = document.getElementById("result");
+
+  if(!name || !phoneLast3) {
+    alert("請輸入姓名與手機末三碼");
+    return;
   }
+
+  result.innerHTML = "⏳ 登入中...";
+
+  const form = new URLSearchParams();
+  form.append("type", "loginCustomer");
+  form.append("name", name);
+  form.append("phoneLast3", phoneLast3);
+
+  fetch(GAS_URL, {
+    method: "POST",
+    body: form
+  })
+  .then(r => r.text())
+  .then(t => {
+    console.log(t);
+    return JSON.parse(t);
+  })
+  .then(data => {
+
+    if(data.status !== "OK") {
+      result.innerHTML = "❌ 姓名或手機末三碼錯誤";
+      return;
+    }
+
+    localStorage.setItem("customerName", data.name);
+    localStorage.setItem("phoneLast3", data.phoneLast3);
+
+    location.href = "customer-home.html";
+
+  })
+  .catch(err => {
+    console.log(err);
+    result.innerHTML = "❌ 登入失敗，請稍後再試";
+  });
+
 }
+
 </script>
 
 </body>
