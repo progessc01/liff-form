@@ -95,7 +95,7 @@ function loadLog() {
       html += `
         <div class="card" style="text-align:left;">
           <h3>第 ${index + 1} 次使用</h3>
-          <p><b>時間：</b>${log.time}</p>
+          <p><b>時間：</b>${formatTime(log.time)}</p>
           <p><b>核銷分店：</b>${log.storeCode} ${log.storeName}</p>
           <p><b>使用前次數：</b>${log.beforeTimes}</p>
           <p><b>扣除次數：</b>${log.usedTimes}</p>
@@ -112,7 +112,39 @@ function loadLog() {
     content.innerHTML = "❌ 系統錯誤";
   });
 }
+function formatTime(dateStr) {
 
+  const d = new Date(dateStr);
+
+  let year = d.getFullYear();
+  let month = d.getMonth() + 1;
+  let day = d.getDate();
+
+  let hour = d.getHours();
+  let minute = String(d.getMinutes()).padStart(2, "0");
+
+  let period = "上午";
+
+  if(hour >= 12) {
+    period = "下午";
+  }
+
+  if(hour >= 18) {
+    period = "晚上";
+  }
+
+  let displayHour = hour;
+
+  if(displayHour > 12) {
+    displayHour -= 12;
+  }
+
+  if(displayHour === 0) {
+    displayHour = 12;
+  }
+
+  return `${year}年${month}月${day}日 ${period} ${displayHour}:${minute}`;
+}
 </script>
 
 </body>
