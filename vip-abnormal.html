@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>異常紀錄</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <h1>異常紀錄</h1>
+
+  <div id="content">讀取中...</div>
+
+  <br>
+
+  <button type="button" onclick="location.href='vip.html'">
+    返回首頁
+  </button>
+
+</div>
+
+<script>
+
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+
+const adminAccount = localStorage.getItem("adminAccount");
+
+if(!adminAccount) {
+  alert("請先登入管理系統");
+  location.href = "vip-admin-login.html?page=abnormal";
+}
+
+const content = document.getElementById("content");
+
+loadAbnormal();
+
+function loadAbnormal() {
+
+  content.innerHTML = "⏳ 讀取異常紀錄中...";
+
+  const form = new URLSearchParams();
+  form.append("type", "getAbnormalList");
+
+  fetch(GAS_URL, {
+    method: "POST",
+    body: form
+  })
+  .then(r => r.text())
+  .then(t => JSON.parse(t))
+  .then(data => {
+
+    if(data.status !== "OK") {
+      content.innerHTML = "❌ 查詢失敗";
+      return;
+    }
+
+    const rows = data.rows || [];
+
+    if(rows.length === 0) {
+      content.innerHTML = `
+        <div class="card">
+          <h2>目前沒有異常紀錄</h2>
+        </div>
+      `;
+      return;
+    }
+
+    let html = "";
+
+    rows.forEach(r => {
+
+<textarea id="reason_${r.abnormalKey}"
+placeholder="請輸入確認原因"></textarea>
+
+<br><br>
+
+<button onclick="confirmAbnormal(
+'${r.abnormalKey}',
+'${r.type}',
+'${r.cardNo}',
+'${r.time}'
+)">
+已確認
+</button>
+
+      html += `
+        <div class="card" style="text-align:left; margin-bottom:15px;">
+          <h3>${r.type}</h3>
+          <p><b>時間：</b>${formatTime(r.time)}</p>
+          <p><b>卡號：</b>${r.cardNo || ""}</p>
+          <p><b>分店：</b>${r.store || ""}</p>
+          <p><b>說明：</b>${r.detail || ""}</p>
+        </div>
+      `;
+    });
+
+    content.innerHTML = html;
+
+  })
+  .catch(err => {
+    console.log(err);
+    content.innerHTML = "❌ 系統錯誤";
+  });
+}
+function confirmAbnormal(abnormalKey, type, cardNo, time) {
+
+  const reason =
+    document.getElementById(
+      "reason_" + abnormalKey
+    ).value.trim();
+
+  if(!reason) {
+
+    alert("請輸入確認原因");
+
+    return;
+  }
+
+  const form = new URLSearchParams();
+
+  form.append("type", "confirmAbnormal");
+
+  form.append("abnormalKey", abnormalKey);
+
+  form.append("type", type);
+
+  form.append("cardNo", cardNo);
+
+  form.append("time", time);
+
+  form.append("reason", reason);
+
+  form.append(
+    "confirmedBy",
+    localStorage.getItem("adminAccount") || "ADMIN"
+  );
+
+  fetch(GAS_URL, {
+    method:"POST",
+    body:form
+  })
+  .then(r=>r.text())
+  .then(t=>JSON.parse(t))
+  .then(data=>{
+
+    if(data.status === "OK") {
+
+      alert("已確認");
+
+      loadAbnormal();
+    }
+  });
+
+}
+
+function formatTime(dateStr) {
+
+  if(!dateStr) return "";
+
+  const d = new Date(dateStr);
+
+  const year = d.getFullYear();
+  const month = d.getMonth() + 1;
+  const day = d.getDate();
+
+  let hour = d.getHours();
+  const minute = String(d.getMinutes()).padStart(2, "0");
+
+  let period = "上午";
+
+  if(hour >= 12) period = "下午";
+  if(hour >= 18) period = "晚上";
+
+  let displayHour = hour;
+
+  if(displayHour > 12) displayHour -= 12;
+  if(displayHour === 0) displayHour = 12;
+
+  return `${year}年${month}月${day}日 ${period} ${displayHour}:${minute}`;
+}
+
+</script>
+
+</body>
+</html>
