@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>使用紀錄</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <h1>使用紀錄</h1>
+
+  <div id="content">讀取中...</div>
+
+  <br>
+
+  <button type="button" onclick="location.href='customer-cards.html'">
+    返回卡片
+  </button>
+
+</div>
+
+<script>
+
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+
+const cardNo = localStorage.getItem("logCardNo");
+const customerName = localStorage.getItem("customerName");
+const phoneLast3 = localStorage.getItem("phoneLast3");
+
+const content = document.getElementById("content");
+
+if(!customerName || !phoneLast3) {
+  alert("請先登入會員");
+  location.href = "customer-login.html";
+}
+
+if(!cardNo) {
+  alert("沒有選擇卡片");
+  location.href = "customer-cards.html";
+}
+
+loadLog();
+
+function loadLog() {
+
+  content.innerHTML = "⏳ 讀取使用紀錄中...";
+
+  const form = new URLSearchParams();
+  form.append("type", "getCardLogs");
+  form.append("cardNo", cardNo);
+  form.append("customerName", customerName);
+  form.append("phoneLast3", phoneLast3);
+
+  fetch(GAS_URL, {
+    method: "POST",
+    body: form
+  })
+  .then(r => r.text())
+  .then(t => JSON.parse(t))
+  .then(data => {
+
+    if(data.status === "NOT_OWNER") {
+      content.innerHTML = "❌ 此卡片不屬於目前會員";
+      return;
+    }
+
+    if(data.status !== "OK") {
+      content.innerHTML = "❌ 查詢失敗";
+      return;
+    }
+
+    const logs = data.logs || [];
+
+    if(logs.length === 0) {
+      content.innerHTML = `
+        <div class="card">
+          <h2>卡號：${cardNo}</h2>
+          <p>尚無使用紀錄</p>
+        </div>
+      `;
+      return;
+    }
+
+    let html = `
+      <div class="card">
+        <h2>卡號：${cardNo}</h2>
+        <h3>使用紀錄</h3>
+      </div>
+    `;
+
+    logs.forEach((log, index) => {
+      html += `
+        <div class="card" style="text-align:left;">
+          <h3>第 ${index + 1} 次使用</h3>
+          <p><b>時間：</b>${log.time}</p>
+          <p><b>核銷分店：</b>${log.storeCode} ${log.storeName}</p>
+          <p><b>使用前次數：</b>${log.beforeTimes}</p>
+          <p><b>扣除次數：</b>${log.usedTimes}</p>
+          <p><b>剩餘次數：</b>${log.afterTimes}</p>
+        </div>
+      `;
+    });
+
+    content.innerHTML = html;
+
+  })
+  .catch(err => {
+    console.log(err);
+    content.innerHTML = "❌ 系統錯誤";
+  });
+}
+
+</script>
+
+</body>
+</html>

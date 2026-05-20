@@ -84,10 +84,20 @@ function loadCards() {
       return;
     }
 
-    const activeCards = cards.filter(c => Number(c.remainingTimes) > 0);
-    const finishedCards = cards.filter(c => Number(c.remainingTimes) <= 0);
+    const usingCards = cards.filter(c =>
+  Number(c.remainingTimes) > 0 &&
+  Number(c.remainingTimes) < Number(c.totalTimes)
+);
 
-    pages = activeCards.concat(finishedCards);
+const unusedCards = cards.filter(c =>
+  Number(c.remainingTimes) === Number(c.totalTimes)
+);
+
+const finishedCards = cards.filter(c =>
+  Number(c.remainingTimes) <= 0
+);
+
+pages = usingCards.concat(unusedCards).concat(finishedCards);
 
     page = 0;
 
@@ -164,7 +174,7 @@ function useCard(cardNo) {
 
 function viewLog(cardNo) {
   localStorage.setItem("logCardNo", cardNo);
-  alert("下一步再做使用紀錄頁：" + cardNo);
+  location.href = "customer-log.html";
 }
 
 </script>
