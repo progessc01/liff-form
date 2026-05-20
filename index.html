@@ -1,246 +1,219 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>安建快速洗車問卷</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>安建快速洗車問卷</title>
 
-  <style>
-    body{
-      font-family: Arial;
-      background:#f5f5f5;
-      padding:20px;
-    }
+<style>
+body{
+  font-family: Arial, "Microsoft JhengHei", sans-serif;
+  background:linear-gradient(180deg,#020617,#050816,#020617);
+  padding:16px;
+  color:white;
+}
 
-    .box{
-      max-width:400px;
-      margin:auto;
-      background:white;
-      padding:20px;
-      border-radius:10px;
-    }
+.box{
+  max-width:430px;
+  margin:auto;
+  background:rgba(255,255,255,0.08);
+  padding:18px;
+  border-radius:20px;
+  border:1px solid rgba(0,255,255,0.25);
+  box-shadow:0 0 25px rgba(0,220,255,0.25);
+}
 
-    select, textarea, button{
-      width:100%;
-      margin-top:10px;
-      padding:10px;
-    }
+.hero{
+  width:100%;
+  border-radius:18px;
+  box-shadow:0 0 25px rgba(0,220,255,0.45);
+  margin-bottom:18px;
+}
 
-    button{
-      background:#06C755;
-      color:white;
-      border:none;
-      cursor:pointer;
-    }
+h2{
+  text-align:center;
+  color:#00eaff;
+}
 
-    #result{
-      margin-top:15px;
-      text-align:center;
-      font-weight:bold;
-    }
-  </style>
+.question{
+  margin-top:16px;
+  line-height:1.5;
+  font-weight:bold;
+}
+
+select, textarea, input, button{
+  width:100%;
+  margin-top:10px;
+  padding:12px;
+  border-radius:12px;
+  border:none;
+  font-size:16px;
+  box-sizing:border-box;
+}
+
+select, textarea, input{
+  background:rgba(255,255,255,0.14);
+  color:white;
+  border:1px solid rgba(255,255,255,0.25);
+}
+
+select option{
+  color:black;
+}
+
+textarea{
+  min-height:90px;
+}
+
+button{
+  background:linear-gradient(90deg,#00c6ff,#7d2cff);
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.plate-row{
+  display:flex;
+  gap:8px;
+}
+
+.plate-row input{
+  flex:1;
+}
+
+.plate-row button{
+  width:120px;
+  font-size:14px;
+}
+
+#result{
+  margin-top:18px;
+  text-align:center;
+  font-weight:bold;
+}
+</style>
 </head>
 
 <body>
 
 <div class="box">
 
-  <h2>🚗 安建快速洗車問卷</h2>
+<img class="hero" src="https://progessc01.github.io/liff-form/S__86597635.jpg">
 
-  <div>1️⃣ 本次洗車整體滿意度
-⭐ 1～5分
-（非常不滿意 → 非常滿意） *</div>
-  <select id="q1">
-    <option value="">請選擇</option>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-  </select>
+<h2>🚗 安建快速洗車問卷</h2>
 
-  <div>2️⃣ 車輛清潔效果是否符合期待？
-⭐ 1～5分
-（例如：車身、輪框、玻璃清潔程度）</div>
-  <select id="q2">
-    <option value="">請選擇</option>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-  </select>
+<div class="question">1️⃣ 本次洗車整體滿意度<br>⭐ 1～5分 *</div>
+<select id="q1">
+<option value="">請選擇</option>
+<option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+</select>
 
-  <div>3️⃣ 服務人員態度與說明是否良好？
-⭐ 1～5分
-（態度、說明清楚度、禮貌）</div>
-  <select id="q3">
-    <option value="">請選擇</option>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-  </select>
+<div class="question">2️⃣ 車輛清潔效果是否符合期待？<br>⭐ 1～5分 *</div>
+<select id="q2">
+<option value="">請選擇</option>
+<option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+</select>
 
-  <div>4️⃣ 整體等待時間是否能接受？
-⭐ 1～5分
-（是否覺得太久或流程順暢）</div>
-  <select id="q4">
-    <option value="">請選擇</option>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-  </select>
+<div class="question">3️⃣ 服務人員態度與說明是否良好？<br>⭐ 1～5分 *</div>
+<select id="q3">
+<option value="">請選擇</option>
+<option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+</select>
 
-  <div>  5️⃣  介紹是否簡單明確
-⭐ 1～5分    </div>
-  <select id="q5">
-    <option value="">請選擇</option>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-  </select>
-  <div>6️⃣ 車牌號碼 *</div>
+<div class="question">4️⃣ 整體等待時間是否能接受？<br>⭐ 1～5分 *</div>
+<select id="q4">
+<option value="">請選擇</option>
+<option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+</select>
 
-<div style="display:flex; gap:10px; align-items:center;">
+<div class="question">5️⃣ 介紹是否簡單明確<br>⭐ 1～5分 *</div>
+<select id="q5">
+<option value="">請選擇</option>
+<option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+</select>
 
-  <input type="text" id="plate" placeholder="例如：ABC-1234" style="flex:1;" />
-
-  <button type="button" onclick="findCoupon()">
-    找回CODE
-  </button>
-
+<div class="question">6️⃣ 車牌號碼 *</div>
+<div class="plate-row">
+<input type="text" id="plate" placeholder="例如：ABC-1234">
+<button type="button" onclick="findCoupon()">找回CODE</button>
 </div>
 
-  <div>7️⃣ 提供您寶貴的建議，(有疑問的話)留下您聯絡方式，我們會盡快聯絡您!（選填）</div>
-  <textarea id="q6"></textarea>
+<div class="question">7️⃣ 提供您寶貴的建議（選填）</div>
+<textarea id="q6"></textarea>
 
-  <button type="button" onclick="submitForm()">送出問卷</button>
+<button type="button" onclick="submitForm()">送出問卷</button>
 
-  <div id="result"></div>
+<div id="result"></div>
 
 </div>
 
 <script>
-
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
 
-// 👉 就加在這裡
-function findCoupon(){
+function makeQR(coupon){
+  const qrData = "https://progessc01.github.io/liff-form/redeem.html?code=" + coupon;
+  return "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" + encodeURIComponent(qrData);
+}
 
+function showCoupon(coupon, title, warn=""){
+  const qrUrl = makeQR(coupon);
+
+  document.getElementById("result").innerHTML = `
+    <div style="text-align:center;">
+      ${warn ? `<div style="color:#ff5bff;margin-bottom:10px;">${warn}</div>` : ""}
+      <h3>${title}</h3>
+      <div style="font-size:22px;color:#00eaff;margin:10px 0;">${coupon}</div>
+      <img src="${qrUrl}" width="220">
+      <p style="font-size:13px;color:#cbd5e1;">📌 請截圖保存此畫面，以利後續兌換使用</p>
+    </div>
+  `;
+}
+
+function findCoupon(){
   const plate = document.getElementById("plate").value.trim();
   const result = document.getElementById("result");
 
   if(!plate){
-    result.style.color = "red";
     result.innerHTML = "⚠️ 請輸入車牌";
     return;
   }
 
-  result.style.color = "black";
-  result.innerHTML = "🔍 查詢中，請稍候...";
+  result.innerHTML = "🔍 查詢中...";
 
   const form = new URLSearchParams();
   form.append("type","find");
   form.append("plate",plate);
 
-  fetch(GAS_URL,{
-    method:"POST",
-    body:form
-  })
-  .then(r => r.text())
-  .then(t => {
-
-    console.log("GAS回應:", t);
-
-    try {
-      return JSON.parse(t);
-    } catch (e) {
-      throw new Error("回傳不是JSON：" + t);
-    }
-
-  })
-  .then(data => {
-
-    console.log("解析後:", data);
-
-    if(data.status !== "OK"){
-      result.style.color = "red";
+  fetch(GAS_URL,{ method:"POST", body:form })
+  .then(r=>r.text())
+  .then(t=>JSON.parse(t))
+  .then(data=>{
+    if(data.status !== "OK" || !data.coupon){
       result.innerHTML = "❌ 查無折價券";
       return;
     }
 
-    const coupon = data.coupon;
-
-    if(!coupon){
-      result.style.color = "red";
-      result.innerHTML = "❌ 沒有coupon資料";
-      return;
-    }
-
-    // 🔥 生成 QR CODE
-    const qrData =
-      "https://progessc01.github.io/liff-form/redeem.html?code=" + coupon;
-
-    const qrUrl =
-      "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" +
-      encodeURIComponent(qrData);
-
-    result.style.color = "black";
-    result.innerHTML = `
-      <div style="text-align:center;">
-
-        <h3>🎫 找回成功</h3>
-
-        <div style="font-size:22px;font-weight:bold;margin:10px 0;">
-          ${coupon}
-        </div>
-
-        <img src="${qrUrl}" width="220">
-
-        <p style="font-size:13px;color:#666;margin-top:10px;">
-          📌 請使用 QR Code 掃描
-        </p>
-
-      </div>
-    `;
-
+    showCoupon(data.coupon, "🎫 找回成功");
   })
-  .catch(err => {
-
-    console.log(err);
-
-    result.style.color = "red";
-    result.innerHTML = "❌ 系統錯誤：" + err.message;
-
+  .catch(err=>{
+    result.innerHTML = "❌ 系統錯誤";
   });
-
 }
 
 function submitForm(){
-
-  const plate = document.getElementById("plate").value;
+  const plate = document.getElementById("plate").value.trim();
   const q1 = document.getElementById("q1").value;
   const q2 = document.getElementById("q2").value;
   const q3 = document.getElementById("q3").value;
   const q4 = document.getElementById("q4").value;
   const q5 = document.getElementById("q5").value;
   const q6 = document.getElementById("q6").value;
-
   const result = document.getElementById("result");
- // 🚨 必填檢查（前五題 + 車牌）
+
   if(!plate || !q1 || !q2 || !q3 || !q4 || !q5){
-    result.style.color = "red";
     result.innerHTML = "⚠️ 請完成所有必填項目";
     return;
   }
- result.style.color = "black";
 
   result.innerHTML = "⏳ 處理中...";
 
@@ -254,54 +227,26 @@ function submitForm(){
   form.append("q5",q5);
   form.append("q6",q6);
 
-  fetch(GAS_URL,{
-    method:"POST",
-    body:form
-  })
+  fetch(GAS_URL,{ method:"POST", body:form })
   .then(r=>r.text())
   .then(t=>JSON.parse(t))
   .then(data=>{
-
-    const coupon = data.coupon;
-
-    if(!coupon){
+    if(!data.coupon){
       result.innerHTML = "❌ 無法取得折價券";
       return;
     }
 
-    let warn = "";
-
     if(data.status === "EXIST"){
-      warn = "⚠️ 已有未使用折價券";
+      showCoupon(data.coupon, "🎫 折價券", "⚠️ 已有未使用折價券");
+    }else{
+      showCoupon(data.coupon, "🎫 折價券");
     }
-
-    const qr = "https://progessc01.github.io/liff-form/redeem.html?code=" + coupon;
-
-    const qrUrl =
-      "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
-      encodeURIComponent(qr);
-
-    result.innerHTML = `
-  <div style="text-align:center;">
-
-    ${warn ? `<div style="color:red;">${warn}</div>` : ""}
-
-    <h3>🎫 折價券</h3>
-
-    <div style="font-size:22px;">${coupon}</div>
-
-    <img src="${qrUrl}" width="220">
-
-    <p style="margin-top:12px; font-size:14px; color:#555;">
-      📌 請截圖保存此畫面，以利後續兌換使用
-    </p>
-
-  </div>
-`;
+  })
+  .catch(err=>{
+    result.innerHTML = "❌ 系統錯誤";
   });
-
 }
-
 </script>
+
 </body>
 </html>
