@@ -25,35 +25,19 @@
       3. 退款申請
     </button>
 
-    <button onclick="location.href='vip-admin-login.html?page=refund'">
-  4. 退款查詢
-</button>
+    <button onclick="location.href='vip-refund-progress.html'">
+      4. 退款進度
+    </button>
 
-<button onclick="location.href='vip-admin-login.html?page=abnormal'">
-  5. 異常紀錄
-</button>
+    <button onclick="location.href='vip-admin-login.html?page=refund'">
+      5. 退款查詢
+    </button>
+
+    <button onclick="location.href='vip-admin-login.html?page=abnormal'">
+      6. 異常紀錄
+    </button>
 
   </div>
-
-<script>
-
-function checkPassword() {
-
-  const password = prompt("請輸入管理密碼");
-
-  if(password === "1234") {
-
-    location.href = "vip-abnormal.html";
-
-  } else {
-
-    alert("密碼錯誤");
-
-  }
-
-}
-
-</script>
 
 </body>
 </html>
