@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我要賣卡</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <h1>我要賣卡</h1>
+
+  <div style="background:#f1f1f1; padding:12px; border-radius:10px; margin-bottom:20px;">
+    <div>目前登入分店：</div>
+    <strong id="storeInfo">讀取中...</strong>
+  </div>
+
+  <select id="vehicleType">
+    <option value="">選擇車型</option>
+    <option value="轎車">轎車</option>
+    <option value="休旅車">休旅車</option>
+    <option value="箱型車">箱型車</option>
+    <option value="箱型車加大">箱型車加大</option>
+    <option value="箱型車特大">箱型車特大</option>
+  </select>
+
+  <br><br>
+
+  <select id="packageCount">
+    <option value="">選擇購買方案</option>
+    <option value="11">買10送1（共11次）</option>
+    <option value="12">買10送2（共12次）</option>
+  </select>
+
+  <br><br>
+
+  <select id="packageType">
+    <option value="">選擇服務</option>
+    <option value="A套餐">A套餐</option>
+    <option value="B套餐">B套餐</option>
+    <option value="C套餐">C套餐</option>
+    <option value="D套餐">D套餐</option>
+    <option value="彩虹瀑布">彩虹瀑布</option>
+    <option value="奈米鍍膜">奈米鍍膜</option>
+  </select>
+
+  <br><br>
+
+  <div style="display:flex; align-items:center; gap:15px;">
+    <span>今日是否使用：</span>
+    <label><input type="radio" name="todayUse" value="yes"> 是</label>
+    <label><input type="radio" name="todayUse" value="no" checked> 否</label>
+  </div>
+
+  <br><br>
+
+  <select id="payMethod">
+    <option value="">付款方式</option>
+    <option value="現金">現金</option>
+    <option value="LINE PAY">LINE PAY</option>
+  </select>
+
+  <br><br>
+
+  <input type="number" id="amount" placeholder="金額">
+
+  <br><br>
+
+  <button onclick="createCard()">建立會員卡</button>
+
+  <button onclick="location.href='vip.html'">返回首頁</button>
+
+  <br><br>
+
+  <div id="result"></div>
+
+</div>
+
+<script>
+
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+
+const storeCode = localStorage.getItem("storeCode");
+const storeName = localStorage.getItem("storeName");
+const staffAccount = localStorage.getItem("staffAccount");
+
+if(!storeCode) {
+  alert("請先登入");
+  location.href = "vip-login.html";
+}
+
+document.getElementById("storeInfo").innerText =
+  storeCode + " " + (storeName || "");
+
+function createCard() {
+
+  const vehicle = document.getElementById("vehicleType").value;
+  const packageCount = document.getElementById("packageCount").value;
+  const packageType = document.getElementById("packageType").value;
+  const pay = document.getElementById("payMethod").value;
+  const amount = document.getElementById("amount").value;
+  const todayUse = document.querySelector('input[name="todayUse"]:checked').value;
+  const result = document.getElementById("result");
+
+  if(!vehicle || !packageCount || !packageType || !pay || !amount) {
+    alert("請填寫完整資料");
+    return;
+  }
+
+  result.innerHTML = "⏳ 建立中...";
+
+  const form = new URLSearchParams();
+  form.append("type", "createCard");
+  form.append("sellStore", storeCode);
+  form.append("storeName", storeName || "");
+  form.append("staffAccount", staffAccount || "");
+  form.append("vehicleType", vehicle);
+  form.append("packageCount", packageCount);
+  form.append("packageType", packageType);
+  form.append("todayUse", todayUse);
+  form.append("payMethod", pay);
+  form.append("amount", amount);
+
+  fetch(GAS_URL, {
+    method: "POST",
+    body: form
+  })
+  .then(r => r.text())
+  .then(t => JSON.parse(t))
+  .then(data => {
+
+    if(data.status !== "OK") {
+      result.innerHTML = "❌ 建立失敗：" + (data.message || "");
+      return;
+    }
+
+    result.innerHTML = `
+      <div style="
+        background:white;
+        padding:20px;
+        border-radius:12px;
+        margin-top:20px;
+        box-shadow:0 2px 10px rgba(0,0,0,0.1);
+      ">
+        <h2>✅ 卡片建立成功</h2>
+
+        <p><b>取卡代碼：</b>${data.cardNo}</p>
+        <p><b>售卡分店：</b>${storeCode} ${storeName || ""}</p>
+        <p><b>車型：</b>${vehicle}</p>
+        <p><b>服務：</b>${packageType}</p>
+        <p><b>總次數：</b>${data.totalTimes}</p>
+        <p><b>剩餘次數：</b>${data.remainingTimes}</p>
+
+        <p style="color:red; font-weight:bold;">
+          請提供此代碼給客戶取卡
+        </p>
+      </div>
+    `;
+  })
+  .catch(err => {
+    result.innerHTML = "❌ 系統錯誤，請稍後再試";
+    console.log(err);
+  });
+
+}
+
+</script>
+
+</body>
+</html>
