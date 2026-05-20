@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>卡片查詢</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <h1>我的卡片</h1>
+
+  <div id="memberInfo"></div>
+
+  <br>
+
+  <div id="cardBox">讀取中...</div>
+
+  <br>
+
+  <button type="button" onclick="prevPage()">上一頁</button>
+  <button type="button" onclick="nextPage()">下一頁</button>
+
+  <br><br>
+
+  <button type="button" onclick="location.href='customer-home.html'">
+    返回
+  </button>
+
+</div>
+
+<script>
+
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+
+const customerName = localStorage.getItem("customerName");
+const phoneLast3 = localStorage.getItem("phoneLast3");
+
+let pages = [];
+let page = 0;
+
+if(!customerName || !phoneLast3) {
+  alert("請先登入會員");
+  location.href = "customer-login.html";
+}
+
+document.getElementById("memberInfo").innerHTML = `
+  <b>目前會員：</b>${customerName}
+`;
+
+loadCards();
+
+function loadCards() {
+
+  const cardBox = document.getElementById("cardBox");
+
+  cardBox.innerHTML = "⏳ 讀取卡片中...";
+
+  const form = new URLSearchParams();
+
+  form.append("type", "getCustomerCards");
+  form.append("customerName", customerName);
+  form.append("phoneLast3", phoneLast3);
+
+  fetch(GAS_URL, {
+    method: "POST",
+    body: form
+  })
+  .then(r => r.text())
+  .then(t => JSON.parse(t))
+  .then(data => {
+
+    if(data.status !== "OK") {
+      cardBox.innerHTML = "❌ 查詢失敗";
+      return;
+    }
+
+    const cards = data.cards || [];
+
+    if(cards.length === 0) {
+      cardBox.innerHTML = "目前尚無卡片";
+      return;
+    }
+
+    const activeCards = cards.filter(c => Number(c.remainingTimes) > 0);
+    const finishedCards = cards.filter(c => Number(c.remainingTimes) <= 0);
+
+    pages = activeCards.concat(finishedCards);
+
+    page = 0;
+
+    render();
+
+  })
+  .catch(err => {
+    console.log(err);
+    cardBox.innerHTML = "❌ 系統錯誤";
+  });
+
+}
+
+function render() {
+
+  const cardBox = document.getElementById("cardBox");
+
+  if(pages.length === 0) {
+    cardBox.innerHTML = "目前尚無卡片";
+    return;
+  }
+
+  const c = pages[page];
+
+  const disabledUse = Number(c.remainingTimes) <= 0 ? "disabled" : "";
+
+  cardBox.innerHTML = `
+    <div class="card">
+
+      <h2>卡號：${c.cardNo}</h2>
+
+      <p>剩餘次數：${c.remainingTimes}</p>
+
+      <p>總次數：${c.totalTimes}</p>
+
+      <p>車型：${c.vehicleType}</p>
+
+      <p>服務：${c.packageType}</p>
+
+      <p>狀態：${c.status}</p>
+
+      <p>第 ${page + 1} 張 / 共 ${pages.length} 張</p>
+
+      <button type="button" onclick="useCard('${c.cardNo}')" ${disabledUse}>
+        我要使用
+      </button>
+
+      <button type="button" onclick="viewLog('${c.cardNo}')">
+        使用紀錄
+      </button>
+
+    </div>
+  `;
+}
+
+function nextPage() {
+  if(page < pages.length - 1) {
+    page++;
+    render();
+  }
+}
+
+function prevPage() {
+  if(page > 0) {
+    page--;
+    render();
+  }
+}
+
+function useCard(cardNo) {
+  localStorage.setItem("useCardNo", cardNo);
+  location.href = "customer-use.html";
+}
+
+function viewLog(cardNo) {
+  localStorage.setItem("logCardNo", cardNo);
+  alert("下一步再做使用紀錄頁：" + cardNo);
+}
+
+</script>
+
+</body>
+</html>
