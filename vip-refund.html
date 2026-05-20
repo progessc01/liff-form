@@ -25,7 +25,11 @@
 
   <br><br>
 
-  <input type="text" id="bankAccount" placeholder="請輸入銀行帳號">
+  <input type="text" id="bankCode" placeholder="銀行代碼，例如 009 彰化銀行">
+
+<br><br>
+
+<input type="text" id="bankAccount" placeholder="請輸入銀行帳號">
 
   <br><br>
 
@@ -63,13 +67,14 @@ function submitRefund() {
 
   const cardNo = document.getElementById("cardNo").value.trim().toUpperCase();
   const reason = document.getElementById("reason").value.trim();
-  const bankAccount = document.getElementById("bankAccount").value.trim();
+  const bankCode = document.getElementById("bankCode").value.trim();
+const bankAccount = document.getElementById("bankAccount").value.trim();
   const result = document.getElementById("result");
 
-  if(!cardNo || !reason || !bankAccount) {
-    alert("請填寫完整資料");
-    return;
-  }
+  if(!cardNo || !reason || !bankCode || !bankAccount) {
+  alert("請填寫完整資料");
+  return;
+}
 
   if(!confirm("確認送出退款申請？")) {
     return;
@@ -85,6 +90,7 @@ function submitRefund() {
   form.append("applyStore", storeCode);
   form.append("storeName", storeName || "");
   form.append("staffAccount", staffAccount || "");
+  form.append("bankCode", bankCode);
 
   fetch(GAS_URL, {
     method: "POST",
