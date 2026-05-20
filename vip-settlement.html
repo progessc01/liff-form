@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>一鍵出帳</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <h1>一鍵出帳</h1>
+
+  <div class="card">
+    <p>請選擇對帳月份</p>
+
+    <input type="month" id="settleMonth">
+
+    <br><br>
+
+    <button type="button" onclick="getSettlement()">
+      查詢出帳
+    </button>
+  </div>
+
+  <br>
+
+  <div id="result"></div>
+
+  <br>
+
+  <button type="button" onclick="location.href='vip.html'">
+    返回首頁
+  </button>
+
+</div>
+
+<script>
+
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+
+const adminAccount = localStorage.getItem("adminAccount");
+
+if(!adminAccount) {
+  alert("請先登入管理系統");
+  location.href = "vip-admin-login.html?page=settlement";
+}
+
+function getSettlement() {
+
+  const month = document.getElementById("settleMonth").value;
+  const result = document.getElementById("result");
+
+  if(!month) {
+    alert("請選擇月份");
+    return;
+  }
+
+  result.innerHTML = "⏳ 計算中...";
+
+  const form = new URLSearchParams();
+  form.append("type", "getSettlement");
+  form.append("settleMonth", month);
+
+  fetch(GAS_URL, {
+    method: "POST",
+    body: form
+  })
+  .then(r => r.text())
+  .then(t => JSON.parse(t))
+  .then(data => {
+
+    if(data.status !== "OK") {
+      result.innerHTML = "❌ 查詢失敗";
+      return;
+    }
+
+    const details = data.details || [];
+    const stores = data.stores || [];
+
+    let html = `
+      <div class="card" style="text-align:left;">
+        <h2>${data.settleMonth} 對帳總表</h2>
+        <p><b>總核銷次數：</b>${data.totalUses}</p>
+        <p><b>總清算金額：</b>${data.totalAmount} 元</p>
+      </div>
+    `;
+
+    html += `
+      <div class="card" style="text-align:left;">
+        <h2>各店應收 / 應付</h2>
+    `;
+
+    if(stores.length === 0) {
+      html += `<p>本月無資料</p>`;
+    } else {
+      stores.forEach(s => {
+        html += `
+          <div style="border-bottom:1px solid #ddd; padding:10px 0;">
+            <h3>${s.storeCode}</h3>
+            <p><b>應收：</b>${s.receivable} 元</p>
+            <p><b>應付：</b>${s.payable} 元</p>
+            <p style="font-size:18px; color:${s.net >= 0 ? 'green' : 'red'};">
+              <b>淨額：</b>${s.net} 元
+            </p>
+          </div>
+        `;
+      });
+    }
+
+    html += `</div>`;
+
+    html += `
+      <div class="card" style="text-align:left;">
+        <h2>跨店明細</h2>
+    `;
+
+    if(details.length === 0) {
+      html += `<p>本月無跨店清算資料</p>`;
+    } else {
+      details.forEach(d => {
+        html += `
+          <div style="border-bottom:1px solid #ddd; padding:10px 0;">
+            <p><b>應付款店：</b>${d.fromStore}</p>
+            <p><b>收款店：</b>${d.toStore}</p>
+            <p><b>核銷次數：</b>${d.count}</p>
+            <p><b>金額：</b>${d.amount} 元</p>
+          </div>
+        `;
+      });
+    }
+
+    html += `</div>`;
+
+    result.innerHTML = html;
+
+  })
+  .catch(err => {
+    console.log(err);
+    result.innerHTML = "❌ 系統錯誤";
+  });
+
+}
+
+</script>
+
+</body>
+</html>
