@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>退款進度</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <h1>退款進度</h1>
+
+  <input type="text" id="cardNo" placeholder="請輸入卡號">
+
+  <br><br>
+
+  <button type="button" onclick="searchRefund()">
+    查詢退款進度
+  </button>
+
+  <button type="button" onclick="location.href='vip.html'">
+    返回首頁
+  </button>
+
+  <br><br>
+
+  <div id="result"></div>
+
+</div>
+
+<script>
+
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+
+function searchRefund() {
+
+  const cardNo =
+    document.getElementById("cardNo")
+    .value.trim()
+    .toUpperCase();
+
+  const result = document.getElementById("result");
+
+  if(!cardNo) {
+
+    alert("請輸入卡號");
+
+    return;
+  }
+
+  result.innerHTML = "⏳ 查詢中...";
+
+  const form = new URLSearchParams();
+
+  form.append("type", "refundProgress");
+
+  form.append("cardNo", cardNo);
+
+  fetch(GAS_URL,{
+    method:"POST",
+    body:form
+  })
+  .then(r=>r.text())
+  .then(t=>JSON.parse(t))
+  .then(data=>{
+
+    if(data.status === "NOT_FOUND") {
+
+      result.innerHTML = "❌ 查無退款申請";
+
+      return;
+    }
+
+    if(data.status !== "OK") {
+
+      result.innerHTML = "❌ 查詢失敗";
+
+      return;
+    }
+
+    result.innerHTML = `
+      <div class="card" style="text-align:left;">
+
+        <h2>退款進度</h2>
+
+        <p><b>卡號：</b>${data.cardNo}</p>
+
+        <p><b>退款申請時間：</b>${formatTime(data.applyTime)}</p>
+
+        <p><b>原始金額：</b>${data.amount} 元</p>
+
+        <p><b>總次數：</b>${data.totalTimes}</p>
+
+        <p><b>剩餘次數：</b>${data.remainingTimes}</p>
+
+        <p><b>退款金額：</b>${data.refundAmount} 元</p>
+
+        <p><b>退款狀態：</b>${data.statusText}</p>
+
+        <p><b>核准結果：</b>${data.approveResult || "待審核"}</p>
+
+        <p><b>退款原因：</b>${data.reason}</p>
+
+        <p><b>預計退款時間：</b>
+  ${data.approveTime ? "核准後 3 個工作天內（例假日順延）" : "尚未核准"}
+</p>
+
+      </div>
+    `;
+
+  })
+  .catch(err=>{
+
+    console.log(err);
+
+    result.innerHTML = "❌ 系統錯誤";
+
+  });
+
+}
+
+function formatTime(dateStr) {
+
+  if(!dateStr) return "";
+
+  const d = new Date(dateStr);
+
+  const year = d.getFullYear();
+  const month = d.getMonth() + 1;
+  const day = d.getDate();
+
+  let hour = d.getHours();
+  const minute = String(d.getMinutes()).padStart(2, "0");
+
+  let period = "上午";
+
+  if(hour >= 12) period = "下午";
+  if(hour >= 18) period = "晚上";
+
+  let displayHour = hour;
+
+  if(displayHour > 12) displayHour -= 12;
+  if(displayHour === 0) displayHour = 12;
+
+  return `${year}年${month}月${day}日 ${period} ${displayHour}:${minute}`;
+}
+
+</script>
+
+</body>
+</html>
