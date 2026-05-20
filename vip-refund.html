@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>退款申請</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <h1>退款申請</h1>
+
+  <div style="background:#f1f1f1; padding:12px; border-radius:10px; margin-bottom:20px;">
+    <div>目前登入分店：</div>
+    <strong id="storeInfo">讀取中...</strong>
+  </div>
+
+  <input type="text" id="cardNo" placeholder="請輸入卡號，例如 AJ000001">
+
+  <br><br>
+
+  <textarea id="reason" placeholder="請輸入退款原因"></textarea>
+
+  <br><br>
+
+  <input type="text" id="bankAccount" placeholder="請輸入銀行帳號">
+
+  <br><br>
+
+  <button type="button" onclick="submitRefund()">
+    送出退款申請
+  </button>
+
+  <button type="button" onclick="location.href='vip.html'">
+    返回首頁
+  </button>
+
+  <br><br>
+
+  <div id="result"></div>
+
+</div>
+
+<script>
+
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+
+const storeCode = localStorage.getItem("storeCode");
+const storeName = localStorage.getItem("storeName");
+const staffAccount = localStorage.getItem("staffAccount");
+
+if(!storeCode) {
+  alert("請先登入");
+  location.href = "vip-login.html";
+}
+
+document.getElementById("storeInfo").innerText =
+  storeCode + " " + (storeName || "");
+
+function submitRefund() {
+
+  const cardNo = document.getElementById("cardNo").value.trim().toUpperCase();
+  const reason = document.getElementById("reason").value.trim();
+  const bankAccount = document.getElementById("bankAccount").value.trim();
+  const result = document.getElementById("result");
+
+  if(!cardNo || !reason || !bankAccount) {
+    alert("請填寫完整資料");
+    return;
+  }
+
+  if(!confirm("確認送出退款申請？")) {
+    return;
+  }
+
+  result.innerHTML = "⏳ 送出中...";
+
+  const form = new URLSearchParams();
+  form.append("type", "refundApply");
+  form.append("cardNo", cardNo);
+  form.append("reason", reason);
+  form.append("bankAccount", bankAccount);
+  form.append("applyStore", storeCode);
+  form.append("storeName", storeName || "");
+  form.append("staffAccount", staffAccount || "");
+
+  fetch(GAS_URL, {
+    method: "POST",
+    body: form
+  })
+  .then(r => r.text())
+  .then(t => JSON.parse(t))
+  .then(data => {
+
+    if(data.status === "NOT_FOUND") {
+      result.innerHTML = "❌ 查無此卡號";
+      return;
+    }
+
+    if(data.status !== "OK") {
+      result.innerHTML = "❌ 送出失敗：" + (data.message || "");
+      return;
+    }
+
+    result.innerHTML = `
+      <div class="card">
+        <h2>✅ 退款申請已送出</h2>
+        <p><b>卡號：</b>${data.cardNo}</p>
+        <p><b>申請分店：</b>${storeCode} ${storeName || ""}</p>
+        <p><b>總店核准結果：</b>待審核</p>
+      </div>
+    `;
+
+  })
+  .catch(err => {
+    console.log(err);
+    result.innerHTML = "❌ 系統錯誤";
+  });
+
+}
+
+</script>
+
+</body>
+</html>
