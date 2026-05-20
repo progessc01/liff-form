@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我要使用</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <h1>我要使用</h1>
+
+  <div id="content">讀取中...</div>
+
+  <br>
+
+  <button type="button" onclick="location.href='customer-cards.html'">
+    返回卡片
+  </button>
+
+</div>
+
+<script>
+
+const cardNo = localStorage.getItem("useCardNo");
+const customerName = localStorage.getItem("customerName");
+const phoneLast3 = localStorage.getItem("phoneLast3");
+
+const content = document.getElementById("content");
+
+if(!customerName || !phoneLast3) {
+  alert("請先登入會員");
+  location.href = "customer-login.html";
+}
+
+if(!cardNo) {
+  alert("沒有選擇卡片");
+  location.href = "customer-cards.html";
+}
+
+// 店員掃描後會進入這頁
+const useUrl = "https://progessc01.github.io/liff-form/vip-use.html?cardNo=" + encodeURIComponent(cardNo);
+
+const qrUrl =
+  "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
+  encodeURIComponent(useUrl);
+
+content.innerHTML = `
+  <div class="card">
+
+    <h2>卡號：${cardNo}</h2>
+
+    <p style="font-weight:bold; color:red;">
+      請出示此 QR CODE 給店員掃描核銷
+    </p>
+
+    <img src="${qrUrl}" width="240">
+
+    <p style="font-size:14px; color:#555;">
+      此畫面僅供現場使用，請勿提供給他人
+    </p>
+
+  </div>
+`;
+
+</script>
+
+</body>
+</html>
