@@ -104,7 +104,7 @@ function searchCard() {
 
             <div><b>第 ${index + 1} 次使用</b></div>
 
-            <div>時間：${log.time}</div>
+            <div>時間：${formatTime(log.time)}</div>
 
             <div>分店：${log.storeCode} ${log.storeName}</div>
 
@@ -152,7 +152,7 @@ function searchCard() {
 
         <p><b>金額：</b>${card.amount}</p>
 
-        <p><b>建立時間：</b>${card.createTime}</p>
+        <p><b>建立時間：</b>${formatTime(card.createTime)}</p>
 
         ${logsHtml}
 
@@ -168,6 +168,31 @@ function searchCard() {
 
   });
 
+}
+function formatTime(dateStr) {
+
+  if(!dateStr) return "";
+
+  const d = new Date(dateStr);
+
+  const year = d.getFullYear();
+  const month = d.getMonth() + 1;
+  const day = d.getDate();
+
+  let hour = d.getHours();
+  const minute = String(d.getMinutes()).padStart(2, "0");
+
+  let period = "上午";
+
+  if(hour >= 12) period = "下午";
+  if(hour >= 18) period = "晚上";
+
+  let displayHour = hour;
+
+  if(displayHour > 12) displayHour -= 12;
+  if(displayHour === 0) displayHour = 12;
+
+  return `${year}年${month}月${day}日 ${period} ${displayHour}:${minute}`;
 }
 
 </script>
