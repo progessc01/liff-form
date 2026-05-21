@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>會員註冊</title>
-<link rel="stylesheet" href="customer-style.css">
+  <link rel="stylesheet" href="customer-style.css">
 </head>
 <body>
 
@@ -12,30 +12,35 @@
 
   <h1>會員註冊</h1>
 
-  <input 
-    type="text" 
-    id="customerName" 
-    placeholder="請輸入姓名"
-    required
-  >
+  <input type="text" id="customerName" placeholder="請輸入姓名" required>
 
   <br><br>
 
-  <input 
-    type="password" 
-    id="phoneLast3" 
-    placeholder="請輸入手機末三碼"
-    required
-  >
+  <input type="tel" id="phone" placeholder="請輸入手機號碼" required>
 
   <br><br>
 
-  <input 
-    type="password" 
-    id="phoneLast3Confirm" 
-    placeholder="請再次輸入手機末三碼"
-    required
-  >
+  <input type="tel" id="phoneConfirm" placeholder="請再次輸入手機號碼" required>
+
+  <br><br>
+
+  <input type="text" id="plate1" placeholder="第一台車牌號碼（必填）" required>
+
+  <br><br>
+
+  <input type="text" id="plate2" placeholder="第二台車牌號碼（選填）">
+
+  <br><br>
+
+  <input type="text" id="plate3" placeholder="第三台車牌號碼（選填）">
+
+  <br><br>
+
+  <input type="text" id="plate4" placeholder="第四台車牌號碼（選填）">
+
+  <br><br>
+
+  <input type="text" id="plate5" placeholder="第五台車牌號碼（選填）">
 
   <br><br>
 
@@ -57,41 +62,48 @@
 
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
 
+function normalizePlate(p) {
+  return (p || "")
+    .toUpperCase()
+    .replace(/-/g, "")
+    .replace(/\s/g, "");
+}
+
 function registerCustomer() {
 
   const name = document.getElementById("customerName").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const phoneConfirm = document.getElementById("phoneConfirm").value.trim();
 
-  const phoneLast3 = document.getElementById("phoneLast3").value.trim();
-
-  const phoneLast3Confirm = document.getElementById("phoneLast3Confirm").value.trim();
+  const plate1 = normalizePlate(document.getElementById("plate1").value);
+  const plate2 = normalizePlate(document.getElementById("plate2").value);
+  const plate3 = normalizePlate(document.getElementById("plate3").value);
+  const plate4 = normalizePlate(document.getElementById("plate4").value);
+  const plate5 = normalizePlate(document.getElementById("plate5").value);
 
   const result = document.getElementById("result");
 
-  // 必填檢查
-  if(!name || !phoneLast3 || !phoneLast3Confirm) {
-
-    alert("請填寫完整資料");
-
+  if(!name || !phone || !phoneConfirm || !plate1) {
+    alert("請填寫姓名、手機號碼與第一台車牌");
     return;
   }
 
-  // 確認密碼一致
-  if(phoneLast3 !== phoneLast3Confirm) {
-
-    alert("兩次輸入的手機末三碼不一致");
-
+  if(phone !== phoneConfirm) {
+    alert("兩次輸入的手機號碼不一致");
     return;
   }
 
   result.innerHTML = "⏳ 註冊中...";
 
   const form = new URLSearchParams();
-
   form.append("type", "registerCustomer");
-
   form.append("name", name);
-
-  form.append("phoneLast3", phoneLast3);
+  form.append("phone", phone);
+  form.append("plate1", plate1);
+  form.append("plate2", plate2);
+  form.append("plate3", plate3);
+  form.append("plate4", plate4);
+  form.append("plate5", plate5);
 
   fetch(GAS_URL, {
     method: "POST",
@@ -102,29 +114,21 @@ function registerCustomer() {
   .then(data => {
 
     if(data.status === "EXIST") {
-
       result.innerHTML = "❌ 此會員已存在";
-
       return;
     }
 
     if(data.status !== "OK") {
-
       result.innerHTML = "❌ 註冊失敗";
-
       return;
     }
 
     result.innerHTML = `
-      <div style="
-        background:white;
-        padding:20px;
-        border-radius:12px;
-      ">
+      <div class="card">
         <h2>✅ 註冊成功</h2>
-
         <p><b>姓名：</b>${data.name}</p>
-
+        <p><b>手機：</b>${data.phone}</p>
+        <p><b>車牌：</b>${data.plate1}</p>
         <p style="color:red; font-weight:bold;">
           請重新登入會員系統
         </p>
@@ -133,11 +137,8 @@ function registerCustomer() {
 
   })
   .catch(err => {
-
     console.log(err);
-
     result.innerHTML = "❌ 系統錯誤";
-
   });
 
 }

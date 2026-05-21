@@ -54,7 +54,7 @@ function loginCustomer() {
   const form = new URLSearchParams();
   form.append("type", "loginCustomer");
   form.append("name", name);
-  form.append("phoneLast3", phoneLast3);
+  form.append("phone", phone);
 
   fetch(GAS_URL, {
     method: "POST",
