@@ -11,23 +11,29 @@
 <div class="container">
   <h1>員工註冊申請</h1>
 
-  <input id="account" placeholder="分店帳號，例如 AJ01">
+  <select id="store">
+    <option value="">請選擇分店</option>
+    <option value="AJ01|總店">AJ01 總店</option>
+    <option value="AJ02|員林店">AJ02 員林店</option>
+    <option value="AJ03|彰南店">AJ03 彰南店</option>
+    <option value="AJ04|山福店">AJ04 山福店</option>
+  </select>
+
   <br><br>
 
-  <input id="password" type="password" placeholder="個人密碼">
-  <br><br>
+  <input id="password" type="password" placeholder="請設定個人密碼">
 
-  <input id="storeCode" placeholder="分店代碼，例如 AJ01">
-  <br><br>
+  <p class="small-text">找回密碼請洽總店</p>
 
-  <input id="storeName" placeholder="分店名稱，例如 總店">
-  <br><br>
+  <input id="staffName" placeholder="請輸入姓名">
 
-  <input id="staffName" placeholder="員工姓名">
   <br><br>
 
   <button type="button" onclick="submitApply()">送出申請</button>
-  <button type="button" onclick="location.href='vip-login.html'">返回登入</button>
+
+  <button type="button" onclick="location.href='vip-login.html'">
+    返回登入
+  </button>
 
   <div id="result"></div>
 </div>
@@ -36,17 +42,23 @@
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
 
 function submitApply() {
-  const account = document.getElementById("account").value.trim();
+
+  const storeValue = document.getElementById("store").value;
   const password = document.getElementById("password").value.trim();
-  const storeCode = document.getElementById("storeCode").value.trim();
-  const storeName = document.getElementById("storeName").value.trim();
   const staffName = document.getElementById("staffName").value.trim();
   const result = document.getElementById("result");
 
-  if(!account || !password || !storeCode || !storeName || !staffName) {
+  if(!storeValue || !password || !staffName) {
     alert("請填寫完整資料");
     return;
   }
+
+  const parts = storeValue.split("|");
+  const storeCode = parts[0];
+  const storeName = parts[1];
+
+  // 帳號直接等於分店代碼
+  const account = storeCode;
 
   result.innerHTML = "⏳ 送出中...";
 
@@ -58,12 +70,16 @@ function submitApply() {
   form.append("storeName", storeName);
   form.append("staffName", staffName);
 
-  fetch(GAS_URL, { method:"POST", body:form })
+  fetch(GAS_URL, {
+    method:"POST",
+    body:form
+  })
   .then(r=>r.text())
   .then(t=>JSON.parse(t))
   .then(data=>{
+
     if(data.status === "EXIST") {
-      result.innerHTML = "❌ 此員工已存在或已申請";
+      result.innerHTML = "❌ 此員工已存在或已送出申請";
       return;
     }
 
@@ -75,6 +91,8 @@ function submitApply() {
     result.innerHTML = `
       <div class="card">
         <h2>✅ 申請已送出</h2>
+        <p><b>分店：</b>${storeCode} ${storeName}</p>
+        <p><b>姓名：</b>${staffName}</p>
         <p>請等待管理者核准</p>
       </div>
     `;
