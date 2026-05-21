@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>我要賣卡</title>
-<link rel="stylesheet" href="vip-style.css">
+  <link rel="stylesheet" href="vip-style.css">
 </head>
 <body>
 
@@ -12,9 +12,14 @@
 
   <h1>我要賣卡</h1>
 
-  <div style="background:#f1f1f1; padding:12px; border-radius:10px; margin-bottom:20px;">
+  <div class="info-box">
     <div>目前登入分店：</div>
     <strong id="storeInfo">讀取中...</strong>
+
+    <br><br>
+
+    <div>操作人員：</div>
+    <strong id="staffInfo">讀取中...</strong>
   </div>
 
   <select id="vehicleType">
@@ -50,8 +55,16 @@
 
   <div style="display:flex; align-items:center; gap:15px;">
     <span>今日是否使用：</span>
-    <label><input type="radio" name="todayUse" value="yes"> 是</label>
-    <label><input type="radio" name="todayUse" value="no" checked> 否</label>
+
+    <label>
+      <input type="radio" name="todayUse" value="yes">
+      是
+    </label>
+
+    <label>
+      <input type="radio" name="todayUse" value="no" checked>
+      否
+    </label>
   </div>
 
   <br><br>
@@ -72,19 +85,23 @@
 
   <br><br>
 
-<div id="priceSuggest" class="info-box">
-  請選擇車型與服務，系統會自動顯示建議售價
-</div>
+  <div id="priceSuggest" class="info-box">
+    請選擇車型與服務，系統會自動顯示建議售價
+  </div>
 
-<br>
+  <br>
 
-  <input type="number" id="amount" placeholder="金額">
+  <input type="number" id="amount" placeholder="實際收款金額">
 
   <br><br>
 
-  <button type="button" onclick="createCard()">建立會員卡</button>
+  <button type="button" onclick="createCard()">
+    建立會員卡
+  </button>
 
-  <button type="button" onclick="location.href='vip.html'">返回首頁</button>
+  <button type="button" onclick="location.href='vip.html'">
+    返回首頁
+  </button>
 
   <br><br>
 
@@ -94,39 +111,188 @@
 
 <script>
 
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+const GAS_URL =
+  "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
 
-const storeCode = localStorage.getItem("storeCode");
-const storeName = localStorage.getItem("storeName");
-const staffAccount = localStorage.getItem("staffAccount");
+const storeCode =
+  localStorage.getItem("storeCode");
+
+const storeName =
+  localStorage.getItem("storeName");
+
+const staffName =
+  localStorage.getItem("staffName");
+
+const staffAccount =
+  localStorage.getItem("staffAccount");
 
 if(!storeCode) {
+
   alert("請先登入");
+
   location.href = "vip-login.html";
 }
 
 document.getElementById("storeInfo").innerText =
   storeCode + " " + (storeName || "");
 
+document.getElementById("staffInfo").innerText =
+  staffName || "";
+
+// ========================
+// 建議售價
+// ========================
+
+document.getElementById("vehicleType")
+  .addEventListener("change", updateSuggest);
+
+document.getElementById("packageType")
+  .addEventListener("change", updateSuggest);
+
+function updateSuggest() {
+
+  const vehicle =
+    document.getElementById("vehicleType").value;
+
+  const service =
+    document.getElementById("packageType").value;
+
+  const box =
+    document.getElementById("priceSuggest");
+
+  if(!vehicle || !service) {
+
+    box.innerHTML =
+      "請選擇車型與服務";
+
+    return;
+  }
+
+  let basePrice = 0;
+
+  let vehicleAdd = 0;
+
+  if(vehicle === "休旅車") vehicleAdd = 50;
+  if(vehicle === "箱型車") vehicleAdd = 100;
+  if(vehicle === "箱型車加大") vehicleAdd = 150;
+  if(vehicle === "箱型車特大") vehicleAdd = 200;
+
+  // 彩虹瀑布
+  if(service === "彩虹瀑布") {
+
+    if(
+      vehicle === "箱型車" ||
+      vehicle === "箱型車加大" ||
+      vehicle === "箱型車特大"
+    ) {
+
+      box.innerHTML = `
+        <span class="danger">
+          箱型車以上不可選彩虹瀑布
+        </span>
+      `;
+
+      return;
+    }
+
+    basePrice = 280 + vehicleAdd;
+  }
+
+  // 奈米鍍膜
+  else if(service === "奈米鍍膜") {
+
+    basePrice = 330 + vehicleAdd;
+  }
+
+  // A/B/D
+  else if(
+    service === "A套餐" ||
+    service === "B套餐" ||
+    service === "D套餐"
+  ) {
+
+    basePrice = 400 + vehicleAdd;
+  }
+
+  // C
+  else if(service === "C套餐") {
+
+    basePrice = 450 + vehicleAdd;
+  }
+
+  const vipPrice = basePrice * 10;
+
+  box.innerHTML = `
+    <div style="font-size:18px;">
+      建議售價：
+
+      <span style="
+        color:#0f75bc;
+        font-weight:bold;
+        font-size:26px;
+      ">
+        ${vipPrice}
+      </span>
+
+      元
+    </div>
+
+    <div class="small-text">
+      單次洗車：${basePrice} 元
+    </div>
+  `;
+}
+
+// ========================
+// 建立卡片
+// ========================
+
 function createCard() {
 
-  const vehicle = document.getElementById("vehicleType").value;
-  const packageCount = document.getElementById("packageCount").value;
-  const packageType = document.getElementById("packageType").value;
-  const pay = document.getElementById("payMethod").value;
-  const invoiceType = document.getElementById("invoiceType").value;
-  const amount = document.getElementById("amount").value;
-  const todayUse = document.querySelector('input[name="todayUse"]:checked').value;
-  const result = document.getElementById("result");
+  const vehicle =
+    document.getElementById("vehicleType").value;
 
-  if(!vehicle || !packageCount || !packageType || !pay || !invoiceType || !amount) {
+  const packageCount =
+    document.getElementById("packageCount").value;
+
+  const packageType =
+    document.getElementById("packageType").value;
+
+  const pay =
+    document.getElementById("payMethod").value;
+
+  const invoiceType =
+    document.getElementById("invoiceType").value;
+
+  const amount =
+    document.getElementById("amount").value;
+
+  const todayUse =
+    document.querySelector(
+      'input[name="todayUse"]:checked'
+    ).value;
+
+  const result =
+    document.getElementById("result");
+
+  if(
+    !vehicle ||
+    !packageCount ||
+    !packageType ||
+    !pay ||
+    !invoiceType ||
+    !amount
+  ) {
+
     alert("請填寫完整資料");
+
     return;
   }
 
   result.innerHTML = "⏳ 建立中...";
 
   const form = new URLSearchParams();
+
   form.append("type", "createCard");
   form.append("sellStore", storeCode);
   form.append("storeName", storeName || "");
@@ -148,43 +314,74 @@ function createCard() {
   .then(data => {
 
     if(data.status !== "OK") {
-      result.innerHTML = "❌ 建立失敗：" + (data.message || "");
+
+      result.innerHTML =
+        "❌ 建立失敗：" +
+        (data.message || "");
+
       return;
     }
 
-    const invoiceText = invoiceType === "Y" ? "有開發票" : "未開發票";
+    const invoiceText =
+      invoiceType === "Y"
+      ? "有開發票"
+      : "未開發票";
 
     result.innerHTML = `
-      <div style="
-        background:white;
-        padding:20px;
-        border-radius:12px;
-        margin-top:20px;
-        box-shadow:0 2px 10px rgba(0,0,0,0.1);
-      ">
+      <div class="card">
+
         <h2>✅ 卡片建立成功</h2>
 
         <p><b>取卡代碼：</b>${data.cardNo}</p>
-        <p><b>售卡分店：</b>${storeCode} ${storeName || ""}</p>
-        <p><b>車型：</b>${vehicle}</p>
-        <p><b>服務：</b>${packageType}</p>
-        <p><b>總次數：</b>${data.totalTimes}</p>
-        <p><b>剩餘次數：</b>${data.remainingTimes}</p>
-        <p><b>付款方式：</b>${pay}</p>
-        <p><b>是否開發票：</b>${invoiceText}</p>
-        <p><b>售卡金額：</b>${data.amount} 元</p>
-        <p><b>進池比例：</b>${data.poolRate}</p>
-        <p><b>進池金額：</b>${data.poolAmount} 元</p>
-        <p><b>每次核銷價值：</b>${data.unitValue} 元</p>
 
-        <p style="color:red; font-weight:bold;">
+        <p><b>售卡分店：</b>
+          ${storeCode} ${storeName || ""}
+        </p>
+
+        <p><b>操作人員：</b>
+          ${staffName || ""}
+        </p>
+
+        <p><b>車型：</b>${vehicle}</p>
+
+        <p><b>服務：</b>${packageType}</p>
+
+        <p><b>總次數：</b>${data.totalTimes}</p>
+
+        <p><b>剩餘次數：</b>${data.remainingTimes}</p>
+
+        <p><b>付款方式：</b>${pay}</p>
+
+        <p><b>是否開發票：</b>${invoiceText}</p>
+
+        <p><b>售卡金額：</b>
+          ${data.amount} 元
+        </p>
+
+        <p><b>進池比例：</b>
+          ${data.poolRate}
+        </p>
+
+        <p><b>進池金額：</b>
+          ${data.poolAmount} 元
+        </p>
+
+        <p><b>每次核銷價值：</b>
+          ${data.unitValue} 元
+        </p>
+
+        <p class="danger">
           請提供此代碼給客戶取卡
         </p>
+
       </div>
     `;
   })
   .catch(err => {
-    result.innerHTML = "❌ 系統錯誤，請稍後再試";
+
+    result.innerHTML =
+      "❌ 系統錯誤，請稍後再試";
+
     console.log(err);
   });
 
