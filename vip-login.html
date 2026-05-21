@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>員工登入</title>
+  <title>門市授權登入</title>
 <link rel="stylesheet" href="vip-style.css">
 </head>
 <body>
@@ -11,13 +11,35 @@
 <div class="container">
 
   <h1>安建洗車 VIP管理系統</h1>
-  <h2>員工登入</h2>
+      <h2>門市授權登入</h2>
 
-  <input type="text" id="account" placeholder="員工帳號 / 分店代碼">
+<select id="account">
+
+  <option value="">
+    請選擇分店
+  </option>
+
+  <option value="AJ01">
+    AJ01 總店
+  </option>
+
+  <option value="AJ02">
+    AJ02 員林店
+  </option>
+
+  <option value="AJ03">
+    AJ03 彰南店
+  </option>
+
+  <option value="AJ04">
+    AJ04 山福店
+  </option>
+
+</select>
 
   <br><br>
 
-  <input type="password" id="password" placeholder="密碼">
+<input type="password" id="password" placeholder="請輸入員工密碼">
 
   <br><br>
 

@@ -28,11 +28,11 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_Ikxd
 
 const cardNo = localStorage.getItem("logCardNo");
 const customerName = localStorage.getItem("customerName");
-const phoneLast3 = localStorage.getItem("phoneLast3");
+const phone = localStorage.getItem("phone");
 
 const content = document.getElementById("content");
 
-if(!customerName || !phoneLast3) {
+if(!customerName || !phone) {
   alert("請先登入會員");
   location.href = "customer-login.html";
 }
@@ -52,7 +52,7 @@ function loadLog() {
   form.append("type", "getCardLogs");
   form.append("cardNo", cardNo);
   form.append("customerName", customerName);
-  form.append("phoneLast3", phoneLast3);
+  form.append("phone", phone);
 
   fetch(GAS_URL, {
     method: "POST",

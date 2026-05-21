@@ -39,9 +39,9 @@
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
 
 const customerName = localStorage.getItem("customerName");
-const phoneLast3 = localStorage.getItem("phoneLast3");
+const phone = localStorage.getItem("phone");
 
-if(!customerName || !phoneLast3) {
+if(!customerName || !phone) {
 
   alert("請先登入會員");
 
@@ -73,7 +73,7 @@ function redeemCard() {
 
   form.append("customerName", customerName);
 
-  form.append("phoneLast3", phoneLast3);
+  form.append("phone", phone);
 
   form.append("cardNo", cardNo);
 
