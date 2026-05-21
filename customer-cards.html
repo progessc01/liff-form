@@ -85,19 +85,19 @@ function loadCards() {
     }
 
     const usingCards = cards.filter(c =>
-  Number(c.remainingTimes) > 0 &&
-  Number(c.remainingTimes) < Number(c.totalTimes)
-);
+      Number(c.remainingTimes) > 0 &&
+      Number(c.remainingTimes) < Number(c.totalTimes)
+    );
 
-const unusedCards = cards.filter(c =>
-  Number(c.remainingTimes) === Number(c.totalTimes)
-);
+    const unusedCards = cards.filter(c =>
+      Number(c.remainingTimes) === Number(c.totalTimes)
+    );
 
-const finishedCards = cards.filter(c =>
-  Number(c.remainingTimes) <= 0
-);
+    const finishedCards = cards.filter(c =>
+      Number(c.remainingTimes) <= 0
+    );
 
-pages = usingCards.concat(unusedCards).concat(finishedCards);
+    pages = usingCards.concat(unusedCards).concat(finishedCards);
 
     page = 0;
 
@@ -122,10 +122,41 @@ function render() {
 
   const c = pages[page];
 
-  const disabledUse = Number(c.remainingTimes) <= 0 ? "disabled" : "";
+  const disabledUse =
+    Number(c.remainingTimes) <= 0 || c.status === "REFUND"
+    ? "disabled"
+    : "";
 
   cardBox.innerHTML = `
     <div class="card">
+
+      <div style="
+        position:relative;
+        width:100%;
+        margin-bottom:15px;
+      ">
+        <img 
+          src="vip-card.jpg" 
+          style="
+            width:100%;
+            border-radius:10px;
+            display:block;
+          "
+        >
+
+        <div style="
+          position:absolute;
+          top:8%;
+          right:12%;
+          color:white;
+          font-size:18px;
+          font-weight:bold;
+          letter-spacing:1px;
+          text-shadow:0 1px 4px rgba(0,0,0,0.8);
+        ">
+          ${c.cardNo}
+        </div>
+      </div>
 
       <h2>卡號：${c.cardNo}</h2>
 
@@ -141,11 +172,10 @@ function render() {
 
       <p>第 ${page + 1} 張 / 共 ${pages.length} 張</p>
 
-<button type="button"
-onclick="useCard('${c.cardNo}', '${c.status}')"
-${disabledUse}>
-  我要使用
-</button>
+      <button type="button"
+        onclick="useCard('${c.cardNo}', '${c.status}')"
+        ${disabledUse}>
+        我要使用
       </button>
 
       <button type="button" onclick="viewLog('${c.cardNo}')">
