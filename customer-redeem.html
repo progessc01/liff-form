@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>我要取卡</title>
-<link rel="stylesheet" href="customer-style.css">
+  <link rel="stylesheet" href="customer-style.css">
 </head>
 <body>
 
@@ -12,7 +12,7 @@
 
   <h1>我要取卡</h1>
 
-  <div id="memberInfo"></div>
+  <div id="memberInfo" class="member-title"></div>
 
   <br>
 
@@ -20,11 +20,11 @@
 
   <br><br>
 
-  <button onclick="redeemCard()">
+  <button type="button" onclick="redeemCard()">
     確認取卡
   </button>
 
-  <button onclick="location.href='customer-home.html'">
+  <button type="button" onclick="location.href='customer-home.html'">
     返回首頁
   </button>
 
@@ -42,26 +42,21 @@ const customerName = localStorage.getItem("customerName");
 const phone = localStorage.getItem("phone");
 
 if(!customerName || !phone) {
-
   alert("請先登入會員");
-
   location.href = "customer-login.html";
 }
 
 document.getElementById("memberInfo").innerHTML = `
-  <b>目前會員：</b>${customerName}
+  目前會員：${customerName}
 `;
 
 function redeemCard() {
 
   const cardNo = document.getElementById("cardNo").value.trim().toUpperCase();
-
   const result = document.getElementById("result");
 
   if(!cardNo) {
-
     alert("請輸入取卡代碼");
-
     return;
   }
 
@@ -70,11 +65,8 @@ function redeemCard() {
   const form = new URLSearchParams();
 
   form.append("type", "bindCard");
-
   form.append("customerName", customerName);
-
   form.append("phone", phone);
-
   form.append("cardNo", cardNo);
 
   fetch(GAS_URL, {
@@ -86,49 +78,59 @@ function redeemCard() {
   .then(data => {
 
     if(data.status === "NOT_FOUND") {
-
-      result.innerHTML = "❌ 查無此卡號";
-
+      result.innerHTML = `
+        <div class="card">
+          <h2>❌ 查無此卡號</h2>
+          <p>請確認取卡代碼是否正確。</p>
+        </div>
+      `;
       return;
     }
 
     if(data.status === "ALREADY_BIND") {
-
-      result.innerHTML = "❌ 此卡片已被綁定";
-
+      result.innerHTML = `
+        <div class="card">
+          <h2>❌ 此卡片已被綁定</h2>
+          <p>如有疑問請洽門市人員。</p>
+        </div>
+      `;
       return;
     }
 
     if(data.status !== "OK") {
-
-      result.innerHTML = "❌ 取卡失敗";
-
+      result.innerHTML = `
+        <div class="card">
+          <h2>❌ 取卡失敗</h2>
+          <p>請稍後再試，或洽門市人員協助。</p>
+        </div>
+      `;
       return;
     }
 
     result.innerHTML = `
-      <div style="
-        background:white;
-        padding:20px;
-        border-radius:12px;
-      ">
-
+      <div class="card">
         <h2>✅ 取卡成功</h2>
 
         <p><b>卡號：</b>${data.cardNo}</p>
 
         <p><b>剩餘次數：</b>${data.remainingTimes}</p>
 
+        <p class="small-text">
+          您可以回到會員中心查看卡片。
+        </p>
       </div>
     `;
 
   })
   .catch(err => {
-
     console.log(err);
 
-    result.innerHTML = "❌ 系統錯誤";
-
+    result.innerHTML = `
+      <div class="card">
+        <h2>❌ 系統錯誤</h2>
+        <p>請稍後再試。</p>
+      </div>
+    `;
   });
 
 }
