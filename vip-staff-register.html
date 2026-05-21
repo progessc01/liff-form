@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>員工註冊申請</title>
+  <link rel="stylesheet" href="vip-style.css">
+</head>
+<body>
+
+<div class="container">
+  <h1>員工註冊申請</h1>
+
+  <input id="account" placeholder="分店帳號，例如 AJ01">
+  <br><br>
+
+  <input id="password" type="password" placeholder="個人密碼">
+  <br><br>
+
+  <input id="storeCode" placeholder="分店代碼，例如 AJ01">
+  <br><br>
+
+  <input id="storeName" placeholder="分店名稱，例如 總店">
+  <br><br>
+
+  <input id="staffName" placeholder="員工姓名">
+  <br><br>
+
+  <button type="button" onclick="submitApply()">送出申請</button>
+  <button type="button" onclick="location.href='vip-login.html'">返回登入</button>
+
+  <div id="result"></div>
+</div>
+
+<script>
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+
+function submitApply() {
+  const account = document.getElementById("account").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const storeCode = document.getElementById("storeCode").value.trim();
+  const storeName = document.getElementById("storeName").value.trim();
+  const staffName = document.getElementById("staffName").value.trim();
+  const result = document.getElementById("result");
+
+  if(!account || !password || !storeCode || !storeName || !staffName) {
+    alert("請填寫完整資料");
+    return;
+  }
+
+  result.innerHTML = "⏳ 送出中...";
+
+  const form = new URLSearchParams();
+  form.append("type", "staffRegisterApply");
+  form.append("account", account);
+  form.append("password", password);
+  form.append("storeCode", storeCode);
+  form.append("storeName", storeName);
+  form.append("staffName", staffName);
+
+  fetch(GAS_URL, { method:"POST", body:form })
+  .then(r=>r.text())
+  .then(t=>JSON.parse(t))
+  .then(data=>{
+    if(data.status === "EXIST") {
+      result.innerHTML = "❌ 此員工已存在或已申請";
+      return;
+    }
+
+    if(data.status !== "OK") {
+      result.innerHTML = "❌ 申請失敗";
+      return;
+    }
+
+    result.innerHTML = `
+      <div class="card">
+        <h2>✅ 申請已送出</h2>
+        <p>請等待管理者核准</p>
+      </div>
+    `;
+  })
+  .catch(err=>{
+    console.log(err);
+    result.innerHTML = "❌ 系統錯誤";
+  });
+}
+</script>
+
+</body>
+</html>

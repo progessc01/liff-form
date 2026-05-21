@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>員工管理</title>
+  <link rel="stylesheet" href="vip-style.css">
+</head>
+<body>
+
+<div class="container">
+  <h1>員工管理</h1>
+
+  <div id="content">讀取中...</div>
+
+  <br>
+
+  <button type="button" onclick="location.href='vip.html'">返回首頁</button>
+</div>
+
+<script>
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+
+const adminAccount = localStorage.getItem("adminAccount");
+
+if(!adminAccount) {
+  alert("請先登入管理系統");
+  location.href = "vip-admin-login.html?page=staff";
+}
+
+loadStaffManage();
+
+function loadStaffManage() {
+  const content = document.getElementById("content");
+  content.innerHTML = "⏳ 讀取中...";
+
+  const form = new URLSearchParams();
+  form.append("type", "getStaffManageList");
+
+  fetch(GAS_URL, { method:"POST", body:form })
+  .then(r=>r.text())
+  .then(t=>JSON.parse(t))
+  .then(data=>{
+    if(data.status !== "OK") {
+      content.innerHTML = "❌ 讀取失敗";
+      return;
+    }
+
+    const applies = data.applies || [];
+    const staffs = data.staffs || [];
+
+    let html = `<div class="card"><h2>待核准申請</h2>`;
+
+    if(applies.length === 0) {
+      html += `<p>目前沒有待核准申請</p>`;
+    } else {
+      applies.forEach(a=>{
+        html += `
+          <div style="border-bottom:1px solid #ddd; padding:12px 0;">
+            <p><b>員工：</b>${a.staffName}</p>
+            <p><b>分店：</b>${a.storeCode} ${a.storeName}</p>
+            <p><b>帳號：</b>${a.account}</p>
+            <button type="button" onclick="approveStaff('${a.row}')">核准</button>
+            <button type="button" onclick="rejectStaff('${a.row}')">駁回</button>
+          </div>
+        `;
+      });
+    }
+
+    html += `</div>`;
+
+    html += `<div class="card"><h2>正式員工</h2>`;
+
+    if(staffs.length === 0) {
+      html += `<p>目前沒有員工資料</p>`;
+    } else {
+      staffs.forEach(s=>{
+        html += `
+          <div style="border-bottom:1px solid #ddd; padding:12px 0;">
+            <p><b>員工：</b>${s.staffName}</p>
+            <p><b>分店：</b>${s.storeCode} ${s.storeName}</p>
+            <p><b>帳號：</b>${s.account}</p>
+            <p><b>狀態：</b>${s.status}</p>
+            ${
+              s.status === "ACTIVE"
+              ? `<button type="button" onclick="disableStaff('${s.row}')">註銷 / 離職停用</button>`
+              : ""
+            }
+          </div>
+        `;
+      });
+    }
+
+    html += `</div>`;
+
+    content.innerHTML = html;
+  })
+  .catch(err=>{
+    console.log(err);
+    content.innerHTML = "❌ 系統錯誤";
+  });
+}
+
+function approveStaff(row) {
+  if(!confirm("確認核准此員工？")) return;
+  staffAction("approveStaff", row);
+}
+
+function rejectStaff(row) {
+  if(!confirm("確認駁回此申請？")) return;
+  staffAction("rejectStaff", row);
+}
+
+function disableStaff(row) {
+  if(!confirm("確認停用此員工？")) return;
+  staffAction("disableStaff", row);
+}
+
+function staffAction(type, row) {
+  const form = new URLSearchParams();
+  form.append("type", type);
+  form.append("row", row);
+  form.append("adminAccount", adminAccount);
+
+  fetch(GAS_URL, { method:"POST", body:form })
+  .then(r=>r.text())
+  .then(t=>JSON.parse(t))
+  .then(data=>{
+    if(data.status !== "OK") {
+      alert("操作失敗");
+      return;
+    }
+
+    alert("操作完成");
+    loadStaffManage();
+  });
+}
+</script>
+
+</body>
+</html>
