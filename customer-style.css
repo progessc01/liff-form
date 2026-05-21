@@ -1,0 +1,203 @@
+body{
+  margin:0;
+  padding:0;
+  font-family:"Microsoft JhengHei", sans-serif;
+
+  background:
+    linear-gradient(
+      rgba(0,0,0,0.82),
+      rgba(0,0,0,0.9)
+    ),
+    url("https://progessc01.github.io/liff-form/S__86597635.jpg");
+
+  background-size:cover;
+  background-position:center;
+  background-attachment:fixed;
+
+  color:white;
+}
+
+.container{
+  max-width:420px;
+  margin:auto;
+  padding:20px;
+}
+
+h1{
+  text-align:center;
+  font-size:34px;
+  margin-bottom:25px;
+
+  color:#ffffff;
+
+  text-shadow:
+    0 0 10px #00d9ff,
+    0 0 20px #00d9ff;
+}
+
+.card{
+  background:rgba(15,18,35,0.82);
+
+  border:1px solid rgba(0,217,255,0.35);
+
+  border-radius:22px;
+
+  padding:20px;
+
+  margin-bottom:20px;
+
+  box-shadow:
+    0 0 20px rgba(0,217,255,0.15),
+    0 0 40px rgba(155,61,255,0.12);
+
+  backdrop-filter:blur(10px);
+}
+
+button{
+  width:100%;
+
+  border:none;
+
+  border-radius:14px;
+
+  padding:14px;
+
+  margin-top:10px;
+
+  font-size:18px;
+  font-weight:bold;
+
+  color:white;
+
+  background:
+    linear-gradient(
+      90deg,
+      #00d9ff,
+      #007bff,
+      #9b3dff
+    );
+
+  box-shadow:
+    0 0 12px rgba(0,217,255,0.4),
+    0 0 25px rgba(155,61,255,0.25);
+
+  cursor:pointer;
+
+  transition:0.25s;
+}
+
+button:hover{
+
+  transform:translateY(-2px);
+
+  box-shadow:
+    0 0 18px rgba(0,217,255,0.7),
+    0 0 35px rgba(155,61,255,0.45);
+}
+
+button:disabled{
+
+  opacity:0.45;
+
+  cursor:not-allowed;
+
+  box-shadow:none;
+}
+
+input,
+select{
+
+  width:100%;
+
+  padding:14px;
+
+  border-radius:14px;
+
+  border:1px solid rgba(255,255,255,0.15);
+
+  background:rgba(255,255,255,0.08);
+
+  color:white;
+
+  font-size:16px;
+
+  box-sizing:border-box;
+}
+
+input::placeholder{
+  color:#cccccc;
+}
+
+select option{
+  color:black;
+}
+
+p{
+  line-height:1.8;
+}
+
+a{
+  color:#00d9ff;
+}
+
+.qr-box{
+  text-align:center;
+}
+
+.member-title{
+  text-align:center;
+
+  font-size:18px;
+
+  margin-bottom:20px;
+
+  color:#8fdcff;
+}
+
+.vip-glow{
+
+  color:#f7d774;
+
+  background:linear-gradient(
+    to bottom,
+    #fff6b7 0%,
+    #f7d774 35%,
+    #d4a93a 55%,
+    #fff2a6 75%,
+    #c9921e 100%
+  );
+
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+
+  text-shadow:
+    0 1px 0 #fff6b7,
+    0 2px 2px rgba(0,0,0,0.5),
+    0 0 8px rgba(255,215,0,0.45);
+}
+
+.page-info{
+
+  text-align:center;
+
+  margin-top:10px;
+
+  color:#9fdfff;
+
+  font-size:15px;
+}
+
+.status-active{
+  color:#00ff9d;
+  font-weight:bold;
+}
+
+.status-finished{
+  color:#ff5252;
+  font-weight:bold;
+}
+
+.status-refund{
+  color:#ffcc00;
+  font-weight:bold;
+}
