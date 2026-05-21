@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>會員登入</title>
-<link rel="stylesheet" href="customer-style.css">
+  <link rel="stylesheet" href="customer-style.css">
 </head>
 <body>
 
@@ -16,7 +16,7 @@
 
   <br><br>
 
-  <input type="password" id="phoneLast3" placeholder="請輸入手機末三碼">
+  <input type="tel" id="phone" placeholder="請輸入手機號碼">
 
   <br><br>
 
@@ -41,11 +41,11 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_Ikxd
 function loginCustomer() {
 
   const name = document.getElementById("customerName").value.trim();
-  const phoneLast3 = document.getElementById("phoneLast3").value.trim();
+  const phone = document.getElementById("phone").value.trim();
   const result = document.getElementById("result");
 
-  if(!name || !phoneLast3) {
-    alert("請輸入姓名與手機末三碼");
+  if(!name || !phone) {
+    alert("請輸入姓名與手機號碼");
     return;
   }
 
@@ -68,12 +68,12 @@ function loginCustomer() {
   .then(data => {
 
     if(data.status !== "OK") {
-      result.innerHTML = "❌ 姓名或手機末三碼錯誤";
+      result.innerHTML = "❌ 姓名或手機號碼錯誤";
       return;
     }
 
     localStorage.setItem("customerName", data.name);
-    localStorage.setItem("phoneLast3", data.phoneLast3);
+    localStorage.setItem("phone", data.phone);
 
     location.href = "customer-home.html";
 

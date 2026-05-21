@@ -36,12 +36,12 @@
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
 
 const customerName = localStorage.getItem("customerName");
-const phoneLast3 = localStorage.getItem("phoneLast3");
+const phone = localStorage.getItem("phone");
 
 let pages = [];
 let page = 0;
 
-if(!customerName || !phoneLast3) {
+if(!customerName || !phone) {
   alert("請先登入會員");
   location.href = "customer-login.html";
 }
@@ -62,7 +62,7 @@ function loadCards() {
 
   form.append("type", "getCustomerCards");
   form.append("customerName", customerName);
-  form.append("phoneLast3", phoneLast3);
+  form.append("phone", phone);
 
   fetch(GAS_URL, {
     method: "POST",
