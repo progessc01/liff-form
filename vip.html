@@ -4,49 +4,90 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>安建洗車 VIP管理系統</title>
-
-<link rel="stylesheet" href="vip-style.css">
+  <link rel="stylesheet" href="vip-style.css">
 </head>
 <body>
 
-  <div class="container">
+<div class="container">
 
-    <h1>安建洗車 VIP管理系統</h1>
+  <h1>安建洗車<br>VIP管理系統</h1>
 
-    <button onclick="location.href='vip-search.html'">
+  <div id="loginInfo" class="info-box">
+    讀取登入資訊中...
+  </div>
+
+  <div class="card">
+    <h2>日常作業</h2>
+
+    <button type="button" onclick="location.href='vip-search.html'">
       1. 卡號查詢
     </button>
 
-    <button onclick="location.href='vip-sell.html'">
-      2. 我要賣卡
+    <button type="button" onclick="location.href='vip-plate-search.html'">
+      2. 車號查詢
     </button>
 
-    <button onclick="location.href='vip-refund.html'">
-      3. 退款申請
+    <button type="button" onclick="location.href='vip-sell.html'">
+      3. 我要賣卡
     </button>
 
-    <button onclick="location.href='vip-refund-progress.html'">
-      4. 退款進度
+    <button type="button" onclick="location.href='vip-refund.html'">
+      4. 退款申請
     </button>
 
-    <button onclick="location.href='vip-admin-login.html?page=refund'">
-  5. 退款核准
-</button>
-
-    <button onclick="location.href='vip-admin-login.html?page=abnormal'">
-      6. 異常紀錄
+    <button type="button" onclick="location.href='vip-refund-progress.html'">
+      5. 退款進度
     </button>
-<button onclick="location.href='vip-admin-login.html?page=settlement'">
-  7. 一鍵出帳
-</button>
-<button onclick="location.href='vip-admin-login.html?page=staff'">
-  8.員工管理
-</button>
-<button onclick="location.href='vip-plate-search.html'">
-  9.車號查詢
-</button>
-
   </div>
+
+  <div class="card">
+    <h2>管理功能</h2>
+
+    <button type="button" onclick="location.href='vip-admin-login.html?page=refund'">
+      6. 退款核准
+    </button>
+
+    <button type="button" onclick="location.href='vip-admin-login.html?page=abnormal'">
+      7. 異常紀錄
+    </button>
+
+    <button type="button" onclick="location.href='vip-admin-login.html?page=settlement'">
+      8. 一鍵出帳
+    </button>
+
+    <button type="button" onclick="location.href='vip-admin-login.html?page=staff'">
+      9. 員工管理
+    </button>
+  </div>
+
+</div>
+
+<script>
+
+const storeCode = localStorage.getItem("storeCode");
+const storeName = localStorage.getItem("storeName");
+const staffName = localStorage.getItem("staffName");
+
+if(!storeCode || !storeName || !staffName) {
+  alert("請先登入");
+  location.href = "vip-login.html";
+}
+
+document.getElementById("loginInfo").innerHTML = `
+  <div style="text-align:center; line-height:1.8;">
+    <div style="font-size:15px; color:#64748b;">目前登入</div>
+
+    <div style="font-size:20px; font-weight:bold; color:#0f3c68;">
+      ${storeCode} ${storeName}
+    </div>
+
+    <div style="font-size:18px; font-weight:bold; color:#0f75bc;">
+      ${staffName}
+    </div>
+  </div>
+`;
+
+</script>
 
 </body>
 </html>
