@@ -4,15 +4,11 @@ body{
   font-family:"Microsoft JhengHei", sans-serif;
 
   background:
-    linear-gradient(
-      rgba(0,0,0,0.82),
-      rgba(0,0,0,0.9)
-    ),
-    url("https://progessc01.github.io/liff-form/S__86597635.jpg");
+  radial-gradient(circle at top, rgba(0,217,255,0.25), transparent 35%),
+  radial-gradient(circle at bottom right, rgba(155,61,255,0.28), transparent 40%),
+  linear-gradient(135deg, #02040f 0%, #07142b 45%, #02040f 100%);
 
-  background-size:cover;
-  background-position:center;
-  background-attachment:fixed;
+background-attachment:fixed;
 
   color:white;
 }
