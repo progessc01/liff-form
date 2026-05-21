@@ -41,30 +41,30 @@
 
   <br><br>
 
-  <select id="packageType">
-    <option value="">選擇服務</option>
-    <option value="A套餐">A套餐</option>
-    <option value="B套餐">B套餐</option>
-    <option value="C套餐">C套餐</option>
-    <option value="D套餐">D套餐</option>
-    <option value="彩虹瀑布">彩虹瀑布</option>
-    <option value="奈米鍍膜">奈米鍍膜</option>
-  </select>
+<select id="packageType">
+  <option value="">選擇服務</option>
+  <option value="A套餐-奈米鍍膜+預洗+蟲屍">A套餐-奈米鍍膜+預洗+蟲屍</option>
+  <option value="B套餐-奈米鍍膜+預洗+輪胎油">B套餐-奈米鍍膜+預洗+輪胎油</option>
+  <option value="C套餐-奈米鍍膜+預洗+除油膜">C套餐-奈米鍍膜+預洗+除油膜</option>
+  <option value="D套餐-奈米鍍膜+預洗+除柏油">D套餐-奈米鍍膜+預洗+除柏油</option>
+  <option value="彩虹瀑布">彩虹瀑布</option>
+  <option value="奈米鍍膜">奈米鍍膜</option>
+</select>
 
   <br><br>
 
   <div style="display:flex; align-items:center; gap:15px;">
     <span>今日是否使用：</span>
 
-    <label>
-      <input type="radio" name="todayUse" value="yes">
-      是
-    </label>
+   <label>
+  <input type="radio" name="todayUse" value="yes" checked>
+  是
+</label>
 
-    <label>
-      <input type="radio" name="todayUse" value="no" checked>
-      否
-    </label>
+<label>
+  <input type="radio" name="todayUse" value="no">
+  否
+</label>
   </div>
 
   <br><br>
@@ -206,16 +206,16 @@ function updateSuggest() {
 
   // A/B/D
   else if(
-    service === "A套餐" ||
-    service === "B套餐" ||
-    service === "D套餐"
-  ) {
+  service.includes("A套餐") ||
+  service.includes("B套餐") ||
+  service.includes("D套餐")
+) {
 
     basePrice = 400 + vehicleAdd;
   }
 
   // C
-  else if(service === "C套餐") {
+  else if(service.includes("C套餐")) {
 
     basePrice = 450 + vehicleAdd;
   }
