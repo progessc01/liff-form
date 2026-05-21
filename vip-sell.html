@@ -64,17 +64,11 @@
 
   <br><br>
 
-<select id="invoiceType">
-
-  <option value="Y">
-    有開發票
-  </option>
-
-  <option value="N">
-    未開發票
-  </option>
-
-</select>
+  <select id="invoiceType">
+    <option value="">是否開發票</option>
+    <option value="Y">有開發票</option>
+    <option value="N">未開發票</option>
+  </select>
 
   <br><br>
 
@@ -82,9 +76,9 @@
 
   <br><br>
 
-  <button onclick="createCard()">建立會員卡</button>
+  <button type="button" onclick="createCard()">建立會員卡</button>
 
-  <button onclick="location.href='vip.html'">返回首頁</button>
+  <button type="button" onclick="location.href='vip.html'">返回首頁</button>
 
   <br><br>
 
@@ -114,11 +108,12 @@ function createCard() {
   const packageCount = document.getElementById("packageCount").value;
   const packageType = document.getElementById("packageType").value;
   const pay = document.getElementById("payMethod").value;
+  const invoiceType = document.getElementById("invoiceType").value;
   const amount = document.getElementById("amount").value;
   const todayUse = document.querySelector('input[name="todayUse"]:checked').value;
   const result = document.getElementById("result");
 
-  if(!vehicle || !packageCount || !packageType || !pay || !amount) {
+  if(!vehicle || !packageCount || !packageType || !pay || !invoiceType || !amount) {
     alert("請填寫完整資料");
     return;
   }
@@ -135,6 +130,7 @@ function createCard() {
   form.append("packageType", packageType);
   form.append("todayUse", todayUse);
   form.append("payMethod", pay);
+  form.append("invoiceType", invoiceType);
   form.append("amount", amount);
 
   fetch(GAS_URL, {
@@ -149,6 +145,8 @@ function createCard() {
       result.innerHTML = "❌ 建立失敗：" + (data.message || "");
       return;
     }
+
+    const invoiceText = invoiceType === "Y" ? "有開發票" : "未開發票";
 
     result.innerHTML = `
       <div style="
@@ -166,6 +164,12 @@ function createCard() {
         <p><b>服務：</b>${packageType}</p>
         <p><b>總次數：</b>${data.totalTimes}</p>
         <p><b>剩餘次數：</b>${data.remainingTimes}</p>
+        <p><b>付款方式：</b>${pay}</p>
+        <p><b>是否開發票：</b>${invoiceText}</p>
+        <p><b>售卡金額：</b>${data.amount} 元</p>
+        <p><b>進池比例：</b>${data.poolRate}</p>
+        <p><b>進池金額：</b>${data.poolAmount} 元</p>
+        <p><b>每次核銷價值：</b>${data.unitValue} 元</p>
 
         <p style="color:red; font-weight:bold;">
           請提供此代碼給客戶取卡
