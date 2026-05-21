@@ -83,7 +83,8 @@ function getSettlement() {
       <div class="card" style="text-align:left;">
         <h2>${data.settleMonth} 對帳總表</h2>
         <p><b>總核銷次數：</b>${data.totalUses}</p>
-        <p><b>總清算金額：</b>${data.totalAmount} 元</p>
+        <p><b>總撥入獎金池：</b>${data.totalPoolIn} 元</p>
+        <p><b>總洗車可領：</b>${data.totalRedeemOut} 元</p>
       </div>
     `;
 
@@ -99,8 +100,8 @@ function getSettlement() {
         html += `
           <div style="border-bottom:1px solid #ddd; padding:10px 0;">
             <h3>${s.storeCode}</h3>
-            <p><b>應收：</b>${s.receivable} 元</p>
-            <p><b>應付：</b>${s.payable} 元</p>
+            <p><b>撥入獎金池：</b>${s.poolIn} 元</p>
+            <p><b>洗車可領：</b>${s.redeemOut} 元</p>
             <p style="font-size:18px; color:${s.net >= 0 ? 'green' : 'red'};">
               <b>淨額：</b>${s.net} 元
             </p>
