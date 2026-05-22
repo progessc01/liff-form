@@ -292,19 +292,20 @@ function createCard() {
   const form = new URLSearchParams();
 
   form.append("type", "createCard");
-  form.append("sellStore", storeCode);
-  form.append("storeName", storeName || "");
-  form.append("staffAccount", staffAccount || "");
-  form.append("vehicleType", vehicle);
-  form.append("packageCount", packageCount);
-  form.append("packageType", packageType);
-  form.append("todayUse", todayUse);
-  form.append("invoiceType", invoiceType);
+form.append("sellStore", storeCode);
+form.append("storeName", storeName || "");
+form.append("staffAccount", staffAccount || "");
+form.append("staffName", staffName || "");
+form.append("vehicleType", vehicle);
+form.append("packageCount", packageCount);
+form.append("packageType", packageType);
+form.append("todayUse", todayUse);
+form.append("invoiceType", invoiceType);
 
-  form.append("cashAmount", payment.cashAmount);
-  form.append("linePayAmount", payment.linePayAmount);
-  form.append("pxPayAmount", payment.pxPayAmount);
-  form.append("amount", payment.totalAmount);
+form.append("cashAmount", payment.cashAmount);
+form.append("linePayAmount", payment.linePayAmount);
+form.append("pxPayAmount", payment.pxPayAmount);
+form.append("amount", payment.totalAmount);
 
   fetch(GAS_URL, {
     method: "POST",
