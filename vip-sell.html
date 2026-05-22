@@ -64,7 +64,7 @@
     <label><input type="checkbox" class="addon" value="輪胎油" data-price="50"> 輪胎油 +50</label><br><br>
     <label><input type="checkbox" class="addon" value="泡沫預洗" data-price="50"> 泡沫預洗 +50</label><br><br>
     <label><input type="checkbox" class="addon" value="除柏油" data-price="50"> 除柏油 +50</label><br><br>
-    <label><input type="checkbox" class="addon" value="吸塵" data-price="100"> 吸塵 +100</label><br><br>
+    <label><input type="checkbox" id="vanVacuum" class="addon" value="箱型吸塵"data-price="150">箱型吸塵 +150</label><br><br>
     <label><input type="checkbox" class="addon" value="簡易吸塵" data-price="100"> 簡易吸塵 +100</label><br><br>
     <label><input type="checkbox" class="addon" value="除油膜" data-price="150"> 除油膜 +150</label>
   </div>
@@ -153,7 +153,10 @@ document.getElementById("storeInfo").innerText =
 document.getElementById("staffInfo").innerText =
   staffName || "";
 
-document.getElementById("vehicleType").addEventListener("change", updateSuggest);
+document.getElementById("vehicleType").addEventListener("change", function() {
+    updateVanVacuumLimit();
+    updateSuggest();
+  });
 document.getElementById("packageCount").addEventListener("change", updateSuggest);
 document.getElementById("baseService").addEventListener("change", updateSuggest);
 document.getElementById("quickPackage").addEventListener("change", applyQuickPackage);
@@ -165,6 +168,7 @@ document.querySelectorAll(".addon").forEach(cb => {
 document.getElementById("cashAmount").addEventListener("input", updateTotalAmount);
 document.getElementById("linePayAmount").addEventListener("input", updateTotalAmount);
 document.getElementById("pxPayAmount").addEventListener("input", updateTotalAmount);
+updateVanVacuumLimit();
 
 function getVehicleAdd(vehicle) {
   if(vehicle === "休旅車") return 50;
@@ -172,6 +176,42 @@ function getVehicleAdd(vehicle) {
   if(vehicle === "箱型車加大") return 150;
   if(vehicle === "箱型車特大") return 200;
   return 0;
+}
+function updateVanVacuumLimit() {
+
+  const vehicle =
+    document.getElementById("vehicleType").value;
+
+  const vanVacuum =
+    document.getElementById("vanVacuum");
+
+  const simpleVacuum =
+    document.querySelector('.addon[value="簡易吸塵"]');
+
+  if(!vanVacuum || !simpleVacuum) return;
+
+  const isVan =
+    vehicle === "箱型車" ||
+    vehicle === "箱型車加大" ||
+    vehicle === "箱型車特大";
+
+  if(isVan) {
+
+    // 箱型車以上
+    vanVacuum.disabled = false;
+
+    simpleVacuum.checked = false;
+    simpleVacuum.disabled = true;
+
+  } else {
+
+    // 轎車、休旅
+    vanVacuum.checked = false;
+    vanVacuum.disabled = true;
+
+    simpleVacuum.disabled = false;
+  }
+
 }
 
 function setAddonChecked(name, checked) {
@@ -233,6 +273,7 @@ function updateSuggest() {
 
   const vehicle = document.getElementById("vehicleType").value;
   const baseService = document.getElementById("baseService").value;
+  const quick = document.getElementById("quickPackage").value;
   const box = document.getElementById("priceSuggest");
 
   suggestedVipPrice = 0;
@@ -259,44 +300,23 @@ function updateSuggest() {
     addonTotal += a.price;
   });
 
-const quick =
-  document.getElementById("quickPackage").value;
+  let packageDiscount = 0;
 
-let packageDiscount = 0;
+  if(quick) {
+    packageDiscount = 30;
+  }
 
-if(quick) {
-  packageDiscount = 30;
-}
+  const singlePrice =
+    basePrice + addonTotal - packageDiscount;
 
-const singlePrice =
-  basePrice + addonTotal - packageDiscount;
+  suggestedVipPrice =
+    singlePrice * 10;
 
-suggestedVipPrice =
-  singlePrice * 10;
+  currentPackageType =
+    buildPackageName(baseService, addons);
 
-currentPackageType =
-  buildPackageName(baseService, addons);
-
-const quickText =
-  quick ? `${quick}套餐` : "自選方案";
-
-let packageDiscount = 0;
-
-if(quick) {
-  packageDiscount = 30;
-}
-
-const singlePrice =
-  basePrice + addonTotal - packageDiscount;
-
-suggestedVipPrice = singlePrice * 10;
-
-currentPackageType = buildPackageName(baseService, addons);
-
-const quickText = quick ? `${quick}套餐` : "自選方案";
-
-  const quick = document.getElementById("quickPackage").value;
-
+  const quickText =
+    quick ? `${quick}套餐` : "自選方案";
 
   box.innerHTML = `
     <div style="font-size:18px;">
@@ -321,6 +341,12 @@ const quickText = quick ? `${quick}套餐` : "自選方案";
       元
     </div>
 
+    ${
+      packageDiscount > 0
+      ? `<div class="small-text">套餐已折抵：${packageDiscount} 元 / 次</div>`
+      : ""
+    }
+
     <div style="font-size:18px; margin-top:8px;">
       建議售價：
       <span style="
@@ -338,7 +364,6 @@ const quickText = quick ? `${quick}套餐` : "自選方案";
     </div>
   `;
 }
-
 function getPaymentAmounts() {
 
   const cashAmount =
