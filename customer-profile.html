@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>修改會員資料</title>
+  <link rel="stylesheet" href="customer-style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <h1>修改會員資料</h1>
+
+  <div id="memberInfo" class="member-title"></div>
+
+  <input type="tel" id="phone" placeholder="手機號碼">
+
+  <br><br>
+
+  <input type="text" id="plate1" placeholder="第一台車牌（必填）">
+
+  <br><br>
+
+  <input type="text" id="plate2" placeholder="第二台車牌（選填）">
+
+  <br><br>
+
+  <input type="text" id="plate3" placeholder="第三台車牌（選填）">
+
+  <br><br>
+
+  <input type="text" id="plate4" placeholder="第四台車牌（選填）">
+
+  <br><br>
+
+  <input type="text" id="plate5" placeholder="第五台車牌（選填）">
+
+  <br><br>
+
+  <button type="button" onclick="updateProfile()">儲存修改</button>
+
+  <button type="button" onclick="location.href='customer-home.html'">
+    返回會員中心
+  </button>
+
+  <br><br>
+
+  <div id="result"></div>
+
+</div>
+
+<script>
+
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+
+const customerName = localStorage.getItem("customerName");
+const phone = localStorage.getItem("phone");
+
+if(!customerName || !phone) {
+  alert("請先登入會員");
+  location.href = "customer-login.html";
+}
+
+document.getElementById("memberInfo").innerHTML = `
+  目前會員：${customerName}
+`;
+
+function normalizePlate(p) {
+  return (p || "")
+    .toUpperCase()
+    .replace(/-/g, "")
+    .replace(/\s/g, "");
+}
+
+loadProfile();
+
+function loadProfile() {
+
+  const form = new URLSearchParams();
+  form.append("type", "getCustomerProfile");
+  form.append("name", customerName);
+  form.append("phone", phone);
+
+  fetch(GAS_URL, {
+    method: "POST",
+    body: form
+  })
+  .then(r => r.text())
+  .then(t => JSON.parse(t))
+  .then(data => {
+
+    if(data.status !== "OK") {
+      document.getElementById("result").innerHTML = "❌ 讀取資料失敗";
+      return;
+    }
+
+    document.getElementById("phone").value = data.customer.phone || "";
+    document.getElementById("plate1").value = data.customer.plate1 || "";
+    document.getElementById("plate2").value = data.customer.plate2 || "";
+    document.getElementById("plate3").value = data.customer.plate3 || "";
+    document.getElementById("plate4").value = data.customer.plate4 || "";
+    document.getElementById("plate5").value = data.customer.plate5 || "";
+
+  });
+}
+
+function updateProfile() {
+
+  const newPhone = document.getElementById("phone").value.trim();
+
+  const plate1 = normalizePlate(document.getElementById("plate1").value);
+  const plate2 = normalizePlate(document.getElementById("plate2").value);
+  const plate3 = normalizePlate(document.getElementById("plate3").value);
+  const plate4 = normalizePlate(document.getElementById("plate4").value);
+  const plate5 = normalizePlate(document.getElementById("plate5").value);
+
+  const result = document.getElementById("result");
+
+  if(!newPhone || !plate1) {
+    alert("手機號碼與第一台車牌必填");
+    return;
+  }
+
+  result.innerHTML = "⏳ 儲存中...";
+
+  const form = new URLSearchParams();
+  form.append("type", "updateCustomerProfile");
+  form.append("name", customerName);
+  form.append("oldPhone", phone);
+  form.append("phone", newPhone);
+  form.append("plate1", plate1);
+  form.append("plate2", plate2);
+  form.append("plate3", plate3);
+  form.append("plate4", plate4);
+  form.append("plate5", plate5);
+
+  fetch(GAS_URL, {
+    method: "POST",
+    body: form
+  })
+  .then(r => r.text())
+  .then(t => JSON.parse(t))
+  .then(data => {
+
+    if(data.status !== "OK") {
+      result.innerHTML = "❌ 儲存失敗";
+      return;
+    }
+
+    localStorage.setItem("phone", newPhone);
+
+    result.innerHTML = `
+      <div class="card">
+        <h2>✅ 資料已更新</h2>
+        <p>手機與車牌資料已完成修改。</p>
+      </div>
+    `;
+
+  })
+  .catch(err => {
+    console.log(err);
+    result.innerHTML = "❌ 系統錯誤";
+  });
+
+}
+
+</script>
+
+</body>
+</html>
