@@ -2,9 +2,25 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
   <title>會員中心</title>
-<link rel="stylesheet" href="customer-style.css">
+
+  <link rel="stylesheet" href="customer-style.css">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+
+  <meta name="theme-color" content="#0f75bc">
+
+  <link rel="apple-touch-icon" href="vip-card.png">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <meta name="apple-mobile-web-app-title"
+        content="安建VIP">
+
 </head>
 <body>
 
@@ -12,20 +28,117 @@
 
   <h1>會員中心</h1>
 
-  <button onclick="location.href='customer-cards.html'">
+  <div class="card">
+
+    <h2 id="memberName">
+      讀取會員資料中...
+    </h2>
+
+    <p class="small-text">
+      歡迎使用安建VIP會員系統
+    </p>
+
+  </div>
+
+  <button type="button"
+          onclick="location.href='customer-cards.html'">
     卡片查詢
   </button>
 
-  <button onclick="location.href='customer-redeem.html'">
+  <button type="button"
+          onclick="location.href='customer-redeem.html'">
     我要取卡
   </button>
-<button onclick="location.href='customer-profile.html'">
-  修改會員資料
+
+  <button type="button"
+          onclick="location.href='customer-profile.html'">
+    修改會員資料
+  </button>
+
+<button type="button"
+        onclick="location.href='customer-install.html'">
+  將VIP專區加入主畫面
 </button>
-<button type="button" onclick="location.href='customer-app.html'">
-  加入手機主畫面
-</button>
+
+  <button type="button"
+          onclick="logoutCustomer()">
+    登出會員
+  </button>
+
 </div>
+
+<script>
+
+// ========================
+// PWA
+// ========================
+
+if("serviceWorker" in navigator) {
+
+  navigator.serviceWorker
+    .register("service-worker.js");
+}
+
+// ========================
+// 會員資料
+// ========================
+
+const customerName =
+  localStorage.getItem("customerName");
+
+const phone =
+  localStorage.getItem("phone");
+
+if(!customerName || !phone) {
+
+  alert("請先登入會員");
+
+  location.href =
+    "customer-login.html";
+}
+
+document.getElementById("memberName")
+  .innerHTML =
+    `您好，${customerName}`;
+
+// ========================
+// 加入主畫面教學
+// ========================
+
+function showInstallGuide() {
+
+  alert(
+
+    "加入手機主畫面教學：\n\n" +
+
+    "【iPhone】\n" +
+    "1. 請使用 Safari 開啟本頁\n" +
+    "2. 點下方分享按鈕\n" +
+    "3. 選擇「加入主畫面」\n\n" +
+
+    "【Android】\n" +
+    "1. 請使用 Chrome 開啟本頁\n" +
+    "2. 點右上角三個點\n" +
+    "3. 選擇「安裝應用程式」"
+
+  );
+}
+
+// ========================
+// 登出
+// ========================
+
+function logoutCustomer() {
+
+  localStorage.removeItem("customerName");
+
+  localStorage.removeItem("phone");
+
+  location.href =
+    "customer-login.html";
+}
+
+</script>
 
 </body>
 </html>

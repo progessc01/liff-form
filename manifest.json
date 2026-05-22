@@ -1,14 +1,14 @@
 {
   "name": "安建VIP會員專區",
   "short_name": "安建VIP",
-  "start_url": "customer-app.html",
+  "start_url": "customer-home.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#02040f",
   "theme_color": "#0f75bc",
   "icons": [
     {
-      "src": "vip-card.jpg",
+      "src": "ajlogo.jpg",
       "sizes": "512x512",
       "type": "image/jpeg"
     }
