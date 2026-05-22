@@ -103,6 +103,11 @@
     <div id="totalAmountBox" class="info-box">
       總收款金額：0 元
     </div>
+
+    <br>
+
+    <textarea id="discountReason"
+      placeholder="若實收金額與建議售價不同，請填寫原因，例如：老客戶優惠、活動優惠、主管同意等"></textarea>
   </div>
 
   <button type="button" onclick="createCard()">
@@ -129,6 +134,8 @@ const storeName = localStorage.getItem("storeName");
 const staffName = localStorage.getItem("staffName");
 const staffAccount = localStorage.getItem("staffAccount");
 
+let suggestedVipPrice = 0;
+
 if(!storeCode) {
   alert("請先登入");
   location.href = "vip-login.html";
@@ -139,10 +146,6 @@ document.getElementById("storeInfo").innerText =
 
 document.getElementById("staffInfo").innerText =
   staffName || "";
-
-// ========================
-// 建議售價
-// ========================
 
 document.getElementById("vehicleType")
   .addEventListener("change", updateSuggest);
@@ -165,6 +168,8 @@ function updateSuggest() {
   const service = document.getElementById("packageType").value;
   const box = document.getElementById("priceSuggest");
 
+  suggestedVipPrice = 0;
+
   if(!vehicle || !service) {
     box.innerHTML = "請選擇車型與服務";
     return;
@@ -180,33 +185,23 @@ function updateSuggest() {
 
   if(service === "彩虹瀑布") {
     basePrice = 280 + vehicleAdd;
-  }
-
-  else if(service === "奈米鍍膜") {
+  } else if(service === "奈米鍍膜") {
     basePrice = 330 + vehicleAdd;
-  }
-
-  else if(service === "彩虹瀑布+預洗") {
+  } else if(service === "彩虹瀑布+預洗") {
     basePrice = 330 + vehicleAdd;
-  }
-
-  else if(service === "奈米鍍膜+預洗") {
+  } else if(service === "奈米鍍膜+預洗") {
     basePrice = 380 + vehicleAdd;
-  }
-
-  else if(
+  } else if(
     service.includes("A套餐") ||
     service.includes("B套餐") ||
     service.includes("D套餐")
   ) {
     basePrice = 400 + vehicleAdd;
-  }
-
-  else if(service.includes("C套餐")) {
+  } else if(service.includes("C套餐")) {
     basePrice = 450 + vehicleAdd;
   }
 
-  const vipPrice = basePrice * 10;
+  suggestedVipPrice = basePrice * 10;
 
   box.innerHTML = `
     <div style="font-size:18px;">
@@ -216,7 +211,7 @@ function updateSuggest() {
         font-weight:bold;
         font-size:26px;
       ">
-        ${vipPrice}
+        ${suggestedVipPrice}
       </span>
       元
     </div>
@@ -258,16 +253,13 @@ function updateTotalAmount() {
   `;
 }
 
-// ========================
-// 建立卡片
-// ========================
-
 function createCard() {
 
   const vehicle = document.getElementById("vehicleType").value;
   const packageCount = document.getElementById("packageCount").value;
   const packageType = document.getElementById("packageType").value;
   const invoiceType = document.getElementById("invoiceType").value;
+  const discountReason = document.getElementById("discountReason").value.trim();
 
   const todayUse =
     document.querySelector('input[name="todayUse"]:checked').value;
@@ -287,25 +279,37 @@ function createCard() {
     return;
   }
 
+  if(
+    suggestedVipPrice > 0 &&
+    payment.totalAmount !== suggestedVipPrice &&
+    !discountReason
+  ) {
+    alert("實收金額與建議售價不同，請填寫優惠或異常原因");
+    return;
+  }
+
   result.innerHTML = "⏳ 建立中...";
 
   const form = new URLSearchParams();
 
   form.append("type", "createCard");
-form.append("sellStore", storeCode);
-form.append("storeName", storeName || "");
-form.append("staffAccount", staffAccount || "");
-form.append("staffName", staffName || "");
-form.append("vehicleType", vehicle);
-form.append("packageCount", packageCount);
-form.append("packageType", packageType);
-form.append("todayUse", todayUse);
-form.append("invoiceType", invoiceType);
+  form.append("sellStore", storeCode);
+  form.append("storeName", storeName || "");
+  form.append("staffAccount", staffAccount || "");
+  form.append("staffName", staffName || "");
+  form.append("vehicleType", vehicle);
+  form.append("packageCount", packageCount);
+  form.append("packageType", packageType);
+  form.append("todayUse", todayUse);
+  form.append("invoiceType", invoiceType);
 
-form.append("cashAmount", payment.cashAmount);
-form.append("linePayAmount", payment.linePayAmount);
-form.append("pxPayAmount", payment.pxPayAmount);
-form.append("amount", payment.totalAmount);
+  form.append("cashAmount", payment.cashAmount);
+  form.append("linePayAmount", payment.linePayAmount);
+  form.append("pxPayAmount", payment.pxPayAmount);
+  form.append("amount", payment.totalAmount);
+
+  form.append("suggestedPrice", suggestedVipPrice);
+  form.append("discountReason", discountReason);
 
   fetch(GAS_URL, {
     method: "POST",
@@ -343,6 +347,8 @@ form.append("amount", payment.totalAmount);
 
         <p><b>剩餘次數：</b>${data.remainingTimes}</p>
 
+        <p><b>建議售價：</b>${suggestedVipPrice} 元</p>
+
         <p><b>現金：</b>${payment.cashAmount} 元</p>
 
         <p><b>LINE PAY：</b>${payment.linePayAmount} 元</p>
@@ -350,6 +356,12 @@ form.append("amount", payment.totalAmount);
         <p><b>全支付：</b>${payment.pxPayAmount} 元</p>
 
         <p><b>總收款：</b>${payment.totalAmount} 元</p>
+
+        ${
+          payment.totalAmount !== suggestedVipPrice
+          ? `<p><b>優惠/異常原因：</b>${discountReason}</p>`
+          : ""
+        }
 
         <p><b>是否開發票：</b>${invoiceText}</p>
 
