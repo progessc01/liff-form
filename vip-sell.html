@@ -259,14 +259,44 @@ function updateSuggest() {
     addonTotal += a.price;
   });
 
-  const singlePrice = basePrice + addonTotal;
+const quick =
+  document.getElementById("quickPackage").value;
 
-  suggestedVipPrice = singlePrice * 10;
+let packageDiscount = 0;
 
-  currentPackageType = buildPackageName(baseService, addons);
+if(quick) {
+  packageDiscount = 30;
+}
+
+const singlePrice =
+  basePrice + addonTotal - packageDiscount;
+
+suggestedVipPrice =
+  singlePrice * 10;
+
+currentPackageType =
+  buildPackageName(baseService, addons);
+
+const quickText =
+  quick ? `${quick}套餐` : "自選方案";
+
+let packageDiscount = 0;
+
+if(quick) {
+  packageDiscount = 30;
+}
+
+const singlePrice =
+  basePrice + addonTotal - packageDiscount;
+
+suggestedVipPrice = singlePrice * 10;
+
+currentPackageType = buildPackageName(baseService, addons);
+
+const quickText = quick ? `${quick}套餐` : "自選方案";
 
   const quick = document.getElementById("quickPackage").value;
-  const quickText = quick ? `${quick}套餐` : "自選方案";
+
 
   box.innerHTML = `
     <div style="font-size:18px;">
