@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>安建VIP會員專區</title>
+
+  <link rel="stylesheet" href="customer-style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f75bc">
+
+  <link rel="apple-touch-icon" href="vip-card.jpg">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="安建VIP">
+</head>
+<body>
+
+<div class="container">
+
+  <h1>安建VIP</h1>
+
+  <div class="card" style="text-align:center;">
+    <h2>會員專區</h2>
+
+    <button type="button" onclick="location.href='customer-login.html'">
+      會員登入
+    </button>
+
+    <button type="button" onclick="location.href='customer-register.html'">
+      註冊會員
+    </button>
+
+    <button type="button" onclick="showInstallGuide()">
+      加入手機主畫面
+    </button>
+
+    <p class="small-text">
+      加入後，下次可直接從手機桌面開啟安建VIP會員專區。
+    </p>
+  </div>
+
+</div>
+
+<script>
+
+if("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+
+function showInstallGuide() {
+  alert(
+    "加入手機主畫面教學：\n\n" +
+    "iPhone：\n" +
+    "1. 請用 Safari 開啟本頁\n" +
+    "2. 點下方分享按鈕\n" +
+    "3. 選擇「加入主畫面」\n\n" +
+    "Android：\n" +
+    "1. 請用 Chrome 開啟本頁\n" +
+    "2. 點右上角三個點\n" +
+    "3. 選擇「安裝應用程式」或「加入主畫面」"
+  );
+}
+
+</script>
+
+</body>
+</html>
