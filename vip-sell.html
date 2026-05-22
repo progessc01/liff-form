@@ -64,7 +64,7 @@
     <label><input type="checkbox" class="addon" value="輪胎油" data-price="50"> 輪胎油 +50</label><br><br>
     <label><input type="checkbox" class="addon" value="泡沫預洗" data-price="50"> 泡沫預洗 +50</label><br><br>
     <label><input type="checkbox" class="addon" value="除柏油" data-price="50"> 除柏油 +50</label><br><br>
-    <label><input type="checkbox" id="vanVacuum" class="addon" value="箱型吸塵"data-price="150">箱型吸塵 +150</label><br><br>
+    <label><input type="checkbox" id="vanVacuum" class="addon" value="箱型吸塵" data-price="150"> 箱型吸塵 +150</label><br><br>
     <label><input type="checkbox" class="addon" value="簡易吸塵" data-price="100"> 簡易吸塵 +100</label><br><br>
     <label><input type="checkbox" class="addon" value="除油膜" data-price="150"> 除油膜 +150</label>
   </div>
@@ -115,7 +115,7 @@
       placeholder="若實收金額與建議售價不同，請填寫原因，例如：老客戶優惠、活動優惠、主管同意等"></textarea>
   </div>
 
-  <button type="button" onclick="createCard()">
+  <button type="button" id="createBtn" onclick="createCard()">
     建立會員卡
   </button>
 
@@ -141,6 +141,7 @@ const staffAccount = localStorage.getItem("staffAccount");
 
 let suggestedVipPrice = 0;
 let currentPackageType = "";
+let isCreating = false;
 
 if(!storeCode) {
   alert("請先登入");
@@ -154,9 +155,10 @@ document.getElementById("staffInfo").innerText =
   staffName || "";
 
 document.getElementById("vehicleType").addEventListener("change", function() {
-    updateVanVacuumLimit();
-    updateSuggest();
-  });
+  updateVanVacuumLimit();
+  updateSuggest();
+});
+
 document.getElementById("packageCount").addEventListener("change", updateSuggest);
 document.getElementById("baseService").addEventListener("change", updateSuggest);
 document.getElementById("quickPackage").addEventListener("change", applyQuickPackage);
@@ -168,7 +170,16 @@ document.querySelectorAll(".addon").forEach(cb => {
 document.getElementById("cashAmount").addEventListener("input", updateTotalAmount);
 document.getElementById("linePayAmount").addEventListener("input", updateTotalAmount);
 document.getElementById("pxPayAmount").addEventListener("input", updateTotalAmount);
+
 updateVanVacuumLimit();
+
+function resetCreateButton() {
+  isCreating = false;
+
+  const createBtn = document.getElementById("createBtn");
+  createBtn.disabled = false;
+  createBtn.innerText = "建立會員卡";
+}
 
 function getVehicleAdd(vehicle) {
   if(vehicle === "休旅車") return 50;
@@ -177,16 +188,12 @@ function getVehicleAdd(vehicle) {
   if(vehicle === "箱型車特大") return 200;
   return 0;
 }
+
 function updateVanVacuumLimit() {
 
-  const vehicle =
-    document.getElementById("vehicleType").value;
-
-  const vanVacuum =
-    document.getElementById("vanVacuum");
-
-  const simpleVacuum =
-    document.querySelector('.addon[value="簡易吸塵"]');
+  const vehicle = document.getElementById("vehicleType").value;
+  const vanVacuum = document.getElementById("vanVacuum");
+  const simpleVacuum = document.querySelector('.addon[value="簡易吸塵"]');
 
   if(!vanVacuum || !simpleVacuum) return;
 
@@ -196,27 +203,21 @@ function updateVanVacuumLimit() {
     vehicle === "箱型車特大";
 
   if(isVan) {
-
-    // 箱型車以上
     vanVacuum.disabled = false;
 
     simpleVacuum.checked = false;
     simpleVacuum.disabled = true;
-
   } else {
-
-    // 轎車、休旅
     vanVacuum.checked = false;
     vanVacuum.disabled = true;
 
     simpleVacuum.disabled = false;
   }
-
 }
 
 function setAddonChecked(name, checked) {
   document.querySelectorAll(".addon").forEach(cb => {
-    if(cb.value === name) {
+    if(cb.value === name && !cb.disabled) {
       cb.checked = checked;
     }
   });
@@ -240,6 +241,7 @@ function applyQuickPackage() {
   document.getElementById("baseService").value = "奈米鍍膜";
 
   clearAddons();
+  updateVanVacuumLimit();
 
   setAddonChecked("泡沫預洗", true);
 
@@ -364,6 +366,7 @@ function updateSuggest() {
     </div>
   `;
 }
+
 function getPaymentAmounts() {
 
   const cashAmount =
@@ -395,7 +398,43 @@ function updateTotalAmount() {
   `;
 }
 
+function clearSellForm() {
+
+  document.getElementById("vehicleType").value = "";
+  document.getElementById("packageCount").value = "";
+  document.getElementById("baseService").value = "";
+  document.getElementById("quickPackage").value = "";
+  document.getElementById("invoiceType").value = "";
+
+  document.querySelector('input[name="todayUse"][value="yes"]').checked = true;
+
+  document.querySelectorAll(".addon").forEach(cb => {
+    cb.checked = false;
+    cb.disabled = false;
+  });
+
+  document.getElementById("cashAmount").value = "";
+  document.getElementById("linePayAmount").value = "";
+  document.getElementById("pxPayAmount").value = "";
+  document.getElementById("discountReason").value = "";
+
+  suggestedVipPrice = 0;
+  currentPackageType = "";
+
+  document.getElementById("priceSuggest").innerHTML =
+    "請選擇車型與基本服務";
+
+  document.getElementById("totalAmountBox").innerHTML =
+    "總收款金額：0 元";
+
+  updateVanVacuumLimit();
+}
+
 function createCard() {
+
+  if(isCreating) return;
+
+  const result = document.getElementById("result");
 
   updateSuggest();
 
@@ -407,8 +446,6 @@ function createCard() {
 
   const todayUse =
     document.querySelector('input[name="todayUse"]:checked').value;
-
-  const result = document.getElementById("result");
 
   const payment = getPaymentAmounts();
 
@@ -433,7 +470,16 @@ function createCard() {
     return;
   }
 
+  isCreating = true;
+
+  const createBtn = document.getElementById("createBtn");
+  createBtn.disabled = true;
+  createBtn.innerText = "建立中...";
+
   result.innerHTML = "⏳ 建立中...";
+
+  const submitPackageType = currentPackageType;
+  const submitSuggestedPrice = suggestedVipPrice;
 
   const form = new URLSearchParams();
 
@@ -444,7 +490,7 @@ function createCard() {
   form.append("staffName", staffName || "");
   form.append("vehicleType", vehicle);
   form.append("packageCount", packageCount);
-  form.append("packageType", currentPackageType);
+  form.append("packageType", submitPackageType);
   form.append("todayUse", todayUse);
   form.append("invoiceType", invoiceType);
 
@@ -453,7 +499,7 @@ function createCard() {
   form.append("pxPayAmount", payment.pxPayAmount);
   form.append("amount", payment.totalAmount);
 
-  form.append("suggestedPrice", suggestedVipPrice);
+  form.append("suggestedPrice", submitSuggestedPrice);
   form.append("discountReason", discountReason);
 
   fetch(GAS_URL, {
@@ -467,11 +513,16 @@ function createCard() {
     if(data.status !== "OK") {
       result.innerHTML =
         "❌ 建立失敗：" + (data.message || "");
+
+      resetCreateButton();
       return;
     }
 
     const invoiceText =
       invoiceType === "Y" ? "有開發票" : "未開發票";
+
+    clearSellForm();
+    resetCreateButton();
 
     result.innerHTML = `
       <div class="card">
@@ -482,20 +533,20 @@ function createCard() {
         <p><b>售卡分店：</b>${storeCode} ${storeName || ""}</p>
         <p><b>操作人員：</b>${staffName || ""}</p>
         <p><b>車型：</b>${vehicle}</p>
-        <p><b>服務：</b>${currentPackageType}</p>
+        <p><b>服務：</b>${submitPackageType}</p>
         <p><b>總次數：</b>${data.totalTimes}</p>
         <p><b>剩餘次數：</b>${data.remainingTimes}</p>
 
         <hr>
 
-        <p><b>建議售價：</b>${suggestedVipPrice} 元</p>
+        <p><b>建議售價：</b>${submitSuggestedPrice} 元</p>
         <p><b>現金：</b>${payment.cashAmount} 元</p>
         <p><b>LINE PAY：</b>${payment.linePayAmount} 元</p>
         <p><b>全支付：</b>${payment.pxPayAmount} 元</p>
         <p><b>總收款：</b>${payment.totalAmount} 元</p>
 
         ${
-          payment.totalAmount !== suggestedVipPrice
+          payment.totalAmount !== submitSuggestedPrice
           ? `<p><b>優惠/異常原因：</b>${discountReason}</p>`
           : ""
         }
@@ -513,8 +564,9 @@ function createCard() {
     `;
   })
   .catch(err => {
-    result.innerHTML = "❌ 系統錯誤，請稍後再試";
     console.log(err);
+    result.innerHTML = "❌ 系統錯誤，請稍後再試";
+    resetCreateButton();
   });
 }
 
