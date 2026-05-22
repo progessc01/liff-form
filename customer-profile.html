@@ -18,6 +18,14 @@
 
   <br><br>
 
+  <input type="password" id="password" placeholder="新密碼（8位數字，留空不修改）">
+
+  <br><br>
+
+  <input type="password" id="passwordConfirm" placeholder="再次輸入新密碼">
+
+  <br><br>
+
   <input type="text" id="plate1" placeholder="第一台車牌（必填）">
 
   <br><br>
@@ -108,6 +116,8 @@ function loadProfile() {
 function updateProfile() {
 
   const newPhone = document.getElementById("phone").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const passwordConfirm = document.getElementById("passwordConfirm").value.trim();
 
   const plate1 = normalizePlate(document.getElementById("plate1").value);
   const plate2 = normalizePlate(document.getElementById("plate2").value);
@@ -122,6 +132,19 @@ function updateProfile() {
     return;
   }
 
+  if(password || passwordConfirm) {
+
+    if(!/^\d{8}$/.test(password)) {
+      alert("新密碼必須為8位數字");
+      return;
+    }
+
+    if(password !== passwordConfirm) {
+      alert("兩次輸入的新密碼不一致");
+      return;
+    }
+  }
+
   result.innerHTML = "⏳ 儲存中...";
 
   const form = new URLSearchParams();
@@ -129,6 +152,7 @@ function updateProfile() {
   form.append("name", customerName);
   form.append("oldPhone", phone);
   form.append("phone", newPhone);
+  form.append("password", password);
   form.append("plate1", plate1);
   form.append("plate2", plate2);
   form.append("plate3", plate3);
@@ -143,6 +167,11 @@ function updateProfile() {
   .then(t => JSON.parse(t))
   .then(data => {
 
+    if(data.status === "PASSWORD_ERROR") {
+      result.innerHTML = "❌ 密碼必須為8位數字";
+      return;
+    }
+
     if(data.status !== "OK") {
       result.innerHTML = "❌ 儲存失敗";
       return;
@@ -153,7 +182,7 @@ function updateProfile() {
     result.innerHTML = `
       <div class="card">
         <h2>✅ 資料已更新</h2>
-        <p>手機與車牌資料已完成修改。</p>
+        <p>手機、車牌與密碼資料已完成修改。</p>
       </div>
     `;
 

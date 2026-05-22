@@ -10,6 +10,19 @@
 <link rel="apple-touch-icon" href="ajlogo.jpg">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="安建VIP">
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>會員登入</title>
+  <link rel="stylesheet" href="customer-style.css">
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f75bc">
+  <link rel="apple-touch-icon" href="ajlogo.jpg">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="安建VIP">
 </head>
 <body>
 
@@ -21,7 +34,7 @@
 
   <br><br>
 
-  <input type="tel" id="phone" placeholder="請輸入手機號碼">
+  <input type="password" id="password" placeholder="請輸入8位數字密碼">
 
   <br><br>
 
@@ -46,11 +59,16 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_Ikxd
 function loginCustomer() {
 
   const name = document.getElementById("customerName").value.trim();
-  const phone = document.getElementById("phone").value.trim();
+  const password = document.getElementById("password").value.trim();
   const result = document.getElementById("result");
 
-  if(!name || !phone) {
-    alert("請輸入姓名與手機號碼");
+  if(!name || !password) {
+    alert("請輸入姓名與8位數字密碼");
+    return;
+  }
+
+  if(!/^\d{8}$/.test(password)) {
+    alert("密碼必須為8位數字");
     return;
   }
 
@@ -59,7 +77,7 @@ function loginCustomer() {
   const form = new URLSearchParams();
   form.append("type", "loginCustomer");
   form.append("name", name);
-  form.append("phone", phone);
+  form.append("password", password);
 
   fetch(GAS_URL, {
     method: "POST",
@@ -73,7 +91,7 @@ function loginCustomer() {
   .then(data => {
 
     if(data.status !== "OK") {
-      result.innerHTML = "❌ 姓名或手機號碼錯誤";
+      result.innerHTML = "❌ 姓名或密碼錯誤";
       return;
     }
 

@@ -20,7 +20,11 @@
 
   <br><br>
 
-  <input type="tel" id="phoneConfirm" placeholder="請再次輸入手機號碼" required>
+  <input type="password" id="password" placeholder="請輸入8位數字密碼" required>
+
+  <br><br>
+
+  <input type="password" id="passwordConfirm" placeholder="請再次輸入8位數字密碼" required>
 
   <br><br>
 
@@ -73,7 +77,9 @@ function registerCustomer() {
 
   const name = document.getElementById("customerName").value.trim();
   const phone = document.getElementById("phone").value.trim();
-  const phoneConfirm = document.getElementById("phoneConfirm").value.trim();
+
+  const password = document.getElementById("password").value.trim();
+  const passwordConfirm = document.getElementById("passwordConfirm").value.trim();
 
   const plate1 = normalizePlate(document.getElementById("plate1").value);
   const plate2 = normalizePlate(document.getElementById("plate2").value);
@@ -83,13 +89,18 @@ function registerCustomer() {
 
   const result = document.getElementById("result");
 
-  if(!name || !phone || !phoneConfirm || !plate1) {
-    alert("請填寫姓名、手機號碼與第一台車牌");
+  if(!name || !phone || !password || !passwordConfirm || !plate1) {
+    alert("請填寫姓名、手機號碼、密碼與第一台車牌");
     return;
   }
 
-  if(phone !== phoneConfirm) {
-    alert("兩次輸入的手機號碼不一致");
+  if(!/^\\d{8}$/.test(password)) {
+    alert("密碼必須為8位數字");
+    return;
+  }
+
+  if(password !== passwordConfirm) {
+    alert("兩次輸入的密碼不一致");
     return;
   }
 
@@ -99,6 +110,7 @@ function registerCustomer() {
   form.append("type", "registerCustomer");
   form.append("name", name);
   form.append("phone", phone);
+  form.append("password", password);
   form.append("plate1", plate1);
   form.append("plate2", plate2);
   form.append("plate3", plate3);
@@ -115,6 +127,11 @@ function registerCustomer() {
 
     if(data.status === "EXIST") {
       result.innerHTML = "❌ 此會員已存在";
+      return;
+    }
+
+    if(data.status === "PASSWORD_ERROR") {
+      result.innerHTML = "❌ 密碼必須為8位數字";
       return;
     }
 
