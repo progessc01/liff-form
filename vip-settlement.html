@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>一鍵出帳</title>
-<link rel="stylesheet" href="vip-style.css">
+  <link rel="stylesheet" href="vip-style.css">
 </head>
 <body>
 
@@ -82,9 +82,18 @@ function getSettlement() {
     let html = `
       <div class="card" style="text-align:left;">
         <h2>${data.settleMonth} 對帳總表</h2>
+
         <p><b>總核銷次數：</b>${data.totalUses}</p>
-        <p><b>總撥入獎金池：</b>${data.totalPoolIn} 元</p>
-        <p><b>總洗車可領：</b>${data.totalRedeemOut} 元</p>
+
+        <p><b>總撥入獎金池：</b>${data.totalPoolIn || 0} 元</p>
+
+        <p><b>總洗車可領：</b>${data.totalRedeemOut || 0} 元</p>
+
+        <p><b>總退款撥回：</b>${data.totalRefundOut || 0} 元</p>
+
+        <p class="small-text">
+          淨額 = 洗車可領 + 退款撥回 - 撥入獎金池
+        </p>
       </div>
     `;
 
@@ -94,17 +103,32 @@ function getSettlement() {
     `;
 
     if(stores.length === 0) {
+
       html += `<p>本月無資料</p>`;
+
     } else {
+
       stores.forEach(s => {
+
         html += `
           <div style="border-bottom:1px solid #ddd; padding:10px 0;">
+
             <h3>${s.storeCode}</h3>
-            <p><b>撥入獎金池：</b>${s.poolIn} 元</p>
-            <p><b>洗車可領：</b>${s.redeemOut} 元</p>
+
+            <p><b>撥入獎金池：</b>${s.poolIn || 0} 元</p>
+
+            <p><b>洗車可領：</b>${s.redeemOut || 0} 元</p>
+
+            <p><b>退款撥回：</b>${s.refundOut || 0} 元</p>
+
             <p style="font-size:18px; color:${s.net >= 0 ? 'green' : 'red'};">
-              <b>淨額：</b>${s.net} 元
+              <b>淨額：</b>${s.net || 0} 元
             </p>
+
+            <p class="small-text">
+              ${s.net >= 0 ? "應收款項" : "應付款項"}
+            </p>
+
           </div>
         `;
       });
@@ -114,19 +138,28 @@ function getSettlement() {
 
     html += `
       <div class="card" style="text-align:left;">
-        <h2>跨店明細</h2>
+        <h2>跨店核銷明細</h2>
     `;
 
     if(details.length === 0) {
-      html += `<p>本月無跨店清算資料</p>`;
+
+      html += `<p>本月無跨店核銷清算資料</p>`;
+
     } else {
+
       details.forEach(d => {
+
         html += `
           <div style="border-bottom:1px solid #ddd; padding:10px 0;">
+
             <p><b>應付款店：</b>${d.fromStore}</p>
+
             <p><b>收款店：</b>${d.toStore}</p>
+
             <p><b>核銷次數：</b>${d.count}</p>
+
             <p><b>金額：</b>${d.amount} 元</p>
+
           </div>
         `;
       });
@@ -139,7 +172,13 @@ function getSettlement() {
   })
   .catch(err => {
     console.log(err);
-    result.innerHTML = "❌ 系統錯誤";
+
+    result.innerHTML = `
+      <div class="card">
+        <h2>❌ 系統錯誤</h2>
+        <p>請稍後再試。</p>
+      </div>
+    `;
   });
 
 }
