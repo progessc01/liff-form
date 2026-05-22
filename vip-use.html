@@ -122,10 +122,12 @@ function useCard() {
       <div class="card">
         <h2>✅ 核銷成功</h2>
         <p><b>卡號：</b>${data.cardNo}</p>
-        <p><b>核銷分店：</b>${data.storeCode} ${data.storeName}</p>
-        <p><b>使用前次數：</b>${data.beforeTimes}</p>
-        <p><b>扣除次數：</b>1</p>
-        <p><b>剩餘次數：</b>${data.afterTimes}</p>
+<p><b>使用服務：</b>${data.packageType}</p>
+<p><b>核銷分店：</b>${data.storeCode} ${data.storeName}</p>
+<p><b>核銷人員：</b>${data.staffName}</p>
+<p><b>使用前次數：</b>${data.beforeTimes}</p>
+<p><b>扣除次數：</b>1</p>
+<p><b>剩餘次數：</b>${data.afterTimes}</p>
       </div>
     `;
   })
