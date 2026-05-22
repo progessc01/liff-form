@@ -95,11 +95,12 @@ function loadLog() {
       html += `
         <div class="card" style="text-align:left;">
           <h3>第 ${index + 1} 次使用</h3>
-          <p><b>時間：</b>${formatTime(log.time)}</p>
           <p><b>核銷分店：</b>${log.redeemStore} ${log.redeemStoreName}</p>
-          <p><b>使用前次數：</b>${log.beforeTimes}</p>
-          <p><b>扣除次數：</b>${log.usedTimes}</p>
-          <p><b>剩餘次數：</b>${log.afterTimes}</p>
+<p><b>核銷人員：</b>${log.staffAccount}</p>
+<p><b>使用前次數：</b>${log.beforeTimes}</p>
+<p><b>扣除次數：</b>${log.usedTimes}</p>
+<p><b>剩餘次數：</b>${log.afterTimes}</p>
+<p><b>備註：</b>${log.note || ""}</p>
         </div>
       `;
     });

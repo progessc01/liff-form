@@ -148,9 +148,10 @@ function searchCard() {
 
         <p><b>剩餘次數：</b>${card.remainingTimes}</p>
 
-        <p><b>付款方式：</b>${card.payMethod}</p>
-
-        <p><b>金額：</b>${card.amount}</p>
+<p><b>現金：</b>${card.cashAmount || 0} 元</p>
+<p><b>LINE PAY：</b>${card.linePayAmount || 0} 元</p>
+<p><b>全支付：</b>${card.pxPayAmount || 0} 元</p>
+<p><b>總金額：</b>${card.amount || 0} 元</p>
 
         <p><b>建立時間：</b>${formatTime(card.createTime)}</p>
 
