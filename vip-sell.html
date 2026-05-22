@@ -49,6 +49,8 @@
   <option value="D套餐-奈米鍍膜+預洗+除柏油">D套餐-奈米鍍膜+預洗+除柏油</option>
   <option value="彩虹瀑布">彩虹瀑布</option>
   <option value="奈米鍍膜">奈米鍍膜</option>
+  <option value="彩虹瀑布+預洗">彩虹瀑布+預洗</option>
+  <option value="奈米鍍膜+預洗">奈米鍍膜+預洗</option>
 </select>
 
   <br><br>
@@ -73,6 +75,7 @@
     <option value="">付款方式</option>
     <option value="現金">現金</option>
     <option value="LINE PAY">LINE PAY</option>
+    <option value="全支付">全支付</option>
   </select>
 
   <br><br>
@@ -161,15 +164,11 @@ function updateSuggest() {
     document.getElementById("priceSuggest");
 
   if(!vehicle || !service) {
-
-    box.innerHTML =
-      "請選擇車型與服務";
-
+    box.innerHTML = "請選擇車型與服務";
     return;
   }
 
   let basePrice = 0;
-
   let vehicleAdd = 0;
 
   if(vehicle === "休旅車") vehicleAdd = 50;
@@ -177,46 +176,31 @@ function updateSuggest() {
   if(vehicle === "箱型車加大") vehicleAdd = 150;
   if(vehicle === "箱型車特大") vehicleAdd = 200;
 
-  // 彩虹瀑布
   if(service === "彩虹瀑布") {
-
-    if(
-      vehicle === "箱型車" ||
-      vehicle === "箱型車加大" ||
-      vehicle === "箱型車特大"
-    ) {
-
-      box.innerHTML = `
-        <span class="danger">
-          箱型車以上不可選彩虹瀑布
-        </span>
-      `;
-
-      return;
-    }
-
     basePrice = 280 + vehicleAdd;
   }
 
-  // 奈米鍍膜
   else if(service === "奈米鍍膜") {
-
     basePrice = 330 + vehicleAdd;
   }
 
-  // A/B/D
-  else if(
-  service.includes("A套餐") ||
-  service.includes("B套餐") ||
-  service.includes("D套餐")
-) {
+  else if(service === "彩虹瀑布+預洗") {
+    basePrice = 330 + vehicleAdd;
+  }
 
+  else if(service === "奈米鍍膜+預洗") {
+    basePrice = 380 + vehicleAdd;
+  }
+
+  else if(
+    service.includes("A套餐") ||
+    service.includes("B套餐") ||
+    service.includes("D套餐")
+  ) {
     basePrice = 400 + vehicleAdd;
   }
 
-  // C
   else if(service.includes("C套餐")) {
-
     basePrice = 450 + vehicleAdd;
   }
 
@@ -225,7 +209,6 @@ function updateSuggest() {
   box.innerHTML = `
     <div style="font-size:18px;">
       建議售價：
-
       <span style="
         color:#0f75bc;
         font-weight:bold;
@@ -233,16 +216,14 @@ function updateSuggest() {
       ">
         ${vipPrice}
       </span>
-
       元
     </div>
 
     <div class="small-text">
-      單次洗車：${basePrice} 元
+      單次洗車：${basePrice} 元，VIP 售價以 10 次計算
     </div>
   `;
 }
-
 // ========================
 // 建立卡片
 // ========================
