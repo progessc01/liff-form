@@ -15,6 +15,34 @@
   <div id="memberInfo" class="member-title"></div>
 
   <br>
+<div class="info-box" style="text-align:left;">
+ <br>
+
+<b>VIP卡退款規則</b>
+
+<br><br>
+
+1. VIP卡退款金額將依本公司實際收款金額計算。
+
+<br>
+
+2. 已使用服務價值不予退還。
+
+<br>
+
+3. 金流手續費、發票稅費及其他已發生之必要成本不予退還。
+
+<br>
+
+4. 實際退款金額以系統計算結果為準。
+
+<br>
+
+5. 完成取卡即視為同意上述規則。
+
+</div>
+
+<br>
 
   <input type="text" id="cardNo" placeholder="請輸入取卡代碼">
 
@@ -47,7 +75,8 @@ if(!customerName || !phone) {
 }
 
 document.getElementById("memberInfo").innerHTML = `
-  目前會員：${customerName}
+  親愛的 ${customerName} 先生/小姐<br>
+您好，感謝您支持安建快速洗車。
 `;
 
 function redeemCard() {
