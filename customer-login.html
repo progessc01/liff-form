@@ -34,7 +34,7 @@
 
   <br><br>
 
-  <input type="password" id="password" placeholder="請輸入8位數字密碼">
+  <input type="password" id="password" placeholder="請輸入會員密碼">
 
   <br><br>
 
@@ -67,12 +67,7 @@ function loginCustomer() {
     return;
   }
 
-  if(!/^\d{8}$/.test(password)) {
-    alert("密碼必須為8位數字");
-    return;
-  }
-
-  result.innerHTML = "⏳ 登入中...";
+    result.innerHTML = "⏳ 登入中...";
 
   const form = new URLSearchParams();
   form.append("type", "loginCustomer");

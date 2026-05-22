@@ -18,7 +18,7 @@
 
   <br><br>
 
-  <input type="password" id="password" placeholder="新密碼（8位數字，留空不修改）">
+  <input type="password" id="password" placeholder="新密碼（8位以上英數，留空不修改）">
 
   <br><br>
 
@@ -134,8 +134,8 @@ function updateProfile() {
 
   if(password || passwordConfirm) {
 
-    if(!/^\d{8}$/.test(password)) {
-      alert("新密碼必須為8位數字");
+    if(password.length < 8) {
+      alert("新密碼（8位以上英數，留空不修改）");
       return;
     }
 
