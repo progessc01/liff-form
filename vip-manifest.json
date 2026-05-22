@@ -1,0 +1,16 @@
+{
+  "name": "安建加盟後台",
+  "short_name": "安建後台",
+  "start_url": "vip-login.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#02040f",
+  "theme_color": "#0f75bc",
+  "icons": [
+    {
+      "src": "ajlogo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
