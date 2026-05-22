@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>後台加入主畫面</title>
+
+  <link rel="stylesheet"
+        href="vip-style.css">
+
+</head>
+<body>
+
+<div class="container">
+
+  <h1>後台加入主畫面教學</h1>
+
+  <div class="card">
+
+    <h2>加盟後台網址</h2>
+
+    <input
+      type="text"
+      id="vipUrl"
+      readonly
+      value="https://progessc01.github.io/liff-form/vip-login.html"
+    >
+
+    <br><br>
+
+    <button type="button"
+            onclick="copyUrl()">
+      複製網址
+    </button>
+
+  </div>
+
+  <br>
+
+  <div class="card"
+       style="text-align:left;">
+
+    <h2>iPhone 教學</h2>
+
+    <p>
+      1. 使用 Safari 開啟加盟後台
+    </p>
+
+    <p>
+      2. 點下方「分享」按鈕
+    </p>
+
+    <p>
+      3. 選擇「加入主畫面」
+    </p>
+
+  </div>
+
+  <br>
+
+  <div class="card"
+       style="text-align:left;">
+
+    <h2>Android 教學</h2>
+
+    <p>
+      1. 使用 Chrome 開啟加盟後台
+    </p>
+
+    <p>
+      2. 點右上角「⋮」
+    </p>
+
+    <p>
+      3. 選擇「安裝應用程式」
+      或「加入主畫面」
+    </p>
+
+  </div>
+
+  <br>
+
+  <button type="button"
+          onclick="location.href='vip.html'">
+    返回後台首頁
+  </button>
+
+</div>
+
+<script>
+
+function copyUrl() {
+
+  const input =
+    document.getElementById("vipUrl");
+
+  input.select();
+
+  input.setSelectionRange(0, 99999);
+
+  navigator.clipboard.writeText(input.value);
+
+  alert("已複製加盟後台網址");
+}
+
+</script>
+
+</body>
+</html>
