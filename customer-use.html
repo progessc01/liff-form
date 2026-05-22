@@ -25,6 +25,10 @@
 <script>
 
 const cardNo = localStorage.getItem("useCardNo");
+const vehicleType = localStorage.getItem("useVehicleType");
+const packageType = localStorage.getItem("usePackageType");
+const remainingTimes = localStorage.getItem("useRemainingTimes");
+const totalTimes = localStorage.getItem("useTotalTimes");
 const customerName = localStorage.getItem("customerName");
 const phone = localStorage.getItem("phone");
 
@@ -71,13 +75,53 @@ content.innerHTML = `
 
     <h2>卡號：${cardNo}</h2>
 
-    <p style="font-weight:bold; color:red;">
-      請出示此 QR CODE 給店員掃描核銷
+    <div style="
+      background:rgba(0,217,255,0.12);
+      border:2px solid #00d9ff;
+      border-radius:16px;
+      padding:16px;
+      margin:18px 0;
+      text-align:center;
+    ">
+      <div style="font-size:16px; color:#9fdfff;">
+        本卡適用車型
+      </div>
+
+      <div style="
+        font-size:34px;
+        font-weight:bold;
+        color:#ffffff;
+        margin-top:6px;
+      ">
+        ${vehicleType || "未設定"}
+      </div>
+
+      <hr style="border-color:rgba(255,255,255,0.2);">
+
+      <div style="font-size:16px; color:#9fdfff;">
+        使用服務
+      </div>
+
+      <div style="
+        font-size:28px;
+        font-weight:bold;
+        color:#f7d774;
+        margin-top:6px;
+        line-height:1.4;
+      ">
+        ${packageType || "未設定"}
+      </div>
+    </div>
+
+    <p><b>剩餘次數：</b>${remainingTimes || ""} / ${totalTimes || ""}</p>
+
+    <p style="font-weight:bold; color:#ffcc00;">
+      請店員確認車型與服務後再掃描核銷
     </p>
 
     <img src="${qrUrl}" width="240">
 
-    <p style="font-size:14px; color:#555;">
+    <p style="font-size:14px; color:#ccc;">
       此畫面僅供現場使用，請勿提供給他人
     </p>
 
