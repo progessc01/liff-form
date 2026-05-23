@@ -31,22 +31,19 @@ const remainingTimes = localStorage.getItem("useRemainingTimes");
 const totalTimes = localStorage.getItem("useTotalTimes");
 const customerName = localStorage.getItem("customerName");
 const phone = localStorage.getItem("phone");
+const cardStatus = localStorage.getItem("useCardStatus");
 
 const content = document.getElementById("content");
-
-const cardStatus = localStorage.getItem("useCardStatus");
 
 if(cardStatus === "REFUND") {
 
   content.innerHTML = `
     <div class="card">
-
       <h2>此卡已退款</h2>
 
       <p style="color:red;">
         已退款卡片無法使用
       </p>
-
     </div>
   `;
 
@@ -63,8 +60,9 @@ if(!cardNo) {
   location.href = "customer-cards.html";
 }
 
-// 店員掃描後會進入這頁
-const useUrl = "https://progessc01.github.io/liff-form/vip-use.html?cardNo=" + encodeURIComponent(cardNo);
+const useUrl =
+  "https://progessc01.github.io/liff-form/vip-use.html?cardNo=" +
+  encodeURIComponent(cardNo);
 
 const qrUrl =
   "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
@@ -119,7 +117,35 @@ content.innerHTML = `
       請店員確認車型與服務後再掃描核銷
     </p>
 
-    <img src="${qrUrl}" width="240">
+    <div style="
+      text-align:center;
+      margin-top:20px;
+      margin-bottom:18px;
+    ">
+
+      <div style="
+        font-size:18px;
+        font-weight:bold;
+        margin-bottom:12px;
+        color:#ffffff;
+      ">
+        請出示此 QR Code
+      </div>
+
+      <img
+        src="${qrUrl}"
+        width="240"
+        style="
+          display:block;
+          margin:0 auto;
+          background:#ffffff;
+          padding:10px;
+          border-radius:12px;
+          box-shadow:0 4px 15px rgba(0,0,0,0.3);
+        "
+      >
+
+    </div>
 
     <p style="font-size:14px; color:#ccc;">
       此畫面僅供現場使用，請勿提供給他人
