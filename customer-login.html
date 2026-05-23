@@ -35,6 +35,7 @@
     id="password"
     placeholder="請輸入會員密碼"
     autocomplete="current-password"
+    inputmode="text"
   >
 
   <br><br>
@@ -78,7 +79,6 @@ function loginCustomer() {
   result.innerHTML = "⏳ 登入中...";
 
   const form = new URLSearchParams();
-
   form.append("type", "loginCustomer");
   form.append("name", name);
   form.append("password", password);
