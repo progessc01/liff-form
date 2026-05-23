@@ -3,19 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>會員登入</title>
-  <link rel="stylesheet" href="customer-style.css">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f75bc">
-<link rel="apple-touch-icon" href="ajlogo.jpg">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="安建VIP">
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>會員登入</title>
+
   <link rel="stylesheet" href="customer-style.css">
 
   <link rel="manifest" href="manifest.json">
@@ -24,21 +14,34 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="安建VIP">
 </head>
+
 <body>
 
 <div class="container">
 
   <h1>會員登入</h1>
 
-  <input type="text" id="customerName" placeholder="請輸入姓名">
+  <input
+    type="text"
+    id="customerName"
+    placeholder="請輸入姓名"
+    autocomplete="name"
+  >
 
   <br><br>
 
-  <input type="password" id="password" placeholder="請輸入會員密碼">
+  <input
+    type="password"
+    id="password"
+    placeholder="請輸入會員密碼"
+    autocomplete="current-password"
+  >
 
   <br><br>
 
-  <button type="button" onclick="loginCustomer()">登入</button>
+  <button type="button" onclick="loginCustomer()">
+    登入
+  </button>
 
   <br><br>
 
@@ -63,13 +66,19 @@ function loginCustomer() {
   const result = document.getElementById("result");
 
   if(!name || !password) {
-    alert("請輸入姓名與8位數字密碼");
+    alert("請輸入姓名與會員密碼");
     return;
   }
 
-    result.innerHTML = "⏳ 登入中...";
+  if(password.length < 8) {
+    alert("密碼至少需8位");
+    return;
+  }
+
+  result.innerHTML = "⏳ 登入中...";
 
   const form = new URLSearchParams();
+
   form.append("type", "loginCustomer");
   form.append("name", name);
   form.append("password", password);
