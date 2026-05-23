@@ -24,6 +24,15 @@
   <br><br>
 
   <input
+    type="email"
+    id="email"
+    placeholder="Email（忘記密碼使用）"
+    autocomplete="email"
+  >
+
+  <br><br>
+
+  <input
     type="password"
     id="password"
     placeholder="新密碼（8位以上英數，留空不修改）"
@@ -98,6 +107,17 @@ function normalizePlate(p) {
     .replace(/\s/g, "");
 }
 
+function cleanPhone(p) {
+  return String(p || "")
+    .replace(/^'/, "")
+    .trim()
+    .replace(/\s/g, "");
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 loadProfile();
 
 function loadProfile() {
@@ -106,7 +126,7 @@ function loadProfile() {
 
   form.append("type", "getCustomerProfile");
   form.append("name", customerName);
-  form.append("phone", phone);
+  form.append("phone", cleanPhone(phone));
 
   fetch(GAS_URL, {
     method: "POST",
@@ -122,18 +142,25 @@ function loadProfile() {
     }
 
     document.getElementById("phone").value = data.customer.phone || "";
+    document.getElementById("email").value = data.customer.email || "";
     document.getElementById("plate1").value = data.customer.plate1 || "";
     document.getElementById("plate2").value = data.customer.plate2 || "";
     document.getElementById("plate3").value = data.customer.plate3 || "";
     document.getElementById("plate4").value = data.customer.plate4 || "";
     document.getElementById("plate5").value = data.customer.plate5 || "";
 
+  })
+  .catch(err => {
+    console.log(err);
+    document.getElementById("result").innerHTML = "❌ 讀取資料失敗";
   });
 }
 
 function updateProfile() {
 
-  const newPhone = document.getElementById("phone").value.trim();
+  const newPhone = cleanPhone(document.getElementById("phone").value);
+  const email = document.getElementById("email").value.trim().toLowerCase();
+
   const password = document.getElementById("password").value.trim();
   const passwordConfirm = document.getElementById("passwordConfirm").value.trim();
 
@@ -145,8 +172,13 @@ function updateProfile() {
 
   const result = document.getElementById("result");
 
-  if(!newPhone || !plate1) {
-    alert("手機號碼與第一台車牌必填");
+  if(!newPhone || !email || !plate1) {
+    alert("手機號碼、Email與第一台車牌必填");
+    return;
+  }
+
+  if(!isValidEmail(email)) {
+    alert("請輸入正確的Email格式");
     return;
   }
 
@@ -169,8 +201,9 @@ function updateProfile() {
 
   form.append("type", "updateCustomerProfile");
   form.append("name", customerName);
-  form.append("oldPhone", phone);
+  form.append("oldPhone", cleanPhone(phone));
   form.append("phone", newPhone);
+  form.append("email", email);
   form.append("password", password);
   form.append("plate1", plate1);
   form.append("plate2", plate2);
@@ -186,6 +219,11 @@ function updateProfile() {
   .then(t => JSON.parse(t))
   .then(data => {
 
+    if(data.status === "EMAIL_ERROR") {
+      result.innerHTML = "❌ Email格式錯誤";
+      return;
+    }
+
     if(data.status === "PASSWORD_ERROR") {
       result.innerHTML = "❌ 密碼至少需8位";
       return;
@@ -198,10 +236,13 @@ function updateProfile() {
 
     localStorage.setItem("phone", newPhone);
 
+    document.getElementById("password").value = "";
+    document.getElementById("passwordConfirm").value = "";
+
     result.innerHTML = `
       <div class="card">
         <h2>✅ 資料已更新</h2>
-        <p>手機、車牌與密碼資料已完成修改。</p>
+        <p>手機、Email、車牌與密碼資料已完成修改。</p>
       </div>
     `;
 
