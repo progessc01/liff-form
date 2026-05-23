@@ -14,15 +14,32 @@
 
   <div id="memberInfo" class="member-title"></div>
 
-  <input type="tel" id="phone" placeholder="手機號碼">
+  <input
+    type="tel"
+    id="phone"
+    placeholder="手機號碼"
+    autocomplete="tel"
+  >
 
   <br><br>
 
-  <input type="password" id="password" placeholder="新密碼（8位以上英數，留空不修改）">
+  <input
+    type="password"
+    id="password"
+    placeholder="新密碼（8位以上英數，留空不修改）"
+    autocomplete="new-password"
+    inputmode="text"
+  >
 
   <br><br>
 
-  <input type="password" id="passwordConfirm" placeholder="再次輸入新密碼">
+  <input
+    type="password"
+    id="passwordConfirm"
+    placeholder="再次輸入新密碼"
+    autocomplete="new-password"
+    inputmode="text"
+  >
 
   <br><br>
 
@@ -86,6 +103,7 @@ loadProfile();
 function loadProfile() {
 
   const form = new URLSearchParams();
+
   form.append("type", "getCustomerProfile");
   form.append("name", customerName);
   form.append("phone", phone);
@@ -135,7 +153,7 @@ function updateProfile() {
   if(password || passwordConfirm) {
 
     if(password.length < 8) {
-      alert("新密碼（8位以上英數，留空不修改）");
+      alert("新密碼至少需8位");
       return;
     }
 
@@ -148,6 +166,7 @@ function updateProfile() {
   result.innerHTML = "⏳ 儲存中...";
 
   const form = new URLSearchParams();
+
   form.append("type", "updateCustomerProfile");
   form.append("name", customerName);
   form.append("oldPhone", phone);
@@ -168,7 +187,7 @@ function updateProfile() {
   .then(data => {
 
     if(data.status === "PASSWORD_ERROR") {
-      result.innerHTML = "❌ 密碼必須為8位數字";
+      result.innerHTML = "❌ 密碼至少需8位";
       return;
     }
 
