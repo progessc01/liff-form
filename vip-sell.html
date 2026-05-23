@@ -41,7 +41,7 @@
 
   <select id="baseService">
     <option value="">選擇基本服務</option>
-    <option value="彩虹瀑布">彩虹瀑布</option>
+    <option value="炫彩泡泡">炫彩泡泡</option>
     <option value="奈米鍍膜">奈米鍍膜 +50</option>
   </select>
 
@@ -49,10 +49,8 @@
 
   <select id="quickPackage">
     <option value="">快速選擇套餐（可不選）</option>
-    <option value="A">A套餐：奈米鍍膜+泡沫預洗+蟲屍</option>
-    <option value="B">B套餐：奈米鍍膜+泡沫預洗+輪胎油</option>
+    <option value="CARE">貼心套餐：蟲屍 / 輪胎油 / 除柏油任選</option>
     <option value="C">C套餐：奈米鍍膜+泡沫預洗+除油膜</option>
-    <option value="D">D套餐：奈米鍍膜+泡沫預洗+除柏油</option>
   </select>
 
   <br><br>
@@ -155,22 +153,32 @@ document.getElementById("staffInfo").innerText =
   staffName || "";
 
 document.getElementById("vehicleType").addEventListener("change", function() {
+  updateBaseServiceLimit();
   updateVanVacuumLimit();
   updateSuggest();
 });
 
 document.getElementById("packageCount").addEventListener("change", updateSuggest);
-document.getElementById("baseService").addEventListener("change", updateSuggest);
+
+document.getElementById("baseService").addEventListener("change", function() {
+  document.getElementById("quickPackage").value = "";
+  updateSuggest();
+});
+
 document.getElementById("quickPackage").addEventListener("change", applyQuickPackage);
 
 document.querySelectorAll(".addon").forEach(cb => {
-  cb.addEventListener("change", updateSuggest);
+  cb.addEventListener("change", function() {
+    document.getElementById("quickPackage").value = "";
+    updateSuggest();
+  });
 });
 
 document.getElementById("cashAmount").addEventListener("input", updateTotalAmount);
 document.getElementById("linePayAmount").addEventListener("input", updateTotalAmount);
 document.getElementById("pxPayAmount").addEventListener("input", updateTotalAmount);
 
+updateBaseServiceLimit();
 updateVanVacuumLimit();
 
 function resetCreateButton() {
@@ -179,6 +187,34 @@ function resetCreateButton() {
   const createBtn = document.getElementById("createBtn");
   createBtn.disabled = false;
   createBtn.innerText = "建立會員卡";
+}
+
+function isVanVehicle(vehicle) {
+  return (
+    vehicle === "箱型車" ||
+    vehicle === "箱型車加大" ||
+    vehicle === "箱型車特大"
+  );
+}
+
+function updateBaseServiceLimit() {
+
+  const vehicle = document.getElementById("vehicleType").value;
+  const baseService = document.getElementById("baseService");
+  const colorfulOption = baseService.querySelector('option[value="炫彩泡泡"]');
+
+  if(!colorfulOption) return;
+
+  if(isVanVehicle(vehicle)) {
+    colorfulOption.disabled = true;
+
+    if(baseService.value === "炫彩泡泡") {
+      baseService.value = "";
+      alert("箱型車以上不可選擇炫彩泡泡，請改選奈米鍍膜或套餐。");
+    }
+  } else {
+    colorfulOption.disabled = false;
+  }
 }
 
 function getVehicleAdd(vehicle) {
@@ -197,12 +233,7 @@ function updateVanVacuumLimit() {
 
   if(!vanVacuum || !simpleVacuum) return;
 
-  const isVan =
-    vehicle === "箱型車" ||
-    vehicle === "箱型車加大" ||
-    vehicle === "箱型車特大";
-
-  if(isVan) {
+  if(isVanVehicle(vehicle)) {
     vanVacuum.disabled = false;
 
     simpleVacuum.checked = false;
@@ -223,15 +254,33 @@ function setAddonChecked(name, checked) {
   });
 }
 
+function setAddonDisabled(name, disabled) {
+  document.querySelectorAll(".addon").forEach(cb => {
+    if(cb.value === name) {
+      cb.disabled = disabled;
+    }
+  });
+}
+
 function clearAddons() {
   document.querySelectorAll(".addon").forEach(cb => {
     cb.checked = false;
   });
+
+  updateVanVacuumLimit();
+}
+
+function unlockCarePackageItems() {
+  setAddonDisabled("蟲屍", false);
+  setAddonDisabled("輪胎油", false);
+  setAddonDisabled("除柏油", false);
 }
 
 function applyQuickPackage() {
 
   const quick = document.getElementById("quickPackage").value;
+
+  unlockCarePackageItems();
 
   if(!quick) {
     updateSuggest();
@@ -241,14 +290,24 @@ function applyQuickPackage() {
   document.getElementById("baseService").value = "奈米鍍膜";
 
   clearAddons();
-  updateVanVacuumLimit();
 
   setAddonChecked("泡沫預洗", true);
 
-  if(quick === "A") setAddonChecked("蟲屍", true);
-  if(quick === "B") setAddonChecked("輪胎油", true);
-  if(quick === "C") setAddonChecked("除油膜", true);
-  if(quick === "D") setAddonChecked("除柏油", true);
+  if(quick === "CARE") {
+
+    setAddonChecked("蟲屍", true);
+    setAddonChecked("輪胎油", true);
+    setAddonChecked("除柏油", true);
+
+    setAddonDisabled("蟲屍", true);
+    setAddonDisabled("輪胎油", true);
+    setAddonDisabled("除柏油", true);
+
+  }
+
+  if(quick === "C") {
+    setAddonChecked("除油膜", true);
+  }
 
   updateSuggest();
 }
@@ -267,11 +326,21 @@ function getSelectedAddons() {
 }
 
 function buildPackageName(baseService, addons) {
+
+  const quick = document.getElementById("quickPackage").value;
+
+  if(quick === "CARE") {
+    return "貼心套餐(蟲屍/輪胎油/除柏油任選)";
+  }
+
   const names = [baseService].concat(addons.map(a => a.name));
   return names.join("+");
 }
 
 function updateSuggest() {
+
+  updateBaseServiceLimit();
+  updateVanVacuumLimit();
 
   const vehicle = document.getElementById("vehicleType").value;
   const baseService = document.getElementById("baseService").value;
@@ -283,6 +352,11 @@ function updateSuggest() {
 
   if(!vehicle || !baseService) {
     box.innerHTML = "請選擇車型與基本服務";
+    return;
+  }
+
+  if(isVanVehicle(vehicle) && baseService === "炫彩泡泡") {
+    box.innerHTML = "箱型車以上不可選擇炫彩泡泡";
     return;
   }
 
@@ -302,6 +376,10 @@ function updateSuggest() {
     addonTotal += a.price;
   });
 
+  if(quick === "CARE") {
+    addonTotal = 100;
+  }
+
   let packageDiscount = 0;
 
   if(quick) {
@@ -317,8 +395,15 @@ function updateSuggest() {
   currentPackageType =
     buildPackageName(baseService, addons);
 
-  const quickText =
-    quick ? `${quick}套餐` : "自選方案";
+  let quickText = "自選方案";
+
+  if(quick === "CARE") {
+    quickText = "貼心套餐";
+  }
+
+  if(quick === "C") {
+    quickText = "C套餐";
+  }
 
   box.innerHTML = `
     <div style="font-size:18px;">
@@ -427,6 +512,7 @@ function clearSellForm() {
   document.getElementById("totalAmountBox").innerHTML =
     "總收款金額：0 元";
 
+  updateBaseServiceLimit();
   updateVanVacuumLimit();
 }
 
@@ -449,37 +535,41 @@ function createCard() {
 
   const payment = getPaymentAmounts();
 
-console.log("payment =", payment);
+  if(!vehicle) {
+    alert("請選擇車型");
+    return;
+  }
 
-if(!vehicle) {
-  alert("請選擇車型");
-  return;
-}
+  if(!packageCount) {
+    alert("請選擇購買方案");
+    return;
+  }
 
-if(!packageCount) {
-  alert("請選擇購買方案");
-  return;
-}
+  if(!baseService) {
+    alert("請選擇基本服務");
+    return;
+  }
 
-if(!baseService) {
-  alert("請選擇基本服務");
-  return;
-}
+  if(isVanVehicle(vehicle) && baseService === "炫彩泡泡") {
+    alert("箱型車以上不可選擇炫彩泡泡");
+    return;
+  }
 
-if(!invoiceType) {
-  alert("請選擇是否開發票");
-  return;
-}
+  if(!invoiceType) {
+    alert("請選擇是否開發票");
+    return;
+  }
 
-if(!currentPackageType) {
-  alert("請確認服務項目");
-  return;
-}
+  if(!currentPackageType) {
+    alert("請確認服務項目");
+    return;
+  }
 
-if(Number(payment.totalAmount) <= 0) {
-  alert("請輸入付款金額，金額不可為0");
-  return;
-}
+  if(Number(payment.totalAmount) <= 0) {
+    alert("請輸入付款金額，金額不可為0");
+    return;
+  }
+
   if(
     suggestedVipPrice > 0 &&
     payment.totalAmount !== suggestedVipPrice &&
