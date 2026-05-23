@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>卡片核銷</title>
-<link rel="stylesheet" href="customer-style.css">
+  <link rel="stylesheet" href="customer-style.css">
 </head>
 <body>
 
@@ -20,20 +20,26 @@
   <br>
 
   <select id="account">
-  <option value="">請選擇分店</option>
-  <option value="AJ01">AJ01 總店</option>
-  <option value="AJ02">AJ02 員林店</option>
-  <option value="AJ03">AJ03 彰南店</option>
-  <option value="AJ04">AJ04 山福店</option>
-</select>
+    <option value="">請選擇分店</option>
+    <option value="AJ01">AJ01 總店</option>
+    <option value="AJ02">AJ02 員林店</option>
+    <option value="AJ03">AJ03 彰南店</option>
+    <option value="AJ04">AJ04 山福店</option>
+  </select>
 
   <br><br>
 
-  <input type="password" id="password" placeholder="請輸入分店密碼">
+  <input
+    type="password"
+    id="password"
+    placeholder="請輸入分店密碼"
+    autocomplete="current-password"
+    inputmode="text"
+  >
 
   <br><br>
 
-  <button type="button" onclick="useCard()">
+  <button type="button" id="useBtn" onclick="useCard('no')">
     確認核銷
   </button>
 
@@ -52,6 +58,8 @@ const cardNo = params.get("cardNo");
 
 const result = document.getElementById("result");
 
+let isUsing = false;
+
 if(!cardNo) {
   document.getElementById("cardNoText").innerText = "無卡號";
   result.innerHTML = "❌ QR CODE錯誤，沒有卡號";
@@ -59,10 +67,30 @@ if(!cardNo) {
   document.getElementById("cardNoText").innerText = cardNo;
 }
 
-function useCard() {
+function resetUseButton() {
+  isUsing = false;
+
+  const btn = document.getElementById("useBtn");
+  btn.disabled = false;
+  btn.innerText = "確認核銷";
+}
+
+function lockUseButton() {
+  isUsing = true;
+
+  const btn = document.getElementById("useBtn");
+  btn.disabled = true;
+  btn.innerText = "核銷中...";
+}
+
+function useCard(allowDuplicate) {
+
+  if(isUsing) return;
 
   const account = document.getElementById("account").value.trim();
   const password = document.getElementById("password").value.trim();
+
+  allowDuplicate = allowDuplicate || "no";
 
   if(!cardNo) {
     alert("沒有卡號，無法核銷");
@@ -74,17 +102,23 @@ function useCard() {
     return;
   }
 
-  if(!confirm("確認要核銷此卡片嗎？")) {
-    return;
+  if(allowDuplicate !== "yes") {
+    if(!confirm("確認要核銷此卡片嗎？")) {
+      return;
+    }
   }
+
+  lockUseButton();
 
   result.innerHTML = "⏳ 核銷中...";
 
   const form = new URLSearchParams();
+
   form.append("type", "useCard");
   form.append("cardNo", cardNo);
   form.append("account", account);
   form.append("password", password);
+  form.append("allowDuplicate", allowDuplicate);
 
   fetch(GAS_URL, {
     method: "POST",
@@ -93,47 +127,71 @@ function useCard() {
   .then(r => r.text())
   .then(t => JSON.parse(t))
   .then(data => {
+
+    if(data.status === "NEED_CONFIRM") {
+
+      resetUseButton();
+
+      if(confirm("此卡片剛剛已核銷過，確定要再次核銷嗎？")) {
+        useCard("yes");
+      } else {
+        result.innerHTML = "已取消連續核銷";
+      }
+
+      return;
+    }
+
     if(data.status === "REFUND") {
-  result.innerHTML = "❌ 此卡片已退款，無法使用";
-  return;
-}
+      result.innerHTML = "❌ 此卡片已退款，無法使用";
+      resetUseButton();
+      return;
+    }
 
     if(data.status === "LOGIN_ERROR") {
       result.innerHTML = "❌ 分店帳號或密碼錯誤";
+      resetUseButton();
       return;
     }
 
     if(data.status === "NOT_FOUND") {
       result.innerHTML = "❌ 查無此卡號";
+      resetUseButton();
       return;
     }
 
     if(data.status === "NO_TIMES") {
       result.innerHTML = "❌ 此卡片已無剩餘次數";
+      resetUseButton();
       return;
     }
 
     if(data.status !== "OK") {
       result.innerHTML = "❌ 核銷失敗：" + (data.message || "");
+      resetUseButton();
       return;
     }
 
     result.innerHTML = `
       <div class="card">
         <h2>✅ 核銷成功</h2>
+
         <p><b>卡號：</b>${data.cardNo}</p>
-<p><b>使用服務：</b>${data.packageType}</p>
-<p><b>核銷分店：</b>${data.storeCode} ${data.storeName}</p>
-<p><b>核銷人員：</b>${data.staffName}</p>
-<p><b>使用前次數：</b>${data.beforeTimes}</p>
-<p><b>扣除次數：</b>1</p>
-<p><b>剩餘次數：</b>${data.afterTimes}</p>
+        <p><b>使用服務：</b>${data.packageType}</p>
+        <p><b>核銷分店：</b>${data.storeCode} ${data.storeName}</p>
+        <p><b>核銷人員：</b>${data.staffName}</p>
+        <p><b>使用前次數：</b>${data.beforeTimes}</p>
+        <p><b>扣除次數：</b>1</p>
+        <p><b>剩餘次數：</b>${data.afterTimes}</p>
       </div>
     `;
+
+    resetUseButton();
+
   })
   .catch(err => {
     console.log(err);
     result.innerHTML = "❌ 系統錯誤";
+    resetUseButton();
   });
 
 }
