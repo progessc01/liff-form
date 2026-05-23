@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>我要使用</title>
   <link rel="stylesheet" href="customer-style.css">
+  <script src="qrcode.min.js"></script>
 </head>
 <body>
 
@@ -36,17 +37,12 @@ const cardStatus = localStorage.getItem("useCardStatus");
 const content = document.getElementById("content");
 
 if(cardStatus === "REFUND") {
-
   content.innerHTML = `
     <div class="card">
       <h2>此卡已退款</h2>
-
-      <p style="color:red;">
-        已退款卡片無法使用
-      </p>
+      <p style="color:red;">已退款卡片無法使用</p>
     </div>
   `;
-
   throw new Error("REFUND CARD");
 }
 
@@ -64,10 +60,6 @@ const useUrl =
   "https://progessc01.github.io/liff-form/vip-use.html?cardNo=" +
   encodeURIComponent(cardNo);
 
-const qrUrl =
-  "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
-  encodeURIComponent(useUrl);
-
 content.innerHTML = `
   <div class="card">
 
@@ -81,9 +73,7 @@ content.innerHTML = `
       margin:18px 0;
       text-align:center;
     ">
-      <div style="font-size:16px; color:#9fdfff;">
-        本卡適用車型
-      </div>
+      <div style="font-size:16px; color:#9fdfff;">本卡適用車型</div>
 
       <div style="
         font-size:34px;
@@ -96,9 +86,7 @@ content.innerHTML = `
 
       <hr style="border-color:rgba(255,255,255,0.2);">
 
-      <div style="font-size:16px; color:#9fdfff;">
-        使用服務
-      </div>
+      <div style="font-size:16px; color:#9fdfff;">使用服務</div>
 
       <div style="
         font-size:28px;
@@ -117,12 +105,7 @@ content.innerHTML = `
       請店員確認車型與服務後再掃描核銷
     </p>
 
-    <div style="
-      text-align:center;
-      margin-top:20px;
-      margin-bottom:18px;
-    ">
-
+    <div style="text-align:center; margin:20px 0 18px;">
       <div style="
         font-size:18px;
         font-weight:bold;
@@ -132,19 +115,13 @@ content.innerHTML = `
         請出示此 QR Code
       </div>
 
-      <img
-        src="${qrUrl}"
-        width="240"
-        style="
-          display:block;
-          margin:0 auto;
-          background:#ffffff;
-          padding:10px;
-          border-radius:12px;
-          box-shadow:0 4px 15px rgba(0,0,0,0.3);
-        "
-      >
-
+      <div id="qrcode" style="
+        display:inline-block;
+        background:#ffffff;
+        padding:10px;
+        border-radius:12px;
+        box-shadow:0 4px 15px rgba(0,0,0,0.3);
+      "></div>
     </div>
 
     <p style="font-size:14px; color:#ccc;">
@@ -153,6 +130,18 @@ content.innerHTML = `
 
   </div>
 `;
+
+if(typeof QRCode === "undefined") {
+  document.getElementById("qrcode").innerHTML =
+    "❌ QR Code 程式未載入，請確認 qrcode.min.js 已上傳";
+} else {
+  new QRCode(document.getElementById("qrcode"), {
+    text: useUrl,
+    width: 240,
+    height: 240,
+    correctLevel: QRCode.CorrectLevel.H
+  });
+}
 
 </script>
 
