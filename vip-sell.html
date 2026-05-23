@@ -449,18 +449,37 @@ function createCard() {
 
   const payment = getPaymentAmounts();
 
-  if(
-    !vehicle ||
-    !packageCount ||
-    !baseService ||
-    !invoiceType ||
-    !currentPackageType ||
-    payment.totalAmount <= 0
-  ) {
-    alert("請填寫完整資料，付款金額不可為0");
-    return;
-  }
+console.log("payment =", payment);
 
+if(!vehicle) {
+  alert("請選擇車型");
+  return;
+}
+
+if(!packageCount) {
+  alert("請選擇購買方案");
+  return;
+}
+
+if(!baseService) {
+  alert("請選擇基本服務");
+  return;
+}
+
+if(!invoiceType) {
+  alert("請選擇是否開發票");
+  return;
+}
+
+if(!currentPackageType) {
+  alert("請確認服務項目");
+  return;
+}
+
+if(Number(payment.totalAmount) <= 0) {
+  alert("請輸入付款金額，金額不可為0");
+  return;
+}
   if(
     suggestedVipPrice > 0 &&
     payment.totalAmount !== suggestedVipPrice &&
