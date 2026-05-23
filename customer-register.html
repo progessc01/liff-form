@@ -16,35 +16,19 @@
 
   <br><br>
 
-  <input
-    type="tel"
-    id="phone"
-    placeholder="請輸入手機號碼"
-    autocomplete="tel"
-    required
-  >
+  <input type="tel" id="phone" placeholder="請輸入手機號碼" autocomplete="tel" required>
 
   <br><br>
 
-  <input
-    type="password"
-    id="password"
-    placeholder="請輸入8位以上英數密碼"
-    autocomplete="new-password"
-    inputmode="text"
-    required
-  >
+  <input type="email" id="email" placeholder="請輸入Email（忘記密碼使用）" autocomplete="email" required>
 
   <br><br>
 
-  <input
-    type="password"
-    id="passwordConfirm"
-    placeholder="請再次輸入密碼"
-    autocomplete="new-password"
-    inputmode="text"
-    required
-  >
+  <input type="password" id="password" placeholder="請輸入8位以上英數密碼" autocomplete="new-password" inputmode="text" required>
+
+  <br><br>
+
+  <input type="password" id="passwordConfirm" placeholder="請再次輸入密碼" autocomplete="new-password" inputmode="text" required>
 
   <br><br>
 
@@ -68,13 +52,9 @@
 
   <br><br>
 
-  <button type="button" id="registerBtn" onclick="registerCustomer()">
-    註冊
-  </button>
+  <button type="button" id="registerBtn" onclick="registerCustomer()">註冊</button>
 
-  <button type="button" onclick="location.href='customer-login.html'">
-    返回登入
-  </button>
+  <button type="button" onclick="location.href='customer-login.html'">返回登入</button>
 
   <br><br>
 
@@ -103,9 +83,7 @@ function cleanPhone(p) {
 
 function resetRegisterButton() {
   isRegistering = false;
-
   const btn = document.getElementById("registerBtn");
-
   btn.disabled = false;
   btn.innerText = "註冊";
 }
@@ -113,6 +91,7 @@ function resetRegisterButton() {
 function clearRegisterForm() {
   document.getElementById("customerName").value = "";
   document.getElementById("phone").value = "";
+  document.getElementById("email").value = "";
   document.getElementById("password").value = "";
   document.getElementById("passwordConfirm").value = "";
   document.getElementById("plate1").value = "";
@@ -122,12 +101,17 @@ function clearRegisterForm() {
   document.getElementById("plate5").value = "";
 }
 
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 function registerCustomer() {
 
   if(isRegistering) return;
 
   const name = document.getElementById("customerName").value.trim();
   const phone = cleanPhone(document.getElementById("phone").value);
+  const email = document.getElementById("email").value.trim();
 
   const password = document.getElementById("password").value.trim();
   const passwordConfirm = document.getElementById("passwordConfirm").value.trim();
@@ -140,8 +124,13 @@ function registerCustomer() {
 
   const result = document.getElementById("result");
 
-  if(!name || !phone || !password || !passwordConfirm || !plate1) {
-    alert("請填寫姓名、手機號碼、密碼與第一台車牌");
+  if(!name || !phone || !email || !password || !passwordConfirm || !plate1) {
+    alert("請填寫姓名、手機號碼、Email、密碼與第一台車牌");
+    return;
+  }
+
+  if(!isValidEmail(email)) {
+    alert("請輸入正確的Email格式");
     return;
   }
 
@@ -158,7 +147,6 @@ function registerCustomer() {
   isRegistering = true;
 
   const btn = document.getElementById("registerBtn");
-
   btn.disabled = true;
   btn.innerText = "註冊中...";
 
@@ -169,6 +157,7 @@ function registerCustomer() {
   form.append("type", "registerCustomer");
   form.append("name", name);
   form.append("phone", phone);
+  form.append("email", email);
   form.append("password", password);
   form.append("plate1", plate1);
   form.append("plate2", plate2);
@@ -196,6 +185,12 @@ function registerCustomer() {
       return;
     }
 
+    if(data.status === "EMAIL_ERROR") {
+      result.innerHTML = "❌ Email格式錯誤";
+      resetRegisterButton();
+      return;
+    }
+
     if(data.status !== "OK") {
       result.innerHTML = "❌ 註冊失敗";
       resetRegisterButton();
@@ -210,6 +205,7 @@ function registerCustomer() {
         <h2>✅ 註冊成功</h2>
         <p><b>姓名：</b>${data.name}</p>
         <p><b>手機：</b>${data.phone}</p>
+        <p><b>Email：</b>${data.email || email}</p>
         <p><b>車牌：</b>${data.plate1}</p>
         <p style="color:red; font-weight:bold;">
           請重新登入會員系統
@@ -220,7 +216,6 @@ function registerCustomer() {
   })
   .catch(err => {
     console.log(err);
-
     result.innerHTML = "❌ 系統錯誤";
     resetRegisterButton();
   });
