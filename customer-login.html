@@ -83,6 +83,12 @@
 
   <br><br>
 
+  <button type="button" onclick="location.href='forgot-password.html'">
+    忘記密碼
+  </button>
+
+  <br><br>
+
   <div id="result"></div>
 
 </div>
@@ -124,6 +130,7 @@ function loginCustomer() {
   result.innerHTML = "⏳ 登入中...";
 
   const form = new URLSearchParams();
+
   form.append("type", "loginCustomer");
   form.append("name", name);
   form.append("password", password);
