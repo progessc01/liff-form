@@ -19,20 +19,30 @@
 
   <br>
 
-  <select id="account">
+  <select id="storeCode">
     <option value="">請選擇分店</option>
-    <option value="AJ01">AJ01 總店</option>
-    <option value="AJ02">AJ02 員林店</option>
-    <option value="AJ03">AJ03 彰南店</option>
-    <option value="AJ04">AJ04 山福店</option>
+    <option value="AJ01">AJ01｜總店</option>
+    <option value="AJ02">AJ02｜員林店</option>
+    <option value="AJ03">AJ03｜彰南店</option>
+    <option value="AJ04">AJ04｜山福店</option>
   </select>
+
+  <br><br>
+
+  <input
+    type="text"
+    id="staffNo"
+    placeholder="請輸入工號，例如：001"
+    autocomplete="username"
+    inputmode="numeric"
+  >
 
   <br><br>
 
   <input
     type="password"
     id="password"
-    placeholder="請輸入分店密碼"
+    placeholder="請輸入員工密碼"
     autocomplete="current-password"
     inputmode="text"
   >
@@ -87,8 +97,12 @@ function useCard(allowDuplicate) {
 
   if(isUsing) return;
 
-  const account = document.getElementById("account").value.trim();
+  const storeCode = document.getElementById("storeCode").value.trim();
+  const staffNoRaw = document.getElementById("staffNo").value.trim();
   const password = document.getElementById("password").value.trim();
+
+  const staffNo = staffNoRaw.padStart(3,"0");
+  const account = storeCode && staffNoRaw ? (storeCode + "-" + staffNo) : "";
 
   allowDuplicate = allowDuplicate || "no";
 
@@ -97,8 +111,8 @@ function useCard(allowDuplicate) {
     return;
   }
 
-  if(!account || !password) {
-    alert("請輸入分店帳號與密碼");
+  if(!storeCode || !staffNoRaw || !password) {
+    alert("請完整輸入分店、工號與密碼");
     return;
   }
 
@@ -148,7 +162,7 @@ function useCard(allowDuplicate) {
     }
 
     if(data.status === "LOGIN_ERROR") {
-      result.innerHTML = "❌ 分店帳號或密碼錯誤";
+      result.innerHTML = "❌ 工號或密碼錯誤";
       resetUseButton();
       return;
     }
