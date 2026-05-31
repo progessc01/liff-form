@@ -66,14 +66,16 @@
 
   <br><br>
 
-  <button onclick="login()">登入</button>
+  <button id="loginBtn" onclick="login()">
+  登入
+</button>
 <br><br>
 
 <button type="button" onclick="location.href='vip-staff-register.html'">
   員工註冊申請
 </button>
 
-  <div id="result"></div>
+  
 
 </div>
 
@@ -83,10 +85,17 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_Ikxd
 
 function login() {
 
-  const storeCode = document.getElementById("storeCode").value.trim();
-  const staffNoRaw = document.getElementById("staffNo").value.trim();
-  const password = document.getElementById("password").value.trim();
-  const result = document.getElementById("result");
+  const storeCode =
+    document.getElementById("storeCode").value.trim();
+
+  const staffNoRaw =
+    document.getElementById("staffNo").value.trim();
+
+  const password =
+    document.getElementById("password").value.trim();
+
+  const btn =
+    document.getElementById("loginBtn");
 
   if(!storeCode || !staffNoRaw || !password) {
     alert("請完整輸入分店、工號與密碼");
@@ -99,42 +108,72 @@ function login() {
   const account =
     storeCode + "-" + staffNo;
 
-  result.innerHTML = "登入中...";
+  btn.disabled = true;
+  btn.innerText = "登入中...";
 
   const form = new URLSearchParams();
+
   form.append("type", "loginStaff");
   form.append("account", account);
   form.append("password", password);
 
-  fetch(GAS_URL, {
-    method: "POST",
-    body: form
+  fetch(GAS_URL,{
+    method:"POST",
+    body:form
   })
   .then(r => r.text())
   .then(t => JSON.parse(t))
   .then(data => {
 
     if(data.status !== "OK") {
-      result.innerHTML = "❌ 工號或密碼錯誤";
+
+      btn.disabled = false;
+      btn.innerText = "登入";
+
+      alert("工號或密碼錯誤");
       return;
     }
 
-    localStorage.setItem("staffAccount", data.account || account);
-    localStorage.setItem("staffName", data.staffName || "");
-    localStorage.setItem("storeCode", data.storeCode || storeCode);
-    localStorage.setItem("storeName", data.storeName || "");
-    localStorage.setItem("staffRole", data.role || "");
+    localStorage.setItem(
+      "staffAccount",
+      data.account || account
+    );
+
+    localStorage.setItem(
+      "staffName",
+      data.staffName || ""
+    );
+
+    localStorage.setItem(
+      "storeCode",
+      data.storeCode || storeCode
+    );
+
+    localStorage.setItem(
+      "storeName",
+      data.storeName || ""
+    );
+
+    localStorage.setItem(
+      "staffRole",
+      data.role || ""
+    );
 
     location.href = "vip.html";
 
   })
   .catch(err => {
-    result.innerHTML = "❌ 登入失敗，請稍後再試";
+
+    btn.disabled = false;
+    btn.innerText = "登入";
+
+    alert("登入失敗，請稍後再試");
+
     console.log(err);
+
   });
 
 }
-
 </script>
 
 </body>
