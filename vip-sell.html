@@ -585,7 +585,6 @@ function createCard() {
   createBtn.disabled = true;
   createBtn.innerText = "建立中...";
 
-  result.innerHTML = "⏳ 建立中...";
 
   const submitPackageType = currentPackageType;
   const submitSuggestedPrice = suggestedVipPrice;
@@ -620,12 +619,15 @@ function createCard() {
   .then(data => {
 
     if(data.status !== "OK") {
-      result.innerHTML =
-        "❌ 建立失敗：" + (data.message || "");
 
-      resetCreateButton();
-      return;
-    }
+  alert(
+    "建立失敗：" +
+    (data.message || "")
+  );
+
+  resetCreateButton();
+  return;
+}
 
     const invoiceText =
       invoiceType === "Y" ? "有開發票" : "未開發票";
@@ -672,11 +674,17 @@ function createCard() {
       </div>
     `;
   })
-  .catch(err => {
-    console.log(err);
-    result.innerHTML = "❌ 系統錯誤，請稍後再試";
-    resetCreateButton();
-  });
+.catch(err => {
+
+  console.log(err);
+
+  alert(
+    "系統錯誤，請稍後再試"
+  );
+
+  resetCreateButton();
+
+});
 }
 
 </script>
