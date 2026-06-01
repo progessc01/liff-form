@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>卡片查詢</title>
-  <link rel="stylesheet" href="customer-style.css">
+  <link rel="stylesheet" href="customer-style.css?v=cardfix003">
 </head>
 
 <body>
@@ -123,7 +123,9 @@ function render() {
 
   const c = pages[page];
 
-  const cardNo = c.cardNo || "";
+  const cardNoRaw = c.cardNo || "";
+  const cardNoDisplay = formatCardNo(cardNoRaw);
+
   const remainingTimes = Number(c.remainingTimes || 0);
   const totalTimes = Number(c.totalTimes || 0);
   const vehicleType = c.vehicleType || "";
@@ -156,26 +158,18 @@ function render() {
       <div class="vipCardWrap">
 
         <img
-          src="vip-card.jpg"
+          src="vip-card.jpg?v=cardfix003"
           class="vipCardImg"
           alt="安建VIP洗車儲值卡"
         >
 
         <div class="vipCardNo">
-          ${escapeHtml(cardNo)}
-        </div>
-
-        <div class="vipCardOwner">
-          ${escapeHtml(customerName)}
-        </div>
-
-        <div class="vipCardRemain">
-          剩餘 ${remainingTimes} 次
+          ${escapeHtml(cardNoDisplay)}
         </div>
 
       </div>
 
-      <h2 class="vip-glow">卡號：${escapeHtml(cardNo)}</h2>
+      <h2 class="infoMainNo">卡號：${escapeHtml(cardNoDisplay)}</h2>
 
       <p>剩餘次數：${remainingTimes}</p>
 
@@ -246,6 +240,16 @@ function viewCurrentLog() {
 
   localStorage.setItem("logCardNo", c.cardNo || "");
   location.href = "customer-log.html";
+}
+
+function formatCardNo(cardNo) {
+  const value = String(cardNo || "").trim();
+
+  if(value.includes("-")) {
+    return value;
+  }
+
+  return value.replace(/^AJ(\d+)$/i, "AJ-$1");
 }
 
 function escapeHtml(value) {

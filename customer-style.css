@@ -198,18 +198,20 @@ a{
   font-weight:bold;
 }
 
-/* VIP 電子卡 */
+/* 保險：舊版疊在卡片上的姓名、剩餘次數，全部強制隱藏 */
+.vipCardOwner,
+.vipCardRemain{
+  display:none !important;
+}
+
+/* VIP 電子卡：卡片上只放卡號 */
 .vipCardWrap{
   position:relative;
   width:100%;
   margin-bottom:18px;
-
   aspect-ratio:5 / 3;
-
   overflow:hidden;
-
   border-radius:18px;
-
   background:#000;
 
   box-shadow:
@@ -225,96 +227,47 @@ a{
   border-radius:18px;
 }
 
+/* 卡號放在右下角銀色框內 */
 .vipCardNo{
   position:absolute;
 
-  left:20%;
-  bottom:12%;
+  right:4.0%;
+  bottom:9.5%;
 
-  font-size:clamp(28px, 8.3vw, 56px);
+  width:43%;
+  text-align:center;
+  white-space:nowrap;
 
+  font-size:clamp(18px, 4.6vw, 30px);
   font-weight:900;
-
-  letter-spacing:3px;
+  letter-spacing:0.4px;
 
   font-family:
-  "Arial Black",
-  "Impact",
-  sans-serif;
+    "Arial Black",
+    "Impact",
+    "Microsoft JhengHei",
+    sans-serif;
 
-  background:
-  linear-gradient(
-    180deg,
-    #ffffff 0%,
-    #f7f7f7 10%,
-    #9a9a9a 24%,
-    #ffffff 38%,
-    #5b5b5b 52%,
-    #ffffff 66%,
-    #a6a6a6 80%,
-    #ffffff 100%
-  );
+  color:#050505 !important;
+  -webkit-text-fill-color:#050505 !important;
 
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
+  background:none !important;
+  -webkit-background-clip:initial !important;
+  background-clip:initial !important;
+  -webkit-text-stroke:0 !important;
 
   text-shadow:
-    0 1px 0 #fff,
-    0 2px 1px rgba(0,0,0,.45),
-    0 4px 5px rgba(0,0,0,.6),
-    0 8px 10px rgba(0,0,0,.5);
-
-  filter:
-    drop-shadow(0 0 2px rgba(255,255,255,.55));
+    0 1px 0 rgba(255,255,255,.55),
+    0 -1px 0 rgba(0,0,0,.18);
 }
 
-.vipCardOwner{
-  position:absolute;
-
-  left:7%;
-  top:71%;
-
-  color:white;
-
-  font-size:clamp(14px, 3.6vw, 22px);
-
-  font-weight:800;
-
-  letter-spacing:1px;
-
-  text-shadow:
-    0 2px 5px rgba(0,0,0,.9);
-}
-
-.vipCardRemain{
-  position:absolute;
-
-  right:7%;
-  bottom:13%;
-
-  font-size:clamp(15px, 4.2vw, 24px);
-
-  font-weight:900;
-
-  letter-spacing:1px;
-
-  background:
-  linear-gradient(
-    to bottom,
-    #fff6b7 0%,
-    #f7d774 35%,
-    #d4a93a 55%,
-    #fff2a6 75%,
-    #c9921e 100%
-  );
-
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-
-  text-shadow:
-    0 1px 0 #fff6b7,
-    0 2px 2px rgba(0,0,0,0.55),
-    0 0 8px rgba(255,215,0,0.45);
+/* 下方資訊欄卡號：普通白字，不用特殊金色 */
+.infoMainNo{
+  font-size:28px;
+  font-weight:700;
+  color:#ffffff;
+  text-shadow:none;
+  margin:18px 0 14px;
 }
 
 @media (max-width:430px){
@@ -342,12 +295,14 @@ a{
   }
 
   .vipCardNo{
-    left:19%;
-    bottom:12%;
-    letter-spacing:2px;
+    right:5.8%;
+    bottom:11.5%;
+    width:43%;
+    font-size:clamp(17px, 4.5vw, 27px);
+    letter-spacing:0.3px;
   }
 
-  .vipCardOwner{
-    top:71%;
+  .infoMainNo{
+    font-size:26px;
   }
 }
