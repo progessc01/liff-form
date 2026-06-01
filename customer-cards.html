@@ -5,7 +5,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>卡片查詢</title>
   <link rel="stylesheet" href="customer-style.css">
+
+  <style>
+    .vipCardWrap{
+      position:relative;
+      width:100%;
+      margin-bottom:15px;
+      aspect-ratio:9 / 5.4;
+      overflow:hidden;
+      border-radius:14px;
+      background:#000;
+      box-shadow:0 8px 22px rgba(0,0,0,.35);
+    }
+
+    .vipCardImg{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      border-radius:14px;
+    }
+
+    .vipCardNoLabel{
+      position:absolute;
+      left:7%;
+      bottom:18%;
+      font-size:clamp(10px, 2.3vw, 18px);
+      font-weight:800;
+      letter-spacing:1px;
+      color:#d6b45a;
+      text-shadow:0 2px 5px rgba(0,0,0,.9);
+      font-family:Arial, sans-serif;
+    }
+
+    .vipCardNo{
+      position:absolute;
+      left:21%;
+      bottom:9%;
+      font-size:clamp(26px, 8vw, 72px);
+      font-weight:900;
+      letter-spacing:3px;
+      font-family:"Arial Black","Impact",sans-serif;
+
+      background:linear-gradient(
+        180deg,
+        #fff7b1 0%,
+        #ffe27a 12%,
+        #ffc400 28%,
+        #b87900 46%,
+        #fff0a3 60%,
+        #d99a00 78%,
+        #fff6bf 100%
+      );
+
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+
+      text-shadow:
+        0 1px 0 #fff3b0,
+        0 2px 0 #9b6a00,
+        0 4px 4px rgba(0,0,0,.75),
+        0 0 12px rgba(255,200,40,.45);
+    }
+  </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -131,75 +195,35 @@ function render() {
   cardBox.innerHTML = `
     <div class="card">
 
-      <div style="
-        position:relative;
-        width:100%;
-        margin-bottom:15px;
-      ">
+      <div class="vipCardWrap">
 
         <img
           src="vip-card.jpg"
-          style="
-            width:100%;
-            border-radius:10px;
-            display:block;
-          "
+          class="vipCardImg"
+          alt="VIP洗車儲值卡"
         >
 
-<div style="
-  position:absolute;
-top:8%;
-right:11%;
+        <div class="vipCardNoLabel">
+          CARD NO.
+        </div>
 
-font-size:21px;
-font-weight:900;
-letter-spacing:2px;
-
-background:
-linear-gradient(
-180deg,
-#ffffff 0%,
-#fafafa 10%,
-#8d8d8d 22%,
-#ffffff 35%,
-#5e5e5e 48%,
-#ffffff 62%,
-#9f9f9f 75%,
-#ffffff 100%
-);
-
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-
-text-shadow:
-0 1px 0 #fff,
-0 2px 1px rgba(0,0,0,.4),
-0 4px 5px rgba(0,0,0,.55),
-0 8px 10px rgba(0,0,0,.45);
-
-filter:
-drop-shadow(0 0 2px rgba(255,255,255,.6));
-
-font-family:
-Arial Black,
-sans-serif;
-">
-  ${c.cardNo}
-</div>
+        <div class="vipCardNo">
+          ${c.cardNo || ""}
+        </div>
 
       </div>
 
-      <h2>卡號：${c.cardNo}</h2>
+      <h2>卡號：${c.cardNo || ""}</h2>
 
-      <p>剩餘次數：${c.remainingTimes}</p>
+      <p>剩餘次數：${c.remainingTimes || 0}</p>
 
-      <p>總次數：${c.totalTimes}</p>
+      <p>總次數：${c.totalTimes || 0}</p>
 
-      <p>車型：${c.vehicleType}</p>
+      <p>車型：${c.vehicleType || ""}</p>
 
-      <p>服務：${c.packageType}</p>
+      <p>服務：${c.packageType || ""}</p>
 
-      <p>狀態：${c.status}</p>
+      <p>狀態：${c.status || ""}</p>
 
       <p>第 ${page + 1} 張 / 共 ${pages.length} 張</p>
 
@@ -228,6 +252,7 @@ sans-serif;
     </div>
   `;
 }
+
 function nextPage() {
   if(page < pages.length - 1) {
     page++;
