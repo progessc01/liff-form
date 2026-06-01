@@ -71,7 +71,7 @@
 
   <br><br>
 
-  <button type="button" onclick="loginCustomer()">
+  <button type="button" id="loginBtn" onclick="loginCustomer()">
     登入
   </button>
 
@@ -97,6 +97,8 @@
 
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
 
+let isLoggingIn = false;
+
 function togglePassword() {
 
   const input = document.getElementById("password");
@@ -113,9 +115,12 @@ function togglePassword() {
 
 function loginCustomer() {
 
+  if(isLoggingIn) return;
+
   const name = document.getElementById("customerName").value.trim();
   const password = document.getElementById("password").value.trim();
   const result = document.getElementById("result");
+  const loginBtn = document.getElementById("loginBtn");
 
   if(!name || !password) {
     alert("請輸入姓名與會員密碼");
@@ -127,7 +132,11 @@ function loginCustomer() {
     return;
   }
 
-  result.innerHTML = "⏳ 登入中...";
+  isLoggingIn = true;
+  loginBtn.disabled = true;
+  loginBtn.innerText = "登入中...";
+
+  result.innerHTML = "";
 
   const form = new URLSearchParams();
 
@@ -148,6 +157,7 @@ function loginCustomer() {
 
     if(data.status !== "OK") {
       result.innerHTML = "❌ 姓名或密碼錯誤";
+      resetLoginButton();
       return;
     }
 
@@ -160,8 +170,17 @@ function loginCustomer() {
   .catch(err => {
     console.log(err);
     result.innerHTML = "❌ 登入失敗，請稍後再試";
+    resetLoginButton();
   });
 
+}
+
+function resetLoginButton() {
+  const loginBtn = document.getElementById("loginBtn");
+
+  isLoggingIn = false;
+  loginBtn.disabled = false;
+  loginBtn.innerText = "登入";
 }
 
 </script>
