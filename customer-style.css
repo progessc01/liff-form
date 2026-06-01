@@ -306,3 +306,137 @@ a{
     font-size:26px;
   }
 }
+
+.welcomeBox{
+
+  text-align:center;
+
+  font-size:22px;
+
+  font-weight:600;
+
+  color:#ffffff;
+
+  margin-bottom:20px;
+
+  text-shadow:
+    0 0 10px rgba(0,217,255,.4);
+
+}
+
+.vipName{
+
+  font-size:32px;
+
+  font-weight:900;
+
+  margin:0 8px;
+
+  color:#ffd86b;
+
+  text-shadow:
+    0 0 5px rgba(255,255,255,.8),
+    0 0 12px rgba(255,215,0,.7),
+    0 0 20px rgba(255,180,0,.4);
+
+}
+/* ===== VIP歡迎區 ===== */
+
+.welcomeBox{
+
+  text-align:center;
+
+  margin-bottom:25px;
+
+}
+
+.welcomeTop{
+
+  font-size:20px;
+
+  font-weight:700;
+
+  color:#ffffff;
+
+  letter-spacing:2px;
+
+  text-shadow:
+    0 0 10px rgba(0,217,255,.6);
+
+}
+
+.welcomeName{
+
+  margin-top:12px;
+
+  margin-bottom:12px;
+
+  font-size:38px;
+
+  font-weight:900;
+
+  color:#ffd86b;
+
+  text-shadow:
+    0 0 5px rgba(255,255,255,.8),
+    0 0 12px rgba(255,215,0,.7),
+    0 0 20px rgba(255,180,0,.5);
+
+}
+
+.welcomeBottom{
+
+  font-size:18px;
+
+  color:#cfefff;
+
+  letter-spacing:3px;
+
+  text-shadow:
+    0 0 8px rgba(0,217,255,.35);
+
+}
+
+@media (max-width:430px){
+
+  .welcomeTop{
+    font-size:18px;
+  }
+
+  .welcomeName{
+    font-size:34px;
+  }
+
+  .welcomeBottom{
+    font-size:16px;
+  }
+}
+.infoMainNo{
+
+  font-size:24px;
+
+  font-weight:600;
+
+  color:#ffffff;
+
+  margin:18px 0 14px;
+
+  letter-spacing:1px;
+
+}
+
+.cardNoText{
+
+  font-size:30px;
+
+  font-weight:900;
+
+  letter-spacing:1px;
+
+  color:#7fe8ff;
+
+  text-shadow:
+    0 0 6px rgba(127,232,255,.45),
+    0 0 12px rgba(0,217,255,.35);
+
+}
