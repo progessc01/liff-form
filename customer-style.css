@@ -8,13 +8,13 @@ body{
   radial-gradient(circle at bottom right, rgba(155,61,255,0.28), transparent 40%),
   linear-gradient(135deg, #02040f 0%, #07142b 45%, #02040f 100%);
 
-background-attachment:fixed;
+  background-attachment:fixed;
 
   color:white;
 }
 
 .container{
-  max-width:420px;
+  max-width:500px;
   margin:auto;
   padding:20px;
 }
@@ -196,4 +196,158 @@ a{
 .status-refund{
   color:#ffcc00;
   font-weight:bold;
+}
+
+/* VIP 電子卡 */
+.vipCardWrap{
+  position:relative;
+  width:100%;
+  margin-bottom:18px;
+
+  aspect-ratio:5 / 3;
+
+  overflow:hidden;
+
+  border-radius:18px;
+
+  background:#000;
+
+  box-shadow:
+    0 0 25px rgba(255,0,0,.15),
+    0 10px 30px rgba(0,0,0,.45);
+}
+
+.vipCardImg{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  border-radius:18px;
+}
+
+.vipCardNo{
+  position:absolute;
+
+  left:20%;
+  bottom:12%;
+
+  font-size:clamp(28px, 8.3vw, 56px);
+
+  font-weight:900;
+
+  letter-spacing:3px;
+
+  font-family:
+  "Arial Black",
+  "Impact",
+  sans-serif;
+
+  background:
+  linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #f7f7f7 10%,
+    #9a9a9a 24%,
+    #ffffff 38%,
+    #5b5b5b 52%,
+    #ffffff 66%,
+    #a6a6a6 80%,
+    #ffffff 100%
+  );
+
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+
+  text-shadow:
+    0 1px 0 #fff,
+    0 2px 1px rgba(0,0,0,.45),
+    0 4px 5px rgba(0,0,0,.6),
+    0 8px 10px rgba(0,0,0,.5);
+
+  filter:
+    drop-shadow(0 0 2px rgba(255,255,255,.55));
+}
+
+.vipCardOwner{
+  position:absolute;
+
+  left:7%;
+  top:71%;
+
+  color:white;
+
+  font-size:clamp(14px, 3.6vw, 22px);
+
+  font-weight:800;
+
+  letter-spacing:1px;
+
+  text-shadow:
+    0 2px 5px rgba(0,0,0,.9);
+}
+
+.vipCardRemain{
+  position:absolute;
+
+  right:7%;
+  bottom:13%;
+
+  font-size:clamp(15px, 4.2vw, 24px);
+
+  font-weight:900;
+
+  letter-spacing:1px;
+
+  background:
+  linear-gradient(
+    to bottom,
+    #fff6b7 0%,
+    #f7d774 35%,
+    #d4a93a 55%,
+    #fff2a6 75%,
+    #c9921e 100%
+  );
+
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+
+  text-shadow:
+    0 1px 0 #fff6b7,
+    0 2px 2px rgba(0,0,0,0.55),
+    0 0 8px rgba(255,215,0,0.45);
+}
+
+@media (max-width:430px){
+
+  .container{
+    max-width:100%;
+    padding:14px;
+  }
+
+  .card{
+    padding:14px;
+    border-radius:18px;
+  }
+
+  h1{
+    font-size:30px;
+  }
+
+  .vipCardWrap{
+    border-radius:15px;
+  }
+
+  .vipCardImg{
+    border-radius:15px;
+  }
+
+  .vipCardNo{
+    left:19%;
+    bottom:12%;
+    letter-spacing:2px;
+  }
+
+  .vipCardOwner{
+    top:71%;
+  }
 }

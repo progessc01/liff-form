@@ -5,69 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>卡片查詢</title>
   <link rel="stylesheet" href="customer-style.css">
-
-  <style>
-    .vipCardWrap{
-      position:relative;
-      width:100%;
-      margin-bottom:15px;
-      aspect-ratio:9 / 5.4;
-      overflow:hidden;
-      border-radius:14px;
-      background:#000;
-      box-shadow:0 8px 22px rgba(0,0,0,.35);
-    }
-
-    .vipCardImg{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-      border-radius:14px;
-    }
-
-    .vipCardNoLabel{
-      position:absolute;
-      left:7%;
-      bottom:18%;
-      font-size:clamp(10px, 2.3vw, 18px);
-      font-weight:800;
-      letter-spacing:1px;
-      color:#d6b45a;
-      text-shadow:0 2px 5px rgba(0,0,0,.9);
-      font-family:Arial, sans-serif;
-    }
-
-    .vipCardNo{
-      position:absolute;
-      left:21%;
-      bottom:9%;
-      font-size:clamp(26px, 8vw, 72px);
-      font-weight:900;
-      letter-spacing:3px;
-      font-family:"Arial Black","Impact",sans-serif;
-
-      background:linear-gradient(
-        180deg,
-        #fff7b1 0%,
-        #ffe27a 12%,
-        #ffc400 28%,
-        #b87900 46%,
-        #fff0a3 60%,
-        #d99a00 78%,
-        #fff6bf 100%
-      );
-
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-
-      text-shadow:
-        0 1px 0 #fff3b0,
-        0 2px 0 #9b6a00,
-        0 4px 4px rgba(0,0,0,.75),
-        0 0 12px rgba(255,200,40,.45);
-    }
-  </style>
 </head>
 
 <body>
@@ -111,7 +48,7 @@ if(!customerName || !phone) {
 }
 
 document.getElementById("memberInfo").innerHTML = `
-  <b>目前會員：</b>${customerName}
+  <b>目前會員：</b>${escapeHtml(customerName)}
 `;
 
 loadCards();
@@ -186,11 +123,32 @@ function render() {
 
   const c = pages[page];
 
+  const cardNo = c.cardNo || "";
+  const remainingTimes = Number(c.remainingTimes || 0);
+  const totalTimes = Number(c.totalTimes || 0);
+  const vehicleType = c.vehicleType || "";
+  const packageType = c.packageType || "";
+  const status = c.status || "";
+
   const disabledUse =
-    Number(c.remainingTimes) <= 0 ||
-    c.status === "REFUND"
+    remainingTimes <= 0 ||
+    status === "REFUND"
       ? "disabled"
       : "";
+
+  const statusClass =
+    status === "REFUND"
+      ? "status-refund"
+      : remainingTimes <= 0
+        ? "status-finished"
+        : "status-active";
+
+  const statusText =
+    status === "REFUND"
+      ? "已退款"
+      : remainingTimes <= 0
+        ? "已用完"
+        : "可使用";
 
   cardBox.innerHTML = `
     <div class="card">
@@ -200,43 +158,40 @@ function render() {
         <img
           src="vip-card.jpg"
           class="vipCardImg"
-          alt="VIP洗車儲值卡"
+          alt="安建VIP洗車儲值卡"
         >
 
-        <div class="vipCardNoLabel">
-          CARD NO.
+        <div class="vipCardNo">
+          ${escapeHtml(cardNo)}
         </div>
 
-        <div class="vipCardNo">
-          ${c.cardNo || ""}
+        <div class="vipCardOwner">
+          ${escapeHtml(customerName)}
+        </div>
+
+        <div class="vipCardRemain">
+          剩餘 ${remainingTimes} 次
         </div>
 
       </div>
 
-      <h2>卡號：${c.cardNo || ""}</h2>
+      <h2 class="vip-glow">卡號：${escapeHtml(cardNo)}</h2>
 
-      <p>剩餘次數：${c.remainingTimes || 0}</p>
+      <p>剩餘次數：${remainingTimes}</p>
 
-      <p>總次數：${c.totalTimes || 0}</p>
+      <p>總次數：${totalTimes}</p>
 
-      <p>車型：${c.vehicleType || ""}</p>
+      <p>車型：${escapeHtml(vehicleType)}</p>
 
-      <p>服務：${c.packageType || ""}</p>
+      <p>服務：${escapeHtml(packageType)}</p>
 
-      <p>狀態：${c.status || ""}</p>
+      <p>狀態：<span class="${statusClass}">${statusText}</span></p>
 
-      <p>第 ${page + 1} 張 / 共 ${pages.length} 張</p>
+      <p class="page-info">第 ${page + 1} 張 / 共 ${pages.length} 張</p>
 
       <button
         type="button"
-        onclick="useCard(
-          '${c.cardNo}',
-          '${c.status}',
-          '${c.vehicleType}',
-          '${c.packageType}',
-          '${c.remainingTimes}',
-          '${c.totalTimes}'
-        )"
+        onclick="useCurrentCard()"
         ${disabledUse}
       >
         我要使用
@@ -244,7 +199,7 @@ function render() {
 
       <button
         type="button"
-        onclick="viewLog('${c.cardNo}')"
+        onclick="viewCurrentLog()"
       >
         使用紀錄
       </button>
@@ -267,21 +222,39 @@ function prevPage() {
   }
 }
 
-function useCard(cardNo, status, vehicleType, packageType, remainingTimes, totalTimes) {
+function useCurrentCard() {
 
-  localStorage.setItem("useCardNo", cardNo);
-  localStorage.setItem("useCardStatus", status);
-  localStorage.setItem("useVehicleType", vehicleType);
-  localStorage.setItem("usePackageType", packageType);
-  localStorage.setItem("useRemainingTimes", remainingTimes);
-  localStorage.setItem("useTotalTimes", totalTimes);
+  const c = pages[page];
+
+  if(!c) return;
+
+  localStorage.setItem("useCardNo", c.cardNo || "");
+  localStorage.setItem("useCardStatus", c.status || "");
+  localStorage.setItem("useVehicleType", c.vehicleType || "");
+  localStorage.setItem("usePackageType", c.packageType || "");
+  localStorage.setItem("useRemainingTimes", c.remainingTimes || "");
+  localStorage.setItem("useTotalTimes", c.totalTimes || "");
 
   location.href = "customer-use.html";
 }
 
-function viewLog(cardNo) {
-  localStorage.setItem("logCardNo", cardNo);
+function viewCurrentLog() {
+
+  const c = pages[page];
+
+  if(!c) return;
+
+  localStorage.setItem("logCardNo", c.cardNo || "");
   location.href = "customer-log.html";
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 </script>
