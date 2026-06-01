@@ -48,9 +48,22 @@ if(!customerName || !phone) {
 }
 
 document.getElementById("memberInfo").innerHTML = `
-  <b>目前會員：</b>${escapeHtml(customerName)}
-`;
+  <div class="welcomeBox">
 
+    <div class="welcomeTop">
+      ✨ 親愛的VIP會員 ✨
+    </div>
+
+    <div class="welcomeName">
+      ${escapeHtml(customerName)}
+    </div>
+
+    <div class="welcomeBottom">
+      歡迎回來
+    </div>
+
+  </div>
+`;
 loadCards();
 
 function loadCards() {
@@ -166,7 +179,12 @@ function render() {
 
       </div>
 
-      <h2 class="infoMainNo">卡號：${escapeHtml(cardNoDisplay)}</h2>
+      <h2 class="infoMainNo">
+  卡號：
+  <span class="cardNoText">
+    ${escapeHtml(cardNoDisplay)}
+  </span>
+</h2>
 
       <p>剩餘次數：${remainingTimes}</p>
 
