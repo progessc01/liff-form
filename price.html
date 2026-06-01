@@ -22,7 +22,7 @@ body{
 
 .header{
   text-align:center;
-  padding:30px 15px;
+  padding:35px 15px 25px;
 }
 
 .logo{
@@ -39,7 +39,7 @@ body{
 .container{
   max-width:900px;
   margin:auto;
-  padding:0 15px 50px;
+  padding:0 15px 30px;
 }
 
 .card{
@@ -49,14 +49,35 @@ body{
 .card img{
   width:100%;
   display:block;
-  border-radius:18px;
+  border-radius:20px;
   box-shadow:0 10px 25px rgba(0,0,0,.35);
 }
 
 .footer{
   text-align:center;
+  padding:20px 20px 50px;
+}
+
+.mapBtn{
+  display:inline-block;
+  background:#22c55e;
+  color:white;
+  text-decoration:none;
+  padding:16px 30px;
+  border-radius:999px;
+  font-size:18px;
+  font-weight:bold;
+  box-shadow:0 8px 20px rgba(0,0,0,.25);
+  transition:.25s;
+}
+
+.mapBtn:hover{
+  transform:scale(1.05);
+}
+
+.copyright{
+  margin-top:20px;
   color:#94a3b8;
-  padding:20px;
   font-size:14px;
 }
 
@@ -75,21 +96,31 @@ body{
 <div class="container">
 
   <div class="card">
-    <img src="1.jpg" alt="價目表1">
+    <img src="1.jpg" alt="價目表第一頁">
   </div>
 
   <div class="card">
-    <img src="2.jpg" alt="價目表2">
+    <img src="2.jpg" alt="價目表第二頁">
   </div>
 
   <div class="card">
-    <img src="3.jpg" alt="價目表3">
+    <img src="3.jpg" alt="價目表第三頁">
   </div>
 
 </div>
 
 <div class="footer">
-  © 安建快速洗車
+
+  <a class="mapBtn"
+     href="https://maps.app.goo.gl/1bgFF1A51tgvRjEW7?g_st=il"
+     target="_blank">
+     📍 點我導航到安建快速洗車
+  </a>
+
+  <div class="copyright">
+    © 安建快速洗車 All Rights Reserved
+  </div>
+
 </div>
 
 </body>
