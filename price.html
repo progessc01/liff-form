@@ -6,6 +6,8 @@
 
 <title>安建快速洗車｜價目表</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+
 <style>
 
 *{
@@ -15,68 +17,96 @@
 }
 
 body{
-  background:#0f172a;
-  font-family:"Microsoft JhengHei",sans-serif;
-  color:white;
+  background:linear-gradient(180deg,#0f172a,#1e293b);
+  font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif;
+  color:#fff;
 }
 
 .header{
   text-align:center;
-  padding:35px 15px 25px;
+  padding:60px 20px 40px;
 }
 
 .logo{
-  font-size:32px;
-  font-weight:bold;
-  margin-bottom:10px;
+  font-size:clamp(42px,8vw,72px);
+  font-weight:900;
+  line-height:1.2;
+  margin-bottom:15px;
+  text-shadow:0 4px 12px rgba(0,0,0,.35);
 }
 
 .subTitle{
+  font-size:clamp(18px,4vw,28px);
   color:#cbd5e1;
-  font-size:15px;
+  font-weight:500;
 }
 
 .container{
   max-width:900px;
   margin:auto;
-  padding:0 15px 30px;
+  padding:0 15px;
 }
 
 .card{
-  margin-bottom:25px;
+  margin-bottom:30px;
 }
 
 .card img{
   width:100%;
   display:block;
-  border-radius:20px;
-  box-shadow:0 10px 25px rgba(0,0,0,.35);
+  border-radius:24px;
+  box-shadow:0 12px 30px rgba(0,0,0,.4);
 }
 
 .footer{
-  text-align:center;
-  padding:20px 20px 50px;
+  padding:20px 20px 60px;
 }
 
 .mapBtn{
-  display:inline-block;
-  background:#22c55e;
+  display:block;
+  width:100%;
+  max-width:700px;
+  margin:0 auto;
+
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+
   color:white;
   text-decoration:none;
-  padding:16px 30px;
-  border-radius:999px;
-  font-size:18px;
-  font-weight:bold;
-  box-shadow:0 8px 20px rgba(0,0,0,.25);
-  transition:.25s;
+
+  text-align:center;
+
+  padding:28px 20px;
+
+  border-radius:24px;
+
+  font-size:clamp(24px,5vw,34px);
+  font-weight:900;
+
+  box-shadow:0 15px 35px rgba(0,0,0,.35);
+
+  transition:all .2s ease;
 }
 
 .mapBtn:hover{
-  transform:scale(1.05);
+  transform:translateY(-3px);
+}
+
+.mapIcon{
+  display:block;
+  font-size:42px;
+  margin-bottom:8px;
+}
+
+.mapSub{
+  font-size:16px;
+  font-weight:500;
+  opacity:.95;
+  margin-top:8px;
 }
 
 .copyright{
-  margin-top:20px;
+  text-align:center;
+  margin-top:30px;
   color:#94a3b8;
   font-size:14px;
 }
@@ -87,10 +117,15 @@ body{
 <body>
 
 <div class="header">
-  <div class="logo">🚗 安建快速洗車</div>
-  <div class="subTitle">
-    價目表與服務項目
+
+  <div class="logo">
+    🚗 安建快速洗車
   </div>
+
+  <div class="subTitle">
+    專業快速洗車｜奈米鍍膜｜會員優惠
+  </div>
+
 </div>
 
 <div class="container">
@@ -114,7 +149,15 @@ body{
   <a class="mapBtn"
      href="https://maps.app.goo.gl/1bgFF1A51tgvRjEW7?g_st=il"
      target="_blank">
-     📍 點我導航到安建快速洗車
+
+      <span class="mapIcon">📍</span>
+
+      立即導航前往安建快速洗車
+
+      <div class="mapSub">
+        點擊開啟 Google Maps 導航
+      </div>
+
   </a>
 
   <div class="copyright">
