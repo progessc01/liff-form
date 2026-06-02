@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CatCake 折價券核銷</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Kiwi Maru',"Microsoft JhengHei",sans-serif;
+
+    background:
+    radial-gradient(circle at top left,#fff3c9 0%,transparent 34%),
+    radial-gradient(circle at top right,#ffdede 0%,transparent 32%),
+    linear-gradient(180deg,#fffaf0,#fff0df);
+
+    min-height:100vh;
+    padding:20px;
+    color:#6a3f29;
+}
+
+.container{
+    max-width:650px;
+    margin:auto;
+}
+
+.card{
+
+    background:white;
+
+    border-radius:35px;
+
+    padding:35px;
+
+    text-align:center;
+
+    border:3px solid #f6dcae;
+
+    box-shadow:
+    0 15px 35px rgba(0,0,0,.1);
+
+}
+
+.logo{
+
+    font-size:50px;
+    color:#7b4a32;
+
+}
+
+.title{
+
+    font-size:30px;
+    color:#f08f8f;
+
+    margin-top:10px;
+
+}
+
+.amount{
+
+    font-size:55px;
+
+    color:#d9785d;
+
+    margin-top:25px;
+
+}
+
+.couponBox{
+
+    margin-top:20px;
+
+    background:#fff6e9;
+
+    border-radius:20px;
+
+    padding:20px;
+
+}
+
+.label{
+
+    font-size:18px;
+
+    color:#9a7657;
+
+}
+
+.code{
+
+    font-size:26px;
+
+    color:#d9785d;
+
+    margin-top:10px;
+
+    word-break:break-all;
+
+}
+
+.btn{
+
+    width:100%;
+
+    border:none;
+
+    padding:18px;
+
+    border-radius:22px;
+
+    margin-top:25px;
+
+    background:#FF9F9F;
+
+    color:white;
+
+    font-size:22px;
+
+    font-family:inherit;
+
+    cursor:pointer;
+
+}
+
+.btn:disabled{
+
+    background:#ccc;
+
+    cursor:not-allowed;
+
+}
+
+.success{
+
+    color:#2e9e5b;
+
+    font-size:24px;
+
+    margin-top:25px;
+
+    line-height:1.8;
+
+}
+
+.error{
+
+    color:#d9534f;
+
+    font-size:20px;
+
+    margin-top:25px;
+
+    line-height:1.8;
+
+}
+
+.info{
+
+    margin-top:20px;
+
+    line-height:1.8;
+
+    color:#7a5238;
+
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<div class="card">
+
+<div class="logo">
+CatCake
+</div>
+
+<div class="title">
+🎁 折價券核銷
+</div>
+
+<div class="amount">
+30元
+</div>
+
+<div class="couponBox">
+
+<div class="label">
+折價券序號
+</div>
+
+<div
+class="code"
+id="couponCode">
+讀取中...
+</div>
+
+</div>
+
+<div class="info">
+確認客戶折價券後<br>
+按下方按鈕完成核銷
+</div>
+
+<button
+class="btn"
+id="redeemBtn"
+onclick="redeemCoupon()">
+✅ 確認核銷
+</button>
+
+<div id="result"></div>
+
+</div>
+
+</div>
+
+<script>
+
+const GAS_URL =
+"https://script.google.com/macros/s/AKfycbzSzVt5-1dvPWifeNDvYd8Ebm763XaJ6J9SehGBHenHSzR8hArH0tdgs_0V8n6HLo6q/exec";
+
+const params =
+new URLSearchParams(
+window.location.search
+);
+
+const couponCode =
+params.get("coupon") || "";
+
+document
+.getElementById("couponCode")
+.innerText =
+couponCode || "找不到折價券";
+
+if(!couponCode){
+
+    document
+    .getElementById("redeemBtn")
+    .disabled = true;
+
+    document
+    .getElementById("result")
+    .innerHTML =
+    '<div class="error">找不到折價券資料</div>';
+
+}
+
+async function redeemCoupon(){
+
+    if(!couponCode){
+
+        alert("找不到折價券");
+
+        return;
+
+    }
+
+    const ok =
+    confirm(
+      "確定核銷這張30元折價券？"
+    );
+
+    if(!ok) return;
+
+    const btn =
+    document
+    .getElementById("redeemBtn");
+
+    btn.disabled = true;
+
+    btn.innerText =
+    "核銷中...";
+
+    try{
+
+        const res =
+        await fetch(
+            GAS_URL,
+            {
+                method:"POST",
+                body:JSON.stringify({
+                    action:"redeemReviewCoupon",
+                    couponCode:couponCode
+                })
+            }
+        );
+
+        const data =
+        await res.json();
+
+        if(data.status === "OK"){
+
+            document
+            .getElementById("result")
+            .innerHTML =
+            `
+            <div class="success">
+            🎉 核銷成功<br>
+            已折抵30元
+            </div>
+            `;
+
+            btn.innerText =
+            "已核銷";
+
+        }else{
+
+            document
+            .getElementById("result")
+            .innerHTML =
+            `
+            <div class="error">
+            ${data.message}
+            </div>
+            `;
+
+            btn.disabled = false;
+
+            btn.innerText =
+            "重新核銷";
+
+        }
+
+    }catch(err){
+
+        document
+        .getElementById("result")
+        .innerHTML =
+        `
+        <div class="error">
+        系統忙碌中<br>
+        請稍後再試
+        </div>
+        `;
+
+        btn.disabled = false;
+
+        btn.innerText =
+        "重新核銷";
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
