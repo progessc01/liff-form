@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CatCake 集點卡</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  font-family:'Kiwi Maru',"Microsoft JhengHei",sans-serif;
+  background:linear-gradient(180deg,#fffaf0,#fff0df);
+  padding:18px;
+  color:#6a3f29;
+}
+
+.container{
+  max-width:720px;
+  margin:auto;
+}
+
+.cardBox{
+  background:white;
+  border-radius:28px;
+  padding:18px;
+  box-shadow:0 15px 35px rgba(0,0,0,.12);
+  border:3px solid #f6dcae;
+  text-align:center;
+}
+
+.title{
+  font-size:30px;
+  color:#f08f8f;
+  margin-bottom:14px;
+}
+
+.stage{
+  position:relative;
+  width:100%;
+}
+
+.stage img.card{
+  width:100%;
+  display:block;
+  border-radius:18px;
+}
+
+.stamp{
+  position:absolute;
+  width:16%;
+  transform:translate(-50%,-50%);
+  mix-blend-mode:multiply;
+  opacity:.95;
+}
+
+.s1{left:24%;top:47%;}
+.s2{left:50%;top:47%;}
+.s3{left:75%;top:47%;}
+.s4{left:24%;top:72%;}
+.s5{left:50%;top:72%;}
+.s6{left:75%;top:72%;}
+
+input{
+  width:100%;
+  padding:15px;
+  margin-top:12px;
+  border-radius:18px;
+  border:2px solid #f0d6b2;
+  font-size:18px;
+  font-family:inherit;
+}
+
+.btn{
+  width:100%;
+  border:none;
+  margin-top:14px;
+  padding:17px;
+  border-radius:22px;
+  font-size:20px;
+  font-family:inherit;
+  cursor:pointer;
+}
+
+.addBtn{
+  background:#FF9F9F;
+  color:white;
+}
+
+.searchBtn{
+  background:#FFD166;
+  color:#5a341f;
+}
+
+.msg{
+  margin-top:16px;
+  font-size:18px;
+  line-height:1.8;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<div class="cardBox">
+
+<div class="title">🐾 CatCake 集點卡</div>
+
+<div class="stage">
+  <img class="card" src="7.jpg">
+
+  <img class="stamp s1" src="9.jpg" id="st1" style="display:none;">
+  <img class="stamp s2" src="9.jpg" id="st2" style="display:none;">
+  <img class="stamp s3" src="9.jpg" id="st3" style="display:none;">
+  <img class="stamp s4" src="9.jpg" id="st4" style="display:none;">
+  <img class="stamp s5" src="9.jpg" id="st5" style="display:none;">
+  <img class="stamp s6" src="9.jpg" id="st6" style="display:none;">
+</div>
+
+<input id="name" placeholder="請輸入姓名">
+<input id="phone" type="text" inputmode="numeric" maxlength="10" placeholder="請輸入手機號碼">
+<input id="stampPassword" type="password" placeholder="請輸入店家集點密碼">
+
+<button id="addBtn" class="btn addBtn" onclick="addStamp()">
+🐾 店家確認後，加一點
+</button>
+
+<button id="searchBtn" class="btn searchBtn" onclick="searchStamp()">
+🔍 查詢我的集點卡
+</button>
+
+<div class="msg" id="msg"></div>
+
+</div>
+</div>
+
+<script>
+const GAS_URL =
+"https://script.google.com/macros/s/AKfycbzSzVt5-1dvPWifeNDvYd8Ebm763XaJ6J9SehGBHenHSzR8hArH0tdgs_0V8n6HLo6q/exec";
+
+function cleanPhone(v){
+  return String(v || "").replace(/\D/g,"").trim();
+}
+
+function showStamps(count){
+  for(let i=1;i<=6;i++){
+    document.getElementById("st"+i).style.display =
+      i <= count ? "block" : "none";
+  }
+}
+
+async function addStamp(){
+
+  const btn = document.getElementById("addBtn");
+  const name = document.getElementById("name").value.trim();
+  const phone = cleanPhone(document.getElementById("phone").value);
+  const stampPassword = document.getElementById("stampPassword").value.trim();
+
+  if(!name){
+    alert("請輸入姓名");
+    return;
+  }
+
+  if(!/^09\d{8}$/.test(phone)){
+    alert("請輸入正確手機號碼");
+    return;
+  }
+
+  if(!stampPassword){
+    alert("請輸入店家集點密碼");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerText = "集點中...";
+
+  try{
+    const res = await fetch(GAS_URL,{
+      method:"POST",
+      body:JSON.stringify({
+        action:"addStamp",
+        name:name,
+        phone:phone,
+        stampPassword:stampPassword
+      })
+    });
+
+    const data = await res.json();
+
+    if(data.status !== "OK"){
+      alert(data.message || "集點失敗");
+      btn.disabled = false;
+      btn.innerText = "🐾 店家確認後，加一點";
+      return;
+    }
+
+    showStamps(Number(data.stampCount || 0));
+
+    document.getElementById("msg").innerHTML =
+      `目前已集 ${data.stampCount} / 6 點<br>${data.message}`;
+
+    btn.disabled = false;
+    btn.innerText = "🐾 店家確認後，加一點";
+
+  }catch(err){
+    alert("系統忙碌中，請稍後再試");
+    btn.disabled = false;
+    btn.innerText = "🐾 店家確認後，加一點";
+  }
+}
+
+async function searchStamp(){
+
+  const phone = cleanPhone(document.getElementById("phone").value);
+
+  if(!/^09\d{8}$/.test(phone)){
+    alert("請輸入正確手機號碼");
+    return;
+  }
+
+  const res = await fetch(GAS_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"getStampCard",
+      phone:phone
+    })
+  });
+
+  const data = await res.json();
+
+  if(data.status !== "OK"){
+    alert(data.message || "查無集點卡");
+    return;
+  }
+
+  showStamps(Number(data.stampCount || 0));
+
+  document.getElementById("msg").innerHTML =
+    `目前已集 ${data.stampCount} / 6 點<br>${data.message}`;
+}
+</script>
+
+</body>
+</html>
