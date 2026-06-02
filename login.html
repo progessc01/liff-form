@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>安建員工登入</title>
+
+<style>
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Arial,"Microsoft JhengHei";
+  background:linear-gradient(180deg,#f2e5df,#ead8d2,#dfc9c2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.box{
+  width:90%;
+  max-width:420px;
+  background:white;
+  border-radius:26px;
+  padding:28px;
+  box-shadow:0 10px 30px rgba(0,0,0,.12);
+}
+
+h1{
+  text-align:center;
+  color:#5b4650;
+}
+
+label{
+  display:block;
+  margin-top:14px;
+  font-weight:900;
+  color:#5b4650;
+}
+
+input,
+select,
+button{
+  width:100%;
+  padding:15px;
+  margin-top:8px;
+  font-size:18px;
+  border-radius:16px;
+  box-sizing:border-box;
+}
+
+input,
+select{
+  border:1px solid #ddd;
+}
+
+button{
+  margin-top:22px;
+  border:0;
+  background:linear-gradient(135deg,#b7778d,#8d5d70);
+  color:white;
+  font-weight:900;
+}
+
+button:disabled{
+  opacity:.55;
+}
+
+.msg{
+  display:none;
+  margin-top:15px;
+  padding:14px;
+  border-radius:14px;
+  background:#dc2626;
+  color:white;
+  font-weight:900;
+  text-align:center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+  <h1>安建員工登入</h1>
+
+  <form
+    id="loginForm"
+    method="POST"
+    action="https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec"
+    onsubmit="return beforeSubmit();"
+  >
+
+    <input type="hidden" name="type" value="loginBridge">
+
+    <label>分店</label>
+    <select id="storeCode" name="storeCode" required>
+      <option value="">請選擇分店</option>
+      <option value="AJ01">AJ01｜總店</option>
+      <option value="AJ02">AJ02｜員林店</option>
+      <option value="AJ03">AJ03｜彰南店</option>
+      <option value="AJ04">AJ04｜山福店</option>
+    </select>
+
+    <label>工號</label>
+    <input
+      id="staffNo"
+      name="staffNo"
+      placeholder="請輸入工號"
+      required
+    >
+
+    <label>密碼</label>
+    <input
+      id="password"
+      name="password"
+      type="password"
+      placeholder="請輸入密碼"
+      required
+    >
+
+    <button id="loginBtn" type="submit">
+      員工登入
+    </button>
+
+  </form>
+
+  <div id="msg" class="msg"></div>
+
+</div>
+
+<script>
+function beforeSubmit(){
+
+  const btn =
+    document.getElementById("loginBtn");
+
+  const msg =
+    document.getElementById("msg");
+
+  msg.style.display = "none";
+  btn.disabled = true;
+  btn.innerText = "登入中...";
+
+  return true;
+}
+</script>
+
+</body>
+</html>
