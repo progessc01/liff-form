@@ -214,6 +214,7 @@ async function addStamp(){
 
 async function searchStamp(){
 
+  const btn = document.getElementById("searchBtn");
   const phone = cleanPhone(document.getElementById("phone").value);
 
   if(!/^09\d{8}$/.test(phone)){
@@ -221,25 +222,40 @@ async function searchStamp(){
     return;
   }
 
-  const res = await fetch(GAS_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"getStampCard",
-      phone:phone
-    })
-  });
+  btn.disabled = true;
+  btn.innerText = "查詢中...";
 
-  const data = await res.json();
+  try{
+    const res = await fetch(GAS_URL,{
+      method:"POST",
+      body:JSON.stringify({
+        action:"getStampCard",
+        phone:phone
+      })
+    });
 
-  if(data.status !== "OK"){
-    alert(data.message || "查無集點卡");
-    return;
+    const data = await res.json();
+
+    if(data.status !== "OK"){
+      alert(data.message || "查無集點卡");
+      btn.disabled = false;
+      btn.innerText = "🔍 查詢我的集點卡";
+      return;
+    }
+
+    showStamps(Number(data.stampCount || 0));
+
+    document.getElementById("msg").innerHTML =
+      `目前已集 ${data.stampCount} / 6 點<br>${data.message}`;
+
+    btn.disabled = false;
+    btn.innerText = "🔍 查詢我的集點卡";
+
+  }catch(err){
+    alert("查詢失敗，請稍後再試");
+    btn.disabled = false;
+    btn.innerText = "🔍 查詢我的集點卡";
   }
-
-  showStamps(Number(data.stampCount || 0));
-
-  document.getElementById("msg").innerHTML =
-    `目前已集 ${data.stampCount} / 6 點<br>${data.message}`;
 }
 </script>
 
