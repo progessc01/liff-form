@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CatCake 甜蜜上菜｜蛋糕菜單</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;
+  background:
+    radial-gradient(circle at top left, #fff3d7 0%, transparent 32%),
+    radial-gradient(circle at top right, #ffe2df 0%, transparent 30%),
+    linear-gradient(180deg,#fff8e9 0%,#fff1dc 45%,#ffe9df 100%);
+  color:#4b2b18;
+}
+
+.header{
+  text-align:center;
+  padding:34px 18px 20px;
+}
+
+.logo{
+  font-size:42px;
+  font-weight:900;
+  letter-spacing:1px;
+  color:#5a321d;
+}
+
+.logo span{
+  color:#d95f50;
+}
+
+.subtitle{
+  display:inline-block;
+  margin-top:12px;
+  padding:8px 22px;
+  background:#fff5d9;
+  border:1px solid #e7c995;
+  border-radius:999px;
+  font-size:16px;
+  color:#8a5735;
+  box-shadow:0 6px 18px rgba(120,70,35,.08);
+}
+
+.menu-wrap{
+  max-width:1180px;
+  margin:0 auto;
+  padding:18px 14px 48px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:24px;
+}
+
+.card{
+  background:#fffaf0;
+  border-radius:24px;
+  padding:12px;
+  box-shadow:
+    0 14px 30px rgba(106,61,32,.13),
+    inset 0 0 0 1px rgba(255,255,255,.7);
+  border:1px solid rgba(221,174,117,.45);
+}
+
+.card img{
+  width:100%;
+  display:block;
+  border-radius:18px;
+}
+
+.footer{
+  text-align:center;
+  padding:18px 14px 34px;
+  color:#8b6040;
+  font-size:15px;
+}
+
+@media(max-width:768px){
+  .logo{
+    font-size:34px;
+  }
+
+  .subtitle{
+    font-size:14px;
+  }
+
+  .grid{
+    grid-template-columns:1fr;
+    gap:18px;
+  }
+
+  .menu-wrap{
+    padding:12px 10px 34px;
+  }
+
+  .card{
+    border-radius:18px;
+    padding:8px;
+  }
+
+  .card img{
+    border-radius:14px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="logo">CatCake <span>甜蜜上菜</span></div>
+  <div class="subtitle">每一口，都是幸福的味道 ♡</div>
+</header>
+
+<main class="menu-wrap">
+  <section class="grid">
+
+    <div class="card">
+      <img src="1.jpg" alt="CatCake 蛋糕菜單 1">
+    </div>
+
+    <div class="card">
+      <img src="2.jpg" alt="CatCake 蛋糕菜單 2">
+    </div>
+
+    <div class="card">
+      <img src="3.jpg" alt="CatCake 蛋糕菜單 3">
+    </div>
+
+    <div class="card">
+      <img src="4.jpg" alt="CatCake 蛋糕菜單 4">
+    </div>
+
+    <div class="card">
+      <img src="5.jpg" alt="CatCake 蛋糕菜單 5">
+    </div>
+
+    <div class="card">
+      <img src="6.jpg" alt="CatCake 蛋糕菜單 6">
+    </div>
+
+  </section>
+</main>
+
+<footer class="footer">
+  ♡ 手工製作・嚴選食材・甜蜜分享 ♡
+</footer>
+
+</body>
+</html>
