@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CatCake 甜蜜上菜｜門市資訊</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Kiwi Maru',"Microsoft JhengHei",sans-serif;
+    background:
+    radial-gradient(circle at top left,#fff3c9 0%,transparent 34%),
+    radial-gradient(circle at top right,#ffdede 0%,transparent 32%),
+    radial-gradient(circle at bottom,#ffe8c8 0%,transparent 38%),
+    linear-gradient(180deg,#fffaf0,#fff0df);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+    color:#6a3f29;
+}
+
+.container{
+    width:100%;
+    max-width:720px;
+}
+
+.card{
+    background:#fffdf8;
+    border-radius:36px;
+    padding:42px 26px;
+    text-align:center;
+    box-shadow:0 16px 38px rgba(128,78,48,.15);
+    border:3px solid #f6dcae;
+    position:relative;
+    overflow:hidden;
+}
+
+.card::before{
+    content:"🐾";
+    position:absolute;
+    top:18px;
+    left:24px;
+    font-size:28px;
+    opacity:.28;
+}
+
+.card::after{
+    content:"🍓";
+    position:absolute;
+    bottom:20px;
+    right:24px;
+    font-size:30px;
+    opacity:.35;
+}
+
+.logo{
+    font-size:58px;
+    font-weight:500;
+    color:#7b4a32;
+    letter-spacing:1px;
+    line-height:1.1;
+}
+
+.title{
+    font-size:34px;
+    color:#f08f8f;
+    font-weight:500;
+    margin:8px 0 14px;
+    letter-spacing:3px;
+}
+
+.slogan{
+    display:inline-block;
+    font-size:18px;
+    color:#9a6646;
+    background:#fff4dc;
+    border:2px dashed #efc48e;
+    border-radius:999px;
+    padding:10px 22px;
+    margin-bottom:30px;
+}
+
+.info{
+    background:#fff6e9;
+    border-radius:26px;
+    padding:24px 18px;
+    margin-bottom:24px;
+    border:2px solid #f0d6b2;
+}
+
+.item{
+    margin:18px 0;
+    font-size:21px;
+    color:#674832;
+    line-height:1.85;
+}
+
+.label{
+    color:#e0836c;
+    font-weight:500;
+}
+
+.phoneLink{
+    color:#6a3f29;
+    text-decoration:none;
+    font-weight:500;
+    letter-spacing:1px;
+}
+
+.btn{
+    display:block;
+    width:100%;
+    text-decoration:none;
+    font-size:22px;
+    font-weight:500;
+    padding:17px;
+    border-radius:24px;
+    margin-top:14px;
+    box-shadow:0 10px 18px rgba(120,70,35,.14);
+    transition:.2s;
+}
+
+.btn:active{
+    transform:scale(.97);
+}
+
+.menuBtn{
+    background:linear-gradient(135deg,#ffe38a,#ffc85c);
+    color:#68401f;
+}
+
+.mapBtn{
+    background:linear-gradient(135deg,#ffb7a3,#ff8f8f);
+    color:white;
+}
+
+.callBtn{
+    background:linear-gradient(135deg,#d9a86c,#bd8450);
+    color:white;
+}
+
+.footer{
+    margin-top:24px;
+    color:#9a7657;
+    font-size:15px;
+    line-height:1.9;
+}
+
+@media(max-width:768px){
+    body{
+        padding:14px;
+        align-items:flex-start;
+    }
+
+    .card{
+        padding:36px 17px;
+        border-radius:30px;
+    }
+
+    .logo{
+        font-size:44px;
+    }
+
+    .title{
+        font-size:30px;
+        letter-spacing:2px;
+    }
+
+    .slogan{
+        font-size:15px;
+        padding:9px 16px;
+    }
+
+    .item{
+        font-size:18px;
+    }
+
+    .btn{
+        font-size:19px;
+        padding:16px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <div class="logo">CatCake</div>
+
+        <div class="title">甜蜜上菜</div>
+
+        <div class="slogan">
+            🐱 每一口，都是幸福的味道 🍰
+        </div>
+
+        <div class="info">
+
+            <div class="item">
+                📍 <span class="label">門市地址</span><br>
+                彰化市建中街29號
+            </div>
+
+            <div class="item">
+                ☎️ <span class="label">訂購專線</span><br>
+                <a class="phoneLink" href="tel:0988079393">
+                    0988-079-393
+                </a>
+            </div>
+
+            <div class="item">
+                🕐 <span class="label">營業時間</span><br>
+                10:00 ～ 17:00<br>
+                （最後預約時間 15:30）
+            </div>
+
+        </div>
+
+        <a class="btn menuBtn" href="cake-menu.html">
+            🧁 今日甜點菜單
+        </a>
+
+        <a class="btn mapBtn"
+           href="https://maps.google.com/?q=彰化市建中街29號"
+           target="_blank">
+            🧭 帶我去 CatCake
+        </a>
+
+        <a class="btn callBtn" href="tel:0988079393">
+            💕 我要預約蛋糕
+        </a>
+
+        <div class="footer">
+            手工烘焙｜嚴選食材｜甜蜜分享<br>
+            ♡ 今天也想把可愛和甜甜帶給你 ♡
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
