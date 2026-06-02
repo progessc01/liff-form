@@ -171,7 +171,12 @@ input{
 
 <input id="name" placeholder="請輸入姓名">
 
-<input id="phone" type="tel" placeholder="請輸入手機號碼，例如 0988079393">
+<input
+id="phone"
+type="text"
+inputmode="numeric"
+maxlength="10"
+placeholder="請輸入手機號碼，例如 0988079393">
 
 <input id="claimPassword" type="password" placeholder="請輸入店家領券密碼">
 
@@ -187,7 +192,12 @@ input{
 
 <div id="recoverArea">
 
-<input id="recoverPhone" type="tel" placeholder="請輸入手機號碼，例如 0988079393">
+<input
+id="recoverPhone"
+type="text"
+inputmode="numeric"
+maxlength="10"
+placeholder="請輸入手機號碼，例如 0988079393">
 
 <button class="btn recoverBtn" onclick="recoverCoupon()">
 查詢我的折價券
