@@ -229,6 +229,9 @@ placeholder="請輸入手機號碼，例如 0988079393">
 <script>
 const GOOGLE_REVIEW_URL = "https://www.google.com/maps/place/Cat+Cake+%E6%89%8B%E4%BD%9CDIY%E8%9B%8B%E7%B3%95%E5%BA%97/@24.0712859,120.5300256,15.86z/data=!4m8!3m7!1s0x34693900073390fb:0x290bca681d121771!8m2!3d24.0715874!4d120.5307776!9m1!1b1!16s%2Fg%2F11vm2c1b_t!18m1!1e1?entry=ttu&g_ep=EgoyMDI2MDUyNy4wIKXMDSoASAFQAw%3D%3D";
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzSzVt5-1dvPWifeNDvYd8Ebm763XaJ6J9SehGBHenHSzR8hArH0tdgs_0V8n6HLo6q/exec";
+const REDEEM_PAGE_URL =
+"https://progessc01.github.io/liff-form/coupon-use";
+
 
 document.getElementById("reviewBtn").href = GOOGLE_REVIEW_URL;
 
@@ -297,7 +300,12 @@ async function claimCoupon(){
             return;
         }
 
-        showCoupon(data.couponCode, data.qrText);
+        showCoupon(
+    data.couponCode,
+    REDEEM_PAGE_URL +
+    "?coupon=" +
+    encodeURIComponent(data.couponCode)
+);
 
     }catch(err){
         alert("系統忙碌中，請稍後再試");
@@ -329,7 +337,12 @@ async function recoverCoupon(){
             return;
         }
 
-        showCoupon(data.couponCode, data.qrText);
+        showCoupon(
+    data.couponCode,
+    REDEEM_PAGE_URL +
+    "?coupon=" +
+    encodeURIComponent(data.couponCode)
+);
 
     }catch(err){
         alert("查詢失敗，請稍後再試");
