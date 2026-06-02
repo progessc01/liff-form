@@ -21,7 +21,7 @@
 
     <br>
 
-    <select id="account">
+    <select id="storeCode">
       <option value="">請選擇分店</option>
       <option value="AJ01">AJ01 總店</option>
       <option value="AJ02">AJ02 員林店</option>
@@ -32,9 +32,19 @@
     <br><br>
 
     <input
+      type="text"
+      id="staffNo"
+      placeholder="請輸入工號，例如：001"
+      inputmode="numeric"
+      autocomplete="off"
+    >
+
+    <br><br>
+
+    <input
       type="password"
       id="password"
-      placeholder="請輸入分店密碼"
+      placeholder="請輸入密碼"
       autocomplete="current-password"
       inputmode="text"
     >
@@ -76,23 +86,38 @@ function resetUseButton() {
   isUsing = false;
 
   const btn = document.getElementById("useBtn");
-  btn.disabled = false;
-  btn.innerText = "確認核銷";
+  if(btn) {
+    btn.disabled = false;
+    btn.innerText = "確認核銷";
+  }
 }
 
 function lockUseButton() {
   isUsing = true;
 
   const btn = document.getElementById("useBtn");
-  btn.disabled = true;
-  btn.innerText = "核銷中...";
+  if(btn) {
+    btn.disabled = true;
+    btn.innerText = "核銷中...";
+  }
+}
+
+function buildAccount(storeCode, staffNo) {
+
+  staffNo = String(staffNo || "")
+    .trim()
+    .replace(/\s/g, "");
+
+  if(!staffNo) return "";
+
+  if(staffNo.includes("-")) {
+    return staffNo.toUpperCase();
+  }
+
+  return storeCode + "-" + staffNo;
 }
 
 function clearAfterSuccess() {
-
-  document.getElementById("account").value = "";
-  document.getElementById("password").value = "";
-  document.getElementById("cardNoText").innerText = "已完成核銷";
 
   mainArea.innerHTML = `
     <div class="card">
@@ -108,8 +133,11 @@ function useCard(allowDuplicate) {
 
   if(isUsing) return;
 
-  const account = document.getElementById("account").value.trim();
+  const storeCode = document.getElementById("storeCode").value.trim();
+  const staffNo = document.getElementById("staffNo").value.trim();
   const password = document.getElementById("password").value.trim();
+
+  const account = buildAccount(storeCode, staffNo);
 
   allowDuplicate = allowDuplicate || "no";
 
@@ -118,8 +146,18 @@ function useCard(allowDuplicate) {
     return;
   }
 
-  if(!account || !password) {
-    alert("請輸入分店帳號與密碼");
+  if(!storeCode) {
+    alert("請選擇分店");
+    return;
+  }
+
+  if(!staffNo) {
+    alert("請輸入工號");
+    return;
+  }
+
+  if(!password) {
+    alert("請輸入密碼");
     return;
   }
 
@@ -169,7 +207,7 @@ function useCard(allowDuplicate) {
     }
 
     if(data.status === "LOGIN_ERROR") {
-      result.innerHTML = "❌ 分店帳號或密碼錯誤";
+      result.innerHTML = "❌ 分店、工號或密碼錯誤";
       resetUseButton();
       return;
     }
