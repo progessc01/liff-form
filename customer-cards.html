@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>卡片查詢</title>
-  <link rel="stylesheet" href="customer-style.css?v=cardfix003">
+  <link rel="stylesheet" href="customer-style.css?v=cardfix004">
 </head>
 
 <body>
@@ -64,6 +64,7 @@ document.getElementById("memberInfo").innerHTML = `
 
   </div>
 `;
+
 loadCards();
 
 function loadCards() {
@@ -98,20 +99,21 @@ function loadCards() {
       return;
     }
 
-    const usingCards = cards.filter(c =>
-      Number(c.remainingTimes) > 0 &&
-      Number(c.remainingTimes) < Number(c.totalTimes)
+    const usableCards = cards.filter(c =>
+      !isBlockedCard(c) &&
+      Number(c.remainingTimes) > 0
     );
 
-    const unusedCards = cards.filter(c =>
-      Number(c.remainingTimes) === Number(c.totalTimes)
+    const blockedCards = cards.filter(c =>
+      isBlockedCard(c)
     );
 
     const finishedCards = cards.filter(c =>
+      !isBlockedCard(c) &&
       Number(c.remainingTimes) <= 0
     );
 
-    pages = usingCards.concat(unusedCards).concat(finishedCards);
+    pages = usableCards.concat(finishedCards).concat(blockedCards);
 
     page = 0;
 
@@ -139,31 +141,88 @@ function render() {
   const cardNoRaw = c.cardNo || "";
   const cardNoDisplay = formatCardNo(cardNoRaw);
 
-  const remainingTimes = Number(c.remainingTimes || 0);
+  const status = String(c.status || "").trim().toUpperCase();
+
+  const isVoid =
+    status === "VOID" ||
+    status === "作廢" ||
+    status === "已作廢";
+
+  const isRefund =
+    status === "REFUND" ||
+    status === "已退款";
+
+  const isBlocked =
+    isVoid || isRefund;
+
+  let remainingTimes =
+    Number(c.remainingTimes || 0);
+
+  if(isBlocked) {
+    remainingTimes = 0;
+  }
+
   const totalTimes = Number(c.totalTimes || 0);
   const vehicleType = c.vehicleType || "";
   const packageType = c.packageType || "";
-  const status = c.status || "";
 
   const disabledUse =
-    remainingTimes <= 0 ||
-    status === "REFUND"
+    isBlocked || remainingTimes <= 0
       ? "disabled"
       : "";
 
   const statusClass =
-    status === "REFUND"
+    isVoid
       ? "status-refund"
-      : remainingTimes <= 0
-        ? "status-finished"
-        : "status-active";
+      : isRefund
+        ? "status-refund"
+        : remainingTimes <= 0
+          ? "status-finished"
+          : "status-active";
 
   const statusText =
-    status === "REFUND"
-      ? "已退款"
-      : remainingTimes <= 0
-        ? "已用完"
-        : "可使用";
+    isVoid
+      ? "已作廢"
+      : isRefund
+        ? "已退款"
+        : remainingTimes <= 0
+          ? "已用完"
+          : "可使用";
+
+  const blockedNotice =
+    isVoid
+      ? `
+        <div style="
+          background:#fee2e2;
+          color:#b91c1c;
+          border:2px solid #ef4444;
+          padding:12px;
+          border-radius:12px;
+          font-size:20px;
+          font-weight:900;
+          text-align:center;
+          margin:12px 0;
+        ">
+          此卡已作廢，無法使用
+        </div>
+      `
+      : isRefund
+        ? `
+          <div style="
+            background:#fee2e2;
+            color:#b91c1c;
+            border:2px solid #ef4444;
+            padding:12px;
+            border-radius:12px;
+            font-size:20px;
+            font-weight:900;
+            text-align:center;
+            margin:12px 0;
+          ">
+            此卡已退款，無法使用
+          </div>
+        `
+        : "";
 
   cardBox.innerHTML = `
     <div class="card">
@@ -171,20 +230,21 @@ function render() {
       <div class="vipCardWrap">
 
         <img
-          src="vip-card.jpg?v=cardfix003"
+          src="vip-card.jpg?v=cardfix004"
           class="vipCardImg"
           alt="安建VIP洗車儲值卡"
         >
 
-
       </div>
 
       <h2 class="infoMainNo">
-  卡號：
-  <span class="cardNoText">
-    ${escapeHtml(cardNoDisplay)}
-  </span>
-</h2>
+        卡號：
+        <span class="cardNoText">
+          ${escapeHtml(cardNoDisplay)}
+        </span>
+      </h2>
+
+      ${blockedNotice}
 
       <p>剩餘次數：${remainingTimes}</p>
 
@@ -216,7 +276,6 @@ function render() {
     </div>
   `;
 }
-
 function nextPage() {
   if(page < pages.length - 1) {
     page++;
@@ -231,17 +290,53 @@ function prevPage() {
   }
 }
 
+function isBlockedCard(card) {
+
+  const status =
+    String(card.status || "")
+      .trim()
+      .toUpperCase();
+
+  return (
+    status === "VOID" ||
+    status === "REFUND" ||
+    status === "已作廢" ||
+    status === "已退款"
+  );
+}
+
 function useCurrentCard() {
 
   const c = pages[page];
 
   if(!c) return;
 
+  if(isBlockedCard(c)) {
+
+    alert(
+      String(c.status).toUpperCase() === "VOID"
+        ? "此卡已作廢，無法使用"
+        : "此卡已退款，無法使用"
+    );
+
+    return;
+  }
+
+  const remainingTimes =
+    Number(c.remainingTimes || 0);
+
+  if(remainingTimes <= 0) {
+
+    alert("此卡已無剩餘次數");
+
+    return;
+  }
+
   localStorage.setItem("useCardNo", c.cardNo || "");
   localStorage.setItem("useCardStatus", c.status || "");
   localStorage.setItem("useVehicleType", c.vehicleType || "");
   localStorage.setItem("usePackageType", c.packageType || "");
-  localStorage.setItem("useRemainingTimes", c.remainingTimes || "");
+  localStorage.setItem("useRemainingTimes", remainingTimes);
   localStorage.setItem("useTotalTimes", c.totalTimes || "");
 
   location.href = "customer-use.html";
@@ -253,21 +348,31 @@ function viewCurrentLog() {
 
   if(!c) return;
 
-  localStorage.setItem("logCardNo", c.cardNo || "");
+  localStorage.setItem(
+    "logCardNo",
+    c.cardNo || ""
+  );
+
   location.href = "customer-log.html";
 }
 
 function formatCardNo(cardNo) {
-  const value = String(cardNo || "").trim();
+
+  const value =
+    String(cardNo || "").trim();
 
   if(value.includes("-")) {
     return value;
   }
 
-  return value.replace(/^AJ(\d+)$/i, "AJ-$1");
+  return value.replace(
+    /^AJ(\d+)$/i,
+    "AJ-$1"
+  );
 }
 
 function escapeHtml(value) {
+
   return String(value ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
