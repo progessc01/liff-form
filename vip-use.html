@@ -17,6 +17,10 @@
     <div class="card">
       <p>核銷卡號：</p>
       <h2 id="cardNoText">讀取中...</h2>
+
+      <div id="cardInfo" style="margin-top:15px;">
+        ⏳ 讀取卡片資料中...
+      </div>
     </div>
 
     <br>
@@ -72,14 +76,124 @@ const cardNo = params.get("cardNo");
 
 const result = document.getElementById("result");
 const mainArea = document.getElementById("mainArea");
+const cardInfo = document.getElementById("cardInfo");
 
 let isUsing = false;
 
 if(!cardNo) {
   document.getElementById("cardNoText").innerText = "無卡號";
+  cardInfo.innerHTML = "";
   result.innerHTML = "❌ QR CODE錯誤，沒有卡號";
 } else {
   document.getElementById("cardNoText").innerText = cardNo;
+  loadCardInfo();
+}
+
+function loadCardInfo() {
+
+  const form = new URLSearchParams();
+
+  form.append("type", "searchCard");
+  form.append("cardNo", cardNo);
+
+  fetch(GAS_URL, {
+    method: "POST",
+    body: form
+  })
+  .then(r => r.text())
+  .then(t => JSON.parse(t))
+  .then(data => {
+
+    if(data.status !== "OK") {
+      cardInfo.innerHTML = `
+        <div style="color:red; font-weight:bold;">
+          ❌ 查無此卡號
+        </div>
+      `;
+      return;
+    }
+
+    const card = data.card || {};
+
+    let statusText = card.status || "";
+
+    if(statusText === "SOLD") statusText = "可使用";
+    if(statusText === "FINISHED") statusText = "已用完";
+    if(statusText === "REFUND") statusText = "已退款";
+    if(statusText === "VOID") statusText = "已作廢";
+
+    let remainingTimes = Number(card.remainingTimes || 0);
+
+    if(card.status === "VOID" || card.status === "REFUND") {
+      remainingTimes = 0;
+    }
+
+    cardInfo.innerHTML = `
+      <div style="
+        background:rgba(0,217,255,0.12);
+        border:2px solid #00d9ff;
+        border-radius:16px;
+        padding:16px;
+        margin-top:15px;
+        text-align:center;
+      ">
+
+        <div style="font-size:15px; color:#9fdfff;">
+          本卡適用車型
+        </div>
+
+        <div style="
+          font-size:34px;
+          font-weight:bold;
+          color:#ffffff;
+          margin-top:6px;
+        ">
+          ${card.vehicleType || "未設定"}
+        </div>
+
+        <hr style="border-color:rgba(255,255,255,0.2);">
+
+        <div style="font-size:15px; color:#9fdfff;">
+          使用服務
+        </div>
+
+        <div style="
+          font-size:26px;
+          font-weight:bold;
+          color:#f7d774;
+          margin-top:6px;
+          line-height:1.4;
+        ">
+          ${card.packageType || "未設定"}
+        </div>
+
+        <hr style="border-color:rgba(255,255,255,0.2);">
+
+        <div style="font-size:18px; font-weight:bold;">
+          剩餘次數：${remainingTimes} / ${card.totalTimes || ""}
+        </div>
+
+        <div style="
+          margin-top:8px;
+          font-size:16px;
+          font-weight:bold;
+          color:${
+            card.status === "SOLD" ? "#00ff99" :
+            card.status === "VOID" || card.status === "REFUND" || card.status === "FINISHED" ? "#ff5555" :
+            "#ffcc00"
+          };
+        ">
+          狀態：${statusText}
+        </div>
+
+      </div>
+    `;
+
+  })
+  .catch(err => {
+    console.log(err);
+    cardInfo.innerHTML = "❌ 卡片資料讀取失敗";
+  });
 }
 
 function resetUseButton() {
@@ -220,6 +334,12 @@ function useCard(allowDuplicate) {
 
     if(data.status === "NO_TIMES") {
       result.innerHTML = "❌ 此卡片已無剩餘次數";
+      resetUseButton();
+      return;
+    }
+
+    if(data.status === "VOID") {
+      result.innerHTML = "❌ 此卡片已作廢，無法使用";
       resetUseButton();
       return;
     }
