@@ -12,48 +12,42 @@
 
   <h1>卡片核銷</h1>
 
-  <div class="card">
-    <p>核銷卡號：</p>
-    <h2 id="cardNoText">讀取中...</h2>
+  <div id="mainArea">
+
+    <div class="card">
+      <p>核銷卡號：</p>
+      <h2 id="cardNoText">讀取中...</h2>
+    </div>
+
+    <br>
+
+    <select id="account">
+      <option value="">請選擇分店</option>
+      <option value="AJ01">AJ01 總店</option>
+      <option value="AJ02">AJ02 員林店</option>
+      <option value="AJ03">AJ03 彰南店</option>
+      <option value="AJ04">AJ04 山福店</option>
+    </select>
+
+    <br><br>
+
+    <input
+      type="password"
+      id="password"
+      placeholder="請輸入分店密碼"
+      autocomplete="current-password"
+      inputmode="text"
+    >
+
+    <br><br>
+
+    <button type="button" id="useBtn" onclick="useCard('no')">
+      確認核銷
+    </button>
+
   </div>
 
   <br>
-
-  <select id="storeCode">
-    <option value="">請選擇分店</option>
-    <option value="AJ01">AJ01｜總店</option>
-    <option value="AJ02">AJ02｜員林店</option>
-    <option value="AJ03">AJ03｜彰南店</option>
-    <option value="AJ04">AJ04｜山福店</option>
-  </select>
-
-  <br><br>
-
-  <input
-    type="text"
-    id="staffNo"
-    placeholder="請輸入工號，例如：001"
-    autocomplete="username"
-    inputmode="numeric"
-  >
-
-  <br><br>
-
-  <input
-    type="password"
-    id="password"
-    placeholder="請輸入員工密碼"
-    autocomplete="current-password"
-    inputmode="text"
-  >
-
-  <br><br>
-
-  <button type="button" id="useBtn" onclick="useCard('no')">
-    確認核銷
-  </button>
-
-  <br><br>
 
   <div id="result"></div>
 
@@ -67,6 +61,7 @@ const params = new URLSearchParams(window.location.search);
 const cardNo = params.get("cardNo");
 
 const result = document.getElementById("result");
+const mainArea = document.getElementById("mainArea");
 
 let isUsing = false;
 
@@ -93,16 +88,28 @@ function lockUseButton() {
   btn.innerText = "核銷中...";
 }
 
+function clearAfterSuccess() {
+
+  document.getElementById("account").value = "";
+  document.getElementById("password").value = "";
+  document.getElementById("cardNoText").innerText = "已完成核銷";
+
+  mainArea.innerHTML = `
+    <div class="card">
+      <h2>✅ 核銷完成</h2>
+      <p style="color:#ccc;">
+        此頁面已清空，請勿重複操作。
+      </p>
+    </div>
+  `;
+}
+
 function useCard(allowDuplicate) {
 
   if(isUsing) return;
 
-  const storeCode = document.getElementById("storeCode").value.trim();
-  const staffNoRaw = document.getElementById("staffNo").value.trim();
+  const account = document.getElementById("account").value.trim();
   const password = document.getElementById("password").value.trim();
-
-  const staffNo = staffNoRaw.padStart(3,"0");
-  const account = storeCode && staffNoRaw ? (storeCode + "-" + staffNo) : "";
 
   allowDuplicate = allowDuplicate || "no";
 
@@ -111,8 +118,8 @@ function useCard(allowDuplicate) {
     return;
   }
 
-  if(!storeCode || !staffNoRaw || !password) {
-    alert("請完整輸入分店、工號與密碼");
+  if(!account || !password) {
+    alert("請輸入分店帳號與密碼");
     return;
   }
 
@@ -162,7 +169,7 @@ function useCard(allowDuplicate) {
     }
 
     if(data.status === "LOGIN_ERROR") {
-      result.innerHTML = "❌ 工號或密碼錯誤";
+      result.innerHTML = "❌ 分店帳號或密碼錯誤";
       resetUseButton();
       return;
     }
@@ -185,21 +192,31 @@ function useCard(allowDuplicate) {
       return;
     }
 
+    clearAfterSuccess();
+
     result.innerHTML = `
       <div class="card">
         <h2>✅ 核銷成功</h2>
-
         <p><b>卡號：</b>${data.cardNo}</p>
         <p><b>使用服務：</b>${data.packageType}</p>
         <p><b>核銷分店：</b>${data.storeCode} ${data.storeName}</p>
         <p><b>核銷人員：</b>${data.staffName}</p>
-        <p><b>使用前次數：</b>${data.beforeTimes}</p>
         <p><b>扣除次數：</b>1</p>
         <p><b>剩餘次數：</b>${data.afterTimes}</p>
+        <p style="color:red; font-weight:bold;">
+          畫面已清空，請勿重複核銷。
+        </p>
       </div>
     `;
 
-    resetUseButton();
+    setTimeout(() => {
+      result.innerHTML = `
+        <div class="card">
+          <h2>✅ 核銷完成</h2>
+          <p>資料已清空，請關閉此頁面。</p>
+        </div>
+      `;
+    }, 3000);
 
   })
   .catch(err => {
