@@ -3,250 +3,255 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>安建快速洗車問卷</title>
+
+<title>CatCake 甜蜜上菜｜門市資訊</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
 body{
-  font-family: Arial, "Microsoft JhengHei", sans-serif;
-  background:linear-gradient(180deg,#020617,#050816,#020617);
-  padding:16px;
-  color:white;
+    font-family:'Kiwi Maru',"Microsoft JhengHei",sans-serif;
+    background:
+    radial-gradient(circle at top left,#fff3c9 0%,transparent 34%),
+    radial-gradient(circle at top right,#ffdede 0%,transparent 32%),
+    radial-gradient(circle at bottom,#ffe8c8 0%,transparent 38%),
+    linear-gradient(180deg,#fffaf0,#fff0df);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+    color:#6a3f29;
 }
 
-.box{
-  max-width:430px;
-  margin:auto;
-  background:rgba(255,255,255,0.08);
-  padding:18px;
-  border-radius:20px;
-  border:1px solid rgba(0,255,255,0.25);
-  box-shadow:0 0 25px rgba(0,220,255,0.25);
+.container{
+    width:100%;
+    max-width:720px;
 }
 
-.hero{
-  width:100%;
-  border-radius:18px;
-  box-shadow:0 0 25px rgba(0,220,255,0.45);
-  margin-bottom:18px;
+.card{
+    background:#fffdf8;
+    border-radius:36px;
+    padding:42px 26px;
+    text-align:center;
+    box-shadow:0 16px 38px rgba(128,78,48,.15);
+    border:3px solid #f6dcae;
+    position:relative;
+    overflow:hidden;
 }
 
-h2{
-  text-align:center;
-  color:#00eaff;
+.card::before{
+    content:"🐾";
+    position:absolute;
+    top:18px;
+    left:24px;
+    font-size:28px;
+    opacity:.28;
 }
 
-.question{
-  margin-top:16px;
-  line-height:1.5;
-  font-weight:bold;
+.card::after{
+    content:"🍓";
+    position:absolute;
+    bottom:20px;
+    right:24px;
+    font-size:30px;
+    opacity:.35;
 }
 
-select, textarea, input, button{
-  width:100%;
-  margin-top:10px;
-  padding:12px;
-  border-radius:12px;
-  border:none;
-  font-size:16px;
-  box-sizing:border-box;
+.logo{
+    font-size:58px;
+    font-weight:500;
+    color:#7b4a32;
+    letter-spacing:1px;
+    line-height:1.1;
 }
 
-select, textarea, input{
-  background:rgba(255,255,255,0.14);
-  color:white;
-  border:1px solid rgba(255,255,255,0.25);
+.title{
+    font-size:34px;
+    color:#f08f8f;
+    font-weight:500;
+    margin:8px 0 14px;
+    letter-spacing:3px;
 }
 
-select option{
-  color:black;
+.slogan{
+    display:inline-block;
+    font-size:18px;
+    color:#9a6646;
+    background:#fff4dc;
+    border:2px dashed #efc48e;
+    border-radius:999px;
+    padding:10px 22px;
+    margin-bottom:30px;
 }
 
-textarea{
-  min-height:90px;
+.info{
+    background:#fff6e9;
+    border-radius:26px;
+    padding:24px 18px;
+    margin-bottom:24px;
+    border:2px solid #f0d6b2;
 }
 
-button{
-  background:linear-gradient(90deg,#00c6ff,#7d2cff);
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
+.item{
+    margin:18px 0;
+    font-size:21px;
+    color:#674832;
+    line-height:1.85;
 }
 
-.plate-row{
-  display:flex;
-  gap:8px;
+.label{
+    color:#e0836c;
+    font-weight:500;
 }
 
-.plate-row input{
-  flex:1;
+.phoneLink{
+    color:#6a3f29;
+    text-decoration:none;
+    font-weight:500;
+    letter-spacing:1px;
 }
 
-.plate-row button{
-  width:120px;
-  font-size:14px;
+.btn{
+    display:block;
+    width:100%;
+    text-decoration:none;
+    font-size:22px;
+    font-weight:500;
+    padding:17px;
+    border-radius:24px;
+    margin-top:14px;
+    box-shadow:0 10px 18px rgba(120,70,35,.14);
+    transition:.2s;
 }
 
-#result{
-  margin-top:18px;
-  text-align:center;
-  font-weight:bold;
+.btn:active{
+    transform:scale(.97);
+}
+
+.menuBtn{
+    background:linear-gradient(135deg,#ffe38a,#ffc85c);
+    color:#68401f;
+}
+
+.mapBtn{
+    background:linear-gradient(135deg,#ffb7a3,#ff8f8f);
+    color:white;
+}
+
+.callBtn{
+    background:linear-gradient(135deg,#d9a86c,#bd8450);
+    color:white;
+}
+
+.footer{
+    margin-top:24px;
+    color:#9a7657;
+    font-size:15px;
+    line-height:1.9;
+}
+
+@media(max-width:768px){
+    body{
+        padding:14px;
+        align-items:flex-start;
+    }
+
+    .card{
+        padding:36px 17px;
+        border-radius:30px;
+    }
+
+    .logo{
+        font-size:44px;
+    }
+
+    .title{
+        font-size:30px;
+        letter-spacing:2px;
+    }
+
+    .slogan{
+        font-size:15px;
+        padding:9px 16px;
+    }
+
+    .item{
+        font-size:18px;
+    }
+
+    .btn{
+        font-size:19px;
+        padding:16px;
+    }
 }
 </style>
 </head>
 
 <body>
 
-<div class="box">
+<div class="container">
 
-<img class="hero" src="https://progessc01.github.io/liff-form/S__86597635.jpg">
+    <div class="card">
 
-<h2>🚗 安建快速洗車問卷</h2>
+        <div class="logo">CatCake</div>
 
-<div class="question">1️⃣ 本次洗車整體滿意度<br>⭐ 1～5分 *</div>
-<select id="q1">
-<option value="">請選擇</option>
-<option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
-</select>
+        <div class="title">甜蜜上菜</div>
 
-<div class="question">2️⃣ 車輛清潔效果是否符合期待？<br>⭐ 1～5分 *</div>
-<select id="q2">
-<option value="">請選擇</option>
-<option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
-</select>
+        <div class="slogan">
+            🐱 每一口，都是幸福的味道 🍰
+        </div>
 
-<div class="question">3️⃣ 服務人員態度與說明是否良好？<br>⭐ 1～5分 *</div>
-<select id="q3">
-<option value="">請選擇</option>
-<option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
-</select>
+        <div class="info">
 
-<div class="question">4️⃣ 整體等待時間是否能接受？<br>⭐ 1～5分 *</div>
-<select id="q4">
-<option value="">請選擇</option>
-<option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
-</select>
+            <div class="item">
+                📍 <span class="label">門市地址</span><br>
+                彰化市建中街29號
+            </div>
 
-<div class="question">5️⃣ 介紹是否簡單明確<br>⭐ 1～5分 *</div>
-<select id="q5">
-<option value="">請選擇</option>
-<option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
-</select>
+            <div class="item">
+                ☎️ <span class="label">訂購專線</span><br>
+                <a class="phoneLink" href="tel:0988079393">
+                    0988-079-393
+                </a>
+            </div>
 
-<div class="question">6️⃣ 車牌號碼 *</div>
-<div class="plate-row">
-<input type="text" id="plate" placeholder="例如：ABC-1234">
-<button type="button" onclick="findCoupon()">找回CODE</button>
-</div>
+            <div class="item">
+                🕐 <span class="label">營業時間</span><br>
+                10:00 ～ 17:00<br>
+                （最後預約時間 15:30）
+            </div>
 
-<div class="question">7️⃣ 提供您寶貴的建議（選填）</div>
-<textarea id="q6"></textarea>
+        </div>
 
-<button type="button" onclick="submitForm()">送出問卷</button>
+        <a class="btn menuBtn" href="cake-menu.html">
+            🧁 今日甜點菜單
+        </a>
 
-<div id="result"></div>
+        <a class="btn mapBtn"
+           href="https://maps.google.com/?q=彰化市建中街29號"
+           target="_blank">
+            🧭 帶我去 CatCake
+        </a>
 
-</div>
+        <a class="btn callBtn" href="tel:0988079393">
+            💕 我要預約蛋糕
+        </a>
 
-<script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+        <div class="footer">
+            手工烘焙｜嚴選食材｜甜蜜分享<br>
+            ♡ 今天也想把可愛和甜甜帶給你 ♡
+        </div>
 
-function makeQR(coupon){
-  const qrData = "https://progessc01.github.io/liff-form/redeem.html?code=" + coupon;
-  return "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" + encodeURIComponent(qrData);
-}
-
-function showCoupon(coupon, title, warn=""){
-  const qrUrl = makeQR(coupon);
-
-  document.getElementById("result").innerHTML = `
-    <div style="text-align:center;">
-      ${warn ? `<div style="color:#ff5bff;margin-bottom:10px;">${warn}</div>` : ""}
-      <h3>${title}</h3>
-      <div style="font-size:22px;color:#00eaff;margin:10px 0;">${coupon}</div>
-      <img src="${qrUrl}" width="220">
-      <p style="font-size:13px;color:#cbd5e1;">📌 請截圖保存此畫面，以利後續兌換使用</p>
     </div>
-  `;
-}
 
-function findCoupon(){
-  const plate = document.getElementById("plate").value.trim();
-  const result = document.getElementById("result");
-
-  if(!plate){
-    result.innerHTML = "⚠️ 請輸入車牌";
-    return;
-  }
-
-  result.innerHTML = "🔍 查詢中...";
-
-  const form = new URLSearchParams();
-  form.append("type","find");
-  form.append("plate",plate);
-
-  fetch(GAS_URL,{ method:"POST", body:form })
-  .then(r=>r.text())
-  .then(t=>JSON.parse(t))
-  .then(data=>{
-    if(data.status !== "OK" || !data.coupon){
-      result.innerHTML = "❌ 查無折價券";
-      return;
-    }
-
-    showCoupon(data.coupon, "🎫 找回成功");
-  })
-  .catch(err=>{
-    result.innerHTML = "❌ 系統錯誤";
-  });
-}
-
-function submitForm(){
-  const plate = document.getElementById("plate").value.trim();
-  const q1 = document.getElementById("q1").value;
-  const q2 = document.getElementById("q2").value;
-  const q3 = document.getElementById("q3").value;
-  const q4 = document.getElementById("q4").value;
-  const q5 = document.getElementById("q5").value;
-  const q6 = document.getElementById("q6").value;
-  const result = document.getElementById("result");
-
-  if(!plate || !q1 || !q2 || !q3 || !q4 || !q5){
-    result.innerHTML = "⚠️ 請完成所有必填項目";
-    return;
-  }
-
-  result.innerHTML = "⏳ 處理中...";
-
-  const form = new URLSearchParams();
-  form.append("type","survey");
-  form.append("plate",plate);
-  form.append("q1",q1);
-  form.append("q2",q2);
-  form.append("q3",q3);
-  form.append("q4",q4);
-  form.append("q5",q5);
-  form.append("q6",q6);
-
-  fetch(GAS_URL,{ method:"POST", body:form })
-  .then(r=>r.text())
-  .then(t=>JSON.parse(t))
-  .then(data=>{
-    if(!data.coupon){
-      result.innerHTML = "❌ 無法取得折價券";
-      return;
-    }
-
-    if(data.status === "EXIST"){
-      showCoupon(data.coupon, "🎫 折價券", "⚠️ 已有未使用折價券");
-    }else{
-      showCoupon(data.coupon, "🎫 折價券");
-    }
-  })
-  .catch(err=>{
-    result.innerHTML = "❌ 系統錯誤";
-  });
-}
-</script>
+</div>
 
 </body>
 </html>
