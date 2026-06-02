@@ -10,11 +10,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
+*{margin:0;padding:0;box-sizing:border-box;}
 
 body{
     font-family:'Kiwi Maru',"Microsoft JhengHei",sans-serif;
@@ -27,10 +23,7 @@ body{
     color:#6a3f29;
 }
 
-.container{
-    max-width:700px;
-    margin:auto;
-}
+.container{max-width:700px;margin:auto;}
 
 .card{
     background:white;
@@ -41,16 +34,8 @@ body{
     box-shadow:0 15px 35px rgba(0,0,0,.1);
 }
 
-.logo{
-    font-size:48px;
-    color:#7b4a32;
-}
-
-.title{
-    font-size:28px;
-    color:#f08f8f;
-    margin-top:10px;
-}
+.logo{font-size:48px;color:#7b4a32;}
+.title{font-size:28px;color:#f08f8f;margin-top:10px;}
 
 .desc{
     margin-top:20px;
@@ -72,20 +57,14 @@ body{
     font-family:inherit;
 }
 
-.reviewBtn{
-    background:#FFD166;
-    color:#5a341f;
+.btn:disabled{
+    opacity:.65;
+    cursor:not-allowed;
 }
 
-.claimBtn{
-    background:#FF9F9F;
-    color:white;
-}
-
-.recoverBtn{
-    background:#d9a86c;
-    color:white;
-}
+.reviewBtn{background:#FFD166;color:#5a341f;}
+.claimBtn{background:#FF9F9F;color:white;}
+.recoverBtn{background:#d9a86c;color:white;}
 
 input{
     width:100%;
@@ -184,7 +163,7 @@ placeholder="請輸入手機號碼，例如 0988079393">
 此密碼由店家確認評論後輸入，避免重複或自行領取。
 </div>
 
-<button class="btn claimBtn" onclick="claimCoupon()">
+<button id="claimBtn" class="btn claimBtn" onclick="claimCoupon()">
 領取30元折價券
 </button>
 
@@ -199,7 +178,7 @@ inputmode="numeric"
 maxlength="10"
 placeholder="請輸入手機號碼，例如 0988079393">
 
-<button class="btn recoverBtn" onclick="recoverCoupon()">
+<button id="recoverBtn" class="btn recoverBtn" onclick="recoverCoupon()">
 查詢我的折價券
 </button>
 
@@ -216,7 +195,7 @@ placeholder="請輸入手機號碼，例如 0988079393">
 <div class="code" id="couponCode"></div>
 
 <div class="notice">
-出示此 QR Code 給闆娘即可折抵30元
+出示此 QR Code 給闆娘掃描，即可折抵30元
 </div>
 
 </div>
@@ -228,12 +207,20 @@ placeholder="請輸入手機號碼，例如 0988079393">
 
 <script>
 const GOOGLE_REVIEW_URL = "https://www.google.com/maps/place/Cat+Cake+%E6%89%8B%E4%BD%9CDIY%E8%9B%8B%E7%B3%95%E5%BA%97/@24.0712859,120.5300256,15.86z/data=!4m8!3m7!1s0x34693900073390fb:0x290bca681d121771!8m2!3d24.0715874!4d120.5307776!9m1!1b1!16s%2Fg%2F11vm2c1b_t!18m1!1e1?entry=ttu&g_ep=EgoyMDI2MDUyNy4wIKXMDSoASAFQAw%3D%3D";
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzSzVt5-1dvPWifeNDvYd8Ebm763XaJ6J9SehGBHenHSzR8hArH0tdgs_0V8n6HLo6q/exec";
-const REDEEM_PAGE_URL =
-"https://progessc01.github.io/liff-form/coupon-use";
 
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzSzVt5-1dvPWifeNDvYd8Ebm763XaJ6J9SehGBHenHSzR8hArH0tdgs_0V8n6HLo6q/exec";
+
+const COUPON_USE_URL = "https://progessc01.github.io/liff-form/coupon-use";
 
 document.getElementById("reviewBtn").href = GOOGLE_REVIEW_URL;
+
+function cleanPhone(value){
+    return String(value || "").replace(/\D/g,"").trim();
+}
+
+function makeCouponUrl(couponCode){
+    return COUPON_USE_URL + "?coupon=" + encodeURIComponent(couponCode);
+}
 
 function showForm(){
     document.getElementById("formArea").style.display = "block";
@@ -245,13 +232,13 @@ function showRecoverForm(){
     document.getElementById("formArea").style.display = "none";
 }
 
-function showCoupon(couponCode, qrText){
+function showCoupon(couponCode){
     document.getElementById("resultArea").style.display = "block";
     document.getElementById("couponCode").innerHTML = couponCode;
     document.getElementById("qrcode").innerHTML = "";
 
     new QRCode(document.getElementById("qrcode"),{
-        text:qrText,
+        text:makeCouponUrl(couponCode),
         width:220,
         height:220
     });
@@ -263,8 +250,10 @@ function showCoupon(couponCode, qrText){
 
 async function claimCoupon(){
 
+    const btn = document.getElementById("claimBtn");
+
     const name = document.getElementById("name").value.trim();
-    const phone = document.getElementById("phone").value.trim();
+    const phone = cleanPhone(document.getElementById("phone").value);
     const claimPassword = document.getElementById("claimPassword").value.trim();
 
     if(!name){
@@ -282,6 +271,9 @@ async function claimCoupon(){
         return;
     }
 
+    btn.disabled = true;
+    btn.innerText = "領取中...";
+
     try{
         const res = await fetch(GAS_URL,{
             method:"POST",
@@ -297,29 +289,33 @@ async function claimCoupon(){
 
         if(data.status !== "OK"){
             alert(data.message || "領取失敗");
+            btn.disabled = false;
+            btn.innerText = "領取30元折價券";
             return;
         }
 
-        showCoupon(
-    data.couponCode,
-    REDEEM_PAGE_URL +
-    "?coupon=" +
-    encodeURIComponent(data.couponCode)
-);
+        showCoupon(data.couponCode);
+        btn.innerText = "已產生折價券";
 
     }catch(err){
         alert("系統忙碌中，請稍後再試");
+        btn.disabled = false;
+        btn.innerText = "領取30元折價券";
     }
 }
 
 async function recoverCoupon(){
 
-    const phone = document.getElementById("recoverPhone").value.trim();
+    const btn = document.getElementById("recoverBtn");
+    const phone = cleanPhone(document.getElementById("recoverPhone").value);
 
     if(!/^09\d{8}$/.test(phone)){
         alert("請輸入正確手機號碼，例如 0988079393");
         return;
     }
+
+    btn.disabled = true;
+    btn.innerText = "查詢中...";
 
     try{
         const res = await fetch(GAS_URL,{
@@ -334,18 +330,19 @@ async function recoverCoupon(){
 
         if(data.status !== "OK"){
             alert(data.message || "找不到折價券");
+            btn.disabled = false;
+            btn.innerText = "查詢我的折價券";
             return;
         }
 
-        showCoupon(
-    data.couponCode,
-    REDEEM_PAGE_URL +
-    "?coupon=" +
-    encodeURIComponent(data.couponCode)
-);
+        showCoupon(data.couponCode);
+        btn.disabled = false;
+        btn.innerText = "查詢我的折價券";
 
     }catch(err){
         alert("查詢失敗，請稍後再試");
+        btn.disabled = false;
+        btn.innerText = "查詢我的折價券";
     }
 }
 </script>
