@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>使用紀錄</title>
-<link rel="stylesheet" href="customer-style.css">
+  <link rel="stylesheet" href="customer-style.css">
 </head>
 <body>
 
@@ -49,6 +49,7 @@ function loadLog() {
   content.innerHTML = "⏳ 讀取使用紀錄中...";
 
   const form = new URLSearchParams();
+
   form.append("type", "getCardLogs");
   form.append("cardNo", cardNo);
   form.append("customerName", customerName);
@@ -77,7 +78,7 @@ function loadLog() {
     if(logs.length === 0) {
       content.innerHTML = `
         <div class="card">
-          <h2>卡號：${cardNo}</h2>
+          <h2>卡號：${escapeHtml(cardNo)}</h2>
           <p>尚無使用紀錄</p>
         </div>
       `;
@@ -86,21 +87,24 @@ function loadLog() {
 
     let html = `
       <div class="card">
-        <h2>卡號：${cardNo}</h2>
+        <h2>卡號：${escapeHtml(cardNo)}</h2>
         <h3>使用紀錄</h3>
       </div>
     `;
 
     logs.forEach((log, index) => {
+
       html += `
         <div class="card" style="text-align:left;">
           <h3>第 ${index + 1} 次使用</h3>
-          <p><b>核銷分店：</b>${log.redeemStore} ${log.redeemStoreName}</p>
-<p><b>核銷人員：</b>${log.staffAccount}</p>
-<p><b>使用前次數：</b>${log.beforeTimes}</p>
-<p><b>扣除次數：</b>${log.usedTimes}</p>
-<p><b>剩餘次數：</b>${log.afterTimes}</p>
-<p><b>備註：</b>${log.note || ""}</p>
+
+          <p><b>核銷時間：</b>${formatTime(log.time)}</p>
+          <p><b>核銷分店：</b>${escapeHtml(log.redeemStore || "")} ${escapeHtml(log.redeemStoreName || "")}</p>
+          <p><b>核銷人員：</b>${escapeHtml(log.staffAccount || "")}</p>
+          <p><b>使用前次數：</b>${escapeHtml(log.beforeTimes || "")}</p>
+          <p><b>扣除次數：</b>${escapeHtml(log.usedTimes || "")}</p>
+          <p><b>剩餘次數：</b>${escapeHtml(log.afterTimes || "")}</p>
+          <p><b>備註：</b>${escapeHtml(log.note || "")}</p>
         </div>
       `;
     });
@@ -113,39 +117,52 @@ function loadLog() {
     content.innerHTML = "❌ 系統錯誤";
   });
 }
-function formatTime(dateStr) {
 
-  const d = new Date(dateStr);
+function formatTime(value) {
 
-  let year = d.getFullYear();
-  let month = d.getMonth() + 1;
-  let day = d.getDate();
+  if(!value) return "未記錄";
 
-  let hour = d.getHours();
-  let minute = String(d.getMinutes()).padStart(2, "0");
+  if(typeof value === "string") {
 
-  let period = "上午";
+    const trimmed = value.trim();
 
-  if(hour >= 12) {
-    period = "下午";
+    if(!trimmed) return "未記錄";
+
+    if(
+      trimmed.includes("上午") ||
+      trimmed.includes("下午") ||
+      trimmed.includes("晚上")
+    ) {
+      return trimmed;
+    }
   }
 
-  if(hour >= 18) {
-    period = "晚上";
+  const d = new Date(value);
+
+  if(isNaN(d.getTime())) {
+    return String(value || "未記錄");
   }
 
-  let displayHour = hour;
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const hour = String(d.getHours()).padStart(2, "0");
+  const minute = String(d.getMinutes()).padStart(2, "0");
+  const second = String(d.getSeconds()).padStart(2, "0");
 
-  if(displayHour > 12) {
-    displayHour -= 12;
-  }
-
-  if(displayHour === 0) {
-    displayHour = 12;
-  }
-
-  return `${year}年${month}月${day}日 ${period} ${displayHour}:${minute}`;
+  return `${year}/${month}/${day} ${hour}:${minute}:${second}`;
 }
+
+function escapeHtml(value) {
+
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 </script>
 
 </body>
