@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>庫存入庫</title>
+<link rel="stylesheet" href="vip-style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>安建洗車<br>庫存入庫</h1>
+
+<div id="loginInfo" class="info-box">讀取中...</div>
+
+<div class="card">
+
+<h2>入庫資料</h2>
+
+<select id="itemId">
+  <option value="">請選擇品項</option>
+  <option value="CHEM001|泡沫藥水|桶">泡沫藥水</option>
+  <option value="CHEM002|輪框精|桶">輪框精</option>
+  <option value="CHEM003|奈米鍍膜|桶">奈米鍍膜</option>
+  <option value="TOW001|擦車毛巾|條">擦車毛巾</option>
+  <option value="TOW002|玻璃毛巾|條">玻璃毛巾</option>
+  <option value="EQ001|高壓槍頭|支">高壓槍頭</option>
+  <option value="EQ002|噴頭|支">噴頭</option>
+</select>
+
+<br><br>
+
+<input type="number" id="qty" placeholder="入庫數量">
+
+<br><br>
+
+<input type="text" id="supplier" placeholder="供應商，可不填">
+
+<br><br>
+
+<input type="text" id="invoiceNo" placeholder="發票號碼，可不填">
+
+<br><br>
+
+<textarea id="note" placeholder="備註，可不填"></textarea>
+
+<br><br>
+
+<button id="submitBtn" onclick="submitInventoryIn()">
+  確認入庫
+</button>
+
+</div>
+
+<button onclick="location.href='inventory.html'">
+  返回庫存首頁
+</button>
+
+</div>
+
+<script>
+
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+
+const storeCode = localStorage.getItem("storeCode");
+const storeName = localStorage.getItem("storeName");
+const staffAccount = localStorage.getItem("staffAccount");
+const staffName = localStorage.getItem("staffName");
+
+if(!storeCode || !storeName || !staffAccount || !staffName){
+  alert("請先登入");
+  location.href = "vip-login.html";
+}
+
+document.getElementById("loginInfo").innerHTML = `
+  <div style="text-align:center; line-height:1.8;">
+    <div style="font-size:15px; color:#64748b;">目前登入</div>
+    <div style="font-size:20px; font-weight:bold; color:#0f3c68;">
+      ${storeCode} ${storeName}
+    </div>
+    <div style="font-size:18px; font-weight:bold; color:#0f75bc;">
+      ${staffName}
+    </div>
+  </div>
+`;
+
+function submitInventoryIn(){
+
+  const itemValue = document.getElementById("itemId").value;
+  const qty = document.getElementById("qty").value.trim();
+  const supplier = document.getElementById("supplier").value.trim();
+  const invoiceNo = document.getElementById("invoiceNo").value.trim();
+  const note = document.getElementById("note").value.trim();
+  const btn = document.getElementById("submitBtn");
+
+  if(!itemValue){
+    alert("請選擇入庫品項");
+    return;
+  }
+
+  if(!qty || Number(qty) <= 0){
+    alert("請輸入正確入庫數量");
+    return;
+  }
+
+  const arr = itemValue.split("|");
+  const itemId = arr[0];
+  const itemName = arr[1];
+  const unit = arr[2];
+
+  btn.disabled = true;
+  btn.innerText = "入庫中...";
+
+  const form = new URLSearchParams();
+
+  form.append("type", "inventoryIn");
+  form.append("storeCode", storeCode);
+  form.append("storeName", storeName);
+  form.append("itemId", itemId);
+  form.append("itemName", itemName);
+  form.append("qty", qty);
+  form.append("unit", unit);
+  form.append("supplier", supplier);
+  form.append("invoiceNo", invoiceNo);
+  form.append("staffAccount", staffAccount);
+  form.append("staffName", staffName);
+  form.append("note", note);
+
+  fetch(GAS_URL,{
+    method:"POST",
+    body:form
+  })
+  .then(r => r.text())
+  .then(t => JSON.parse(t))
+  .then(data => {
+
+    btn.disabled = false;
+    btn.innerText = "確認入庫";
+
+    if(data.status !== "OK"){
+      alert(data.message || "入庫失敗");
+      return;
+    }
+
+    alert("入庫完成");
+
+    document.getElementById("qty").value = "";
+    document.getElementById("supplier").value = "";
+    document.getElementById("invoiceNo").value = "";
+    document.getElementById("note").value = "";
+
+  })
+  .catch(err => {
+
+    btn.disabled = false;
+    btn.innerText = "確認入庫";
+
+    alert("入庫失敗，請稍後再試");
+    console.log(err);
+
+  });
+
+}
+
+</script>
+
+</body>
+</html>

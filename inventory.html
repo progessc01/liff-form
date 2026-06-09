@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>庫存管理系統</title>
+
+<link rel="stylesheet" href="vip-style.css">
+
+</head>
+<body>
+
+<div class="container">
+
+<h1>
+安建洗車<br>
+庫存管理系統
+</h1>
+
+<div id="loginInfo" class="info-box">
+讀取中...
+</div>
+
+<div class="card">
+
+<h2>庫存作業</h2>
+
+<button onclick="location.href='inventory-in.html'">
+入庫作業
+</button>
+
+<button onclick="location.href='inventory-out.html'">
+出庫作業
+</button>
+
+<button onclick="location.href='inventory-stock.html'">
+庫存查詢
+</button>
+
+<button onclick="location.href='inventory-transfer.html'">
+調店作業
+</button>
+
+</div>
+
+<div class="card">
+
+<h2>紀錄查詢</h2>
+
+<button onclick="location.href='inventory-in-log.html'">
+入庫紀錄
+</button>
+
+<button onclick="location.href='inventory-out-log.html'">
+出庫紀錄
+</button>
+
+<button onclick="location.href='inventory-transfer-log.html'">
+調店紀錄
+</button>
+
+</div>
+
+<br>
+
+<button onclick="location.href='vip.html'">
+返回VIP首頁
+</button>
+
+</div>
+
+<script>
+
+const storeCode = localStorage.getItem("storeCode");
+const storeName = localStorage.getItem("storeName");
+const staffName = localStorage.getItem("staffName");
+
+if(!storeCode || !storeName || !staffName){
+
+  alert("請先登入");
+
+  location.href="vip-login.html";
+
+}
+
+document.getElementById("loginInfo").innerHTML = `
+<div style="text-align:center; line-height:1.8;">
+<div style="font-size:15px;color:#64748b;">
+目前登入
+</div>
+
+<div style="font-size:20px;font-weight:bold;color:#0f3c68;">
+${storeCode} ${storeName}
+</div>
+
+<div style="font-size:18px;font-weight:bold;color:#0f75bc;">
+${staffName}
+</div>
+</div>
+`;
+
+</script>
+
+</body>
+</html>
