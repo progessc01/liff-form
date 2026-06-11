@@ -19,18 +19,34 @@
 
 <h2>入庫資料</h2>
 
-<select id="itemId">
-  <option value="">請選擇品項</option>
-  <option value="CHEM001|泡沫藥水|桶">泡沫藥水</option>
-  <option value="CHEM002|輪框精|桶">輪框精</option>
-  <option value="CHEM003|奈米鍍膜|桶">奈米鍍膜</option>
-  <option value="TOW001|擦車毛巾|條">擦車毛巾</option>
-  <option value="TOW002|玻璃毛巾|條">玻璃毛巾</option>
-  <option value="EQ001|高壓槍頭|支">高壓槍頭</option>
-  <option value="EQ002|噴頭|支">噴頭</option>
+<select id="itemSelect" onchange="handleItemChange()">
+  <option value="">讀取品項中...</option>
 </select>
 
-<br><br>
+<div id="newItemBox" style="display:none; margin-top:18px;">
+
+  <input type="text" id="newItemName" placeholder="新品項名稱，例如：泡沫藥水">
+  <br><br>
+
+  <input type="text" id="newCategory" placeholder="分類，例如：藥水、耗材、設備">
+  <br><br>
+
+  <input type="text" id="newUnit" placeholder="單位，例如：桶、條、支">
+  <br><br>
+
+  <input type="number" id="newMinStock" placeholder="最低庫存，可不填">
+  <br><br>
+
+  <input type="text" id="newNote" placeholder="備註，可不填">
+  <br><br>
+
+  <button id="addItemBtn" type="button" onclick="addNewItem()">
+    新增品項
+  </button>
+
+</div>
+
+<br>
 
 <input type="number" id="qty" placeholder="入庫數量">
 
@@ -44,7 +60,7 @@
 
 <br><br>
 
-<textarea id="note" placeholder="備註，可不填"></textarea>
+<textarea id="note" placeholder="入庫備註，可不填"></textarea>
 
 <br><br>
 
@@ -86,16 +102,194 @@ document.getElementById("loginInfo").innerHTML = `
   </div>
 `;
 
+loadInventoryItems();
+
+function loadInventoryItems(){
+
+  const select = document.getElementById("itemSelect");
+
+  select.innerHTML = `
+    <option value="">讀取品項中...</option>
+  `;
+
+  const form = new URLSearchParams();
+  form.append("type", "getInventoryItems");
+
+  fetch(GAS_URL,{
+    method:"POST",
+    body:form
+  })
+  .then(r => r.text())
+  .then(t => JSON.parse(t))
+  .then(data => {
+
+    if(data.status !== "OK"){
+      select.innerHTML = `
+        <option value="">品項讀取失敗</option>
+        <option value="__NEW__">＋新增品項</option>
+      `;
+      return;
+    }
+
+    select.innerHTML = `
+      <option value="">請選擇入庫品項</option>
+    `;
+
+    const items = data.items || [];
+
+    items.forEach(item => {
+
+      const option = document.createElement("option");
+
+      option.value =
+        item.itemId + "|" +
+        item.itemName + "|" +
+        item.unit;
+
+      option.textContent =
+        item.itemName + "（" + item.unit + "）";
+
+      select.appendChild(option);
+
+    });
+
+    const newOption = document.createElement("option");
+    newOption.value = "__NEW__";
+    newOption.textContent = "＋新增品項";
+    select.appendChild(newOption);
+
+  })
+  .catch(err => {
+
+    console.log(err);
+
+    select.innerHTML = `
+      <option value="">品項讀取失敗</option>
+      <option value="__NEW__">＋新增品項</option>
+    `;
+
+  });
+
+}
+
+function handleItemChange(){
+
+  const value = document.getElementById("itemSelect").value;
+  const box = document.getElementById("newItemBox");
+
+  if(value === "__NEW__"){
+    box.style.display = "block";
+  }else{
+    box.style.display = "none";
+  }
+
+}
+
+function addNewItem(){
+
+  const itemName = document.getElementById("newItemName").value.trim();
+  const category = document.getElementById("newCategory").value.trim();
+  const unit = document.getElementById("newUnit").value.trim();
+  const minStock = document.getElementById("newMinStock").value.trim();
+  const note = document.getElementById("newNote").value.trim();
+
+  const btn = document.getElementById("addItemBtn");
+
+  if(!itemName){
+    alert("請輸入新品項名稱");
+    return;
+  }
+
+  if(!unit){
+    alert("請輸入單位，例如：桶、條、支");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerText = "新增中...";
+
+  const form = new URLSearchParams();
+
+  form.append("type", "addInventoryItem");
+  form.append("itemName", itemName);
+  form.append("category", category);
+  form.append("unit", unit);
+  form.append("minStock", minStock);
+  form.append("note", note);
+  form.append("staffAccount", staffAccount);
+  form.append("staffName", staffName);
+
+  fetch(GAS_URL,{
+    method:"POST",
+    body:form
+  })
+  .then(r => r.text())
+  .then(t => JSON.parse(t))
+  .then(data => {
+
+    btn.disabled = false;
+    btn.innerText = "新增品項";
+
+    if(data.status !== "OK"){
+      alert(data.message || "新增品項失敗");
+      return;
+    }
+
+    const select = document.getElementById("itemSelect");
+
+    const option = document.createElement("option");
+
+    option.value =
+      data.itemId + "|" +
+      data.itemName + "|" +
+      data.unit;
+
+    option.textContent =
+      data.itemName + "（" + data.unit + "）";
+
+    const newOption = Array.from(select.options).find(opt => opt.value === "__NEW__");
+
+    if(newOption){
+      select.insertBefore(option, newOption);
+    }else{
+      select.appendChild(option);
+    }
+
+    select.value = option.value;
+
+    document.getElementById("newItemBox").style.display = "none";
+
+    document.getElementById("newItemName").value = "";
+    document.getElementById("newCategory").value = "";
+    document.getElementById("newUnit").value = "";
+    document.getElementById("newMinStock").value = "";
+    document.getElementById("newNote").value = "";
+
+    alert("品項新增完成，請繼續輸入入庫數量");
+
+  })
+  .catch(err => {
+
+    btn.disabled = false;
+    btn.innerText = "新增品項";
+
+    alert("新增品項失敗，請稍後再試");
+    console.log(err);
+
+  });
+
+}
+
 function submitInventoryIn(){
 
-  const itemValue = document.getElementById("itemId").value;
+  const itemValue = document.getElementById("itemSelect").value;
   const qty = document.getElementById("qty").value.trim();
   const supplier = document.getElementById("supplier").value.trim();
   const invoiceNo = document.getElementById("invoiceNo").value.trim();
   const note = document.getElementById("note").value.trim();
   const btn = document.getElementById("submitBtn");
 
-  if(!itemValue){
+  if(!itemValue || itemValue === "__NEW__"){
     alert("請選擇入庫品項");
     return;
   }
