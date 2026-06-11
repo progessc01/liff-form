@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>出庫紀錄</title>
+<link rel="stylesheet" href="vip-style.css">
+<style>
+.log-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:14px;}
+.log-table th,.log-table td{border-bottom:1px solid #e5e7eb;padding:9px 5px;text-align:left;}
+.log-table th{color:#0f3c68;font-weight:bold;}
+.qty{font-weight:bold;color:#dc2626;white-space:nowrap;}
+.empty{text-align:center;color:#64748b;padding:20px 0;}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>安建洗車<br>出庫紀錄</h1>
+<div id="loginInfo" class="info-box">讀取中...</div>
+
+<div class="card">
+<h2>出庫紀錄查詢</h2>
+
+<select id="storeFilter" onchange="loadOutLog()">
+  <option value="MY">目前分店</option>
+  <option value="ALL">全部分店</option>
+</select>
+
+<div id="content" class="empty">讀取中...</div>
+</div>
+
+<button onclick="location.href='inventory.html'">返回庫存首頁</button>
+</div>
+
+<script>
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+
+const storeCode = localStorage.getItem("storeCode");
+const storeName = localStorage.getItem("storeName");
+const staffAccount = localStorage.getItem("staffAccount");
+const staffName = localStorage.getItem("staffName");
+
+if(!storeCode || !storeName || !staffAccount || !staffName){
+  alert("請先登入");
+  location.href = "vip-login.html";
+}
+
+document.getElementById("loginInfo").innerHTML = `
+<div style="text-align:center;line-height:1.8;">
+  <div style="font-size:15px;color:#64748b;">目前登入</div>
+  <div style="font-size:20px;font-weight:bold;color:#0f3c68;">${storeCode} ${storeName}</div>
+  <div style="font-size:18px;font-weight:bold;color:#0f75bc;">${staffName}</div>
+</div>
+`;
+
+loadOutLog();
+
+function loadOutLog(){
+  const content = document.getElementById("content");
+  const filter = document.getElementById("storeFilter").value;
+
+  content.innerHTML = "讀取中...";
+
+  const form = new URLSearchParams();
+  form.append("type", "getInventoryOutLog");
+  form.append("storeCode", storeCode);
+  form.append("filter", filter);
+
+  fetch(GAS_URL,{method:"POST",body:form})
+  .then(r => r.text())
+  .then(t => JSON.parse(t))
+  .then(data => {
+    if(data.status !== "OK"){
+      content.innerHTML = `<div class="empty">${data.message || "讀取失敗"}</div>`;
+      return;
+    }
+
+    const rows = data.logs || [];
+
+    if(rows.length === 0){
+      content.innerHTML = `<div class="empty">目前沒有出庫紀錄</div>`;
+      return;
+    }
+
+    let html = `
+    <table class="log-table">
+      <thead>
+        <tr>
+          <th>時間</th>
+          <th>分店</th>
+          <th>品項</th>
+          <th>數量</th>
+          <th>原因</th>
+          <th>人員</th>
+          <th>備註</th>
+        </tr>
+      </thead>
+      <tbody>
+    `;
+
+    rows.forEach(row => {
+      html += `
+      <tr>
+        <td>${escapeHtml(row.createdAt)}</td>
+        <td>${escapeHtml(row.storeName || row.storeCode)}</td>
+        <td>${escapeHtml(row.itemName)}</td>
+        <td class="qty">${escapeHtml(row.qty)} ${escapeHtml(row.unit)}</td>
+        <td>${escapeHtml(row.outType)}</td>
+        <td>${escapeHtml(row.staffName || row.staffAccount)}</td>
+        <td>${escapeHtml(row.note)}</td>
+      </tr>
+      `;
+    });
+
+    html += `</tbody></table>`;
+    content.innerHTML = html;
+  })
+  .catch(err => {
+    console.log(err);
+    content.innerHTML = `<div class="empty">讀取失敗，請稍後再試</div>`;
+  });
+}
+
+function escapeHtml(value){
+  return String(value || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+</script>
+
+</body>
+</html>
