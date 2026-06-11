@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>庫存出庫</title>
+<link rel="stylesheet" href="vip-style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>安建洗車<br>庫存出庫</h1>
+
+<div id="loginInfo" class="info-box">讀取中...</div>
+
+<div class="card">
+
+<h2>出庫資料</h2>
+
+<select id="itemSelect">
+  <option value="">讀取品項中...</option>
+</select>
+
+<div style="height:18px;"></div>
+
+<input type="number" id="qty" placeholder="出庫數量">
+
+<br><br>
+
+<select id="outType">
+  <option value="">請選擇出庫原因</option>
+  <option value="洗車耗用">洗車耗用</option>
+  <option value="報廢">報廢</option>
+  <option value="調店">調店</option>
+  <option value="測試">測試</option>
+  <option value="其他">其他</option>
+</select>
+
+<br><br>
+
+<textarea id="note" placeholder="備註，可不填"></textarea>
+
+<br><br>
+
+<button id="submitBtn" onclick="submitInventoryOut()">
+  確認出庫
+</button>
+
+</div>
+
+<button onclick="location.href='inventory.html'">
+  返回庫存首頁
+</button>
+
+</div>
+
+<script>
+
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+
+const storeCode = localStorage.getItem("storeCode");
+const storeName = localStorage.getItem("storeName");
+const staffAccount = localStorage.getItem("staffAccount");
+const staffName = localStorage.getItem("staffName");
+
+if(!storeCode || !storeName || !staffAccount || !staffName){
+  alert("請先登入");
+  location.href = "vip-login.html";
+}
+
+document.getElementById("loginInfo").innerHTML = `
+  <div style="text-align:center; line-height:1.8;">
+    <div style="font-size:15px; color:#64748b;">目前登入</div>
+    <div style="font-size:20px; font-weight:bold; color:#0f3c68;">
+      ${storeCode} ${storeName}
+    </div>
+    <div style="font-size:18px; font-weight:bold; color:#0f75bc;">
+      ${staffName}
+    </div>
+  </div>
+`;
+
+loadInventoryItems();
+
+function loadInventoryItems(){
+
+  const select = document.getElementById("itemSelect");
+
+  select.innerHTML = `<option value="">讀取品項中...</option>`;
+
+  const form = new URLSearchParams();
+  form.append("type", "getInventoryItems");
+
+  fetch(GAS_URL,{
+    method:"POST",
+    body:form
+  })
+  .then(r => r.text())
+  .then(t => JSON.parse(t))
+  .then(data => {
+
+    if(data.status !== "OK"){
+      select.innerHTML = `<option value="">品項讀取失敗</option>`;
+      return;
+    }
+
+    select.innerHTML = `<option value="">請選擇出庫品項</option>`;
+
+    const items = data.items || [];
+
+    items.forEach(item => {
+
+      const option = document.createElement("option");
+
+      option.value =
+        item.itemId + "|" +
+        item.itemName + "|" +
+        item.unit;
+
+      option.textContent =
+        item.itemName + " － " + item.unit;
+
+      select.appendChild(option);
+
+    });
+
+  })
+  .catch(err => {
+
+    console.log(err);
+    select.innerHTML = `<option value="">品項讀取失敗</option>`;
+
+  });
+
+}
+
+function submitInventoryOut(){
+
+  const itemValue = document.getElementById("itemSelect").value;
+  const qty = document.getElementById("qty").value.trim();
+  const outType = document.getElementById("outType").value;
+  const note = document.getElementById("note").value.trim();
+  const btn = document.getElementById("submitBtn");
+
+  if(!itemValue){
+    alert("請選擇出庫品項");
+    return;
+  }
+
+  if(!qty || Number(qty) <= 0){
+    alert("請輸入正確出庫數量");
+    return;
+  }
+
+  if(!outType){
+    alert("請選擇出庫原因");
+    return;
+  }
+
+  const arr = itemValue.split("|");
+  const itemId = arr[0];
+  const itemName = arr[1];
+  const unit = arr[2];
+
+  btn.disabled = true;
+  btn.innerText = "出庫中...";
+
+  const form = new URLSearchParams();
+
+  form.append("type", "inventoryOut");
+  form.append("storeCode", storeCode);
+  form.append("storeName", storeName);
+  form.append("itemId", itemId);
+  form.append("itemName", itemName);
+  form.append("qty", qty);
+  form.append("unit", unit);
+  form.append("outType", outType);
+  form.append("staffAccount", staffAccount);
+  form.append("staffName", staffName);
+  form.append("note", note);
+
+  fetch(GAS_URL,{
+    method:"POST",
+    body:form
+  })
+  .then(r => r.text())
+  .then(t => JSON.parse(t))
+  .then(data => {
+
+    btn.disabled = false;
+    btn.innerText = "確認出庫";
+
+    if(data.status !== "OK"){
+      alert(data.message || "出庫失敗");
+      return;
+    }
+
+    alert("出庫完成");
+
+    document.getElementById("qty").value = "";
+    document.getElementById("outType").value = "";
+    document.getElementById("note").value = "";
+
+  })
+  .catch(err => {
+
+    btn.disabled = false;
+    btn.innerText = "確認出庫";
+
+    alert("出庫失敗，請稍後再試");
+    console.log(err);
+
+  });
+
+}
+
+</script>
+
+</body>
+</html>
