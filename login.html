@@ -236,7 +236,7 @@ const loginData = btoa(
 );
 
 window.location.href =
-  GAS_URL + "?page=index#loginData=" + encodeURIComponent(loginData);
+  GAS_URL + "?page=index&loginData=" + encodeURIComponent(loginData);
 	
  	 })
   .catch(err=>{
