@@ -84,17 +84,10 @@ button:disabled{
 
   <h1>安建員工登入</h1>
 
-  <form
-    id="loginForm"
-    method="POST"
-    action="https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec"
-    onsubmit="return beforeSubmit();"
-  >
-
-    <input type="hidden" name="type" value="loginStaff">
+  <form id="loginForm" onsubmit="return login();">
 
     <label>分店</label>
-    <select id="storeCode" name="storeCode" required>
+    <select id="storeCode" required>
       <option value="">請選擇分店</option>
       <option value="AJ01">AJ01｜總店</option>
       <option value="AJ02">AJ02｜員林店</option>
@@ -105,17 +98,18 @@ button:disabled{
     <label>工號</label>
     <input
       id="staffNo"
-      name="staffNo"
-      placeholder="請輸入工號"
+      placeholder="請輸入工號，例如 001"
+      inputmode="numeric"
+      autocomplete="username"
       required
     >
 
     <label>密碼</label>
     <input
       id="password"
-      name="password"
       type="password"
       placeholder="請輸入密碼"
+      autocomplete="current-password"
       required
     >
 
@@ -130,19 +124,127 @@ button:disabled{
 </div>
 
 <script>
-function beforeSubmit(){
+const GAS_URL =
+  "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
 
-  const btn =
-    document.getElementById("loginBtn");
+function showMsg(text){
 
   const msg =
     document.getElementById("msg");
 
-  msg.style.display = "none";
-  btn.disabled = true;
-  btn.innerText = "登入中...";
+  msg.innerText =
+    text;
 
-  return true;
+  msg.style.display =
+    "block";
+}
+
+function hideMsg(){
+
+  const msg =
+    document.getElementById("msg");
+
+  msg.style.display =
+    "none";
+
+  msg.innerText =
+    "";
+}
+
+function login(){
+
+  hideMsg();
+
+  const storeCode =
+    document.getElementById("storeCode").value.trim();
+
+  const staffNoRaw =
+    document.getElementById("staffNo").value.trim();
+
+  const password =
+    document.getElementById("password").value.trim();
+
+  if(!storeCode || !staffNoRaw || !password){
+    showMsg("請完整輸入分店、工號與密碼");
+    return false;
+  }
+
+  const staffNo =
+    staffNoRaw.replace(/\s/g,"").padStart(3,"0");
+
+  const btn =
+    document.getElementById("loginBtn");
+
+  btn.disabled =
+    true;
+
+  btn.innerText =
+    "登入中...";
+
+  const form =
+    new URLSearchParams();
+
+  form.append("type","loginStaff");
+  form.append("storeCode",storeCode);
+  form.append("staffNo",staffNo);
+  form.append("password",password);
+
+  fetch(GAS_URL,{
+    method:"POST",
+    body:form
+  })
+  .then(r=>r.text())
+  .then(text=>{
+
+    let res;
+
+    try{
+      res = JSON.parse(text);
+    }catch(e){
+      console.log(text);
+      showMsg("伺服器回傳不是 JSON，請確認 GAS 已重新部署");
+      return;
+    }
+
+    if(!res || res.status !== "OK"){
+      showMsg((res && res.message) || "登入失敗，請確認帳號密碼");
+      return;
+    }
+
+    localStorage.setItem(
+      "staff",
+      JSON.stringify(res)
+    );
+
+    sessionStorage.setItem(
+      "aj_staff",
+      JSON.stringify(res)
+    );
+
+    sessionStorage.setItem("aj_storeCode",res.storeCode || "");
+    sessionStorage.setItem("aj_storeName",res.storeName || "");
+    sessionStorage.setItem("aj_staffName",res.staffName || "");
+    sessionStorage.setItem("aj_staffAccount",res.account || "");
+    sessionStorage.setItem("aj_role",res.role || "");
+
+    window.location.href =
+      GAS_URL + "?page=index";
+
+  })
+  .catch(err=>{
+    showMsg("登入失敗：" + err.message);
+  })
+  .finally(()=>{
+
+    btn.disabled =
+      false;
+
+    btn.innerText =
+      "員工登入";
+
+  });
+
+  return false;
 }
 </script>
 
