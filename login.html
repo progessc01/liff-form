@@ -227,10 +227,19 @@ function login(){
     sessionStorage.setItem("aj_staffAccount",res.account || "");
     sessionStorage.setItem("aj_role",res.role || "");
 
-    window.location.href =
-      GAS_URL + "?page=index";
+	const loginData =
+  	btoa(
+  	  unescape(
+  	    encodeURIComponent(
+        JSON.stringify(res)
+  		    )
+  	  )
+  	);
 
-  })
+	window.location.href =
+ 	 GAS_URL + "?page=index#loginData=" + loginData;
+	
+ 	 })
   .catch(err=>{
     showMsg("登入失敗：" + err.message);
   })
