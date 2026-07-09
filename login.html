@@ -227,17 +227,16 @@ function login(){
     sessionStorage.setItem("aj_staffAccount",res.account || "");
     sessionStorage.setItem("aj_role",res.role || "");
 
-	const loginData =
-  	btoa(
-  	  unescape(
-  	    encodeURIComponent(
-        JSON.stringify(res)
-  		    )
-  	  )
-  	);
+const loginData = btoa(
+  unescape(
+    encodeURIComponent(
+      JSON.stringify(res)
+    )
+  )
+);
 
-	window.location.href =
- 	 GAS_URL + "?page=index#loginData=" + loginData;
+window.location.href =
+  GAS_URL + "?page=index#loginData=" + encodeURIComponent(loginData);
 	
  	 })
   .catch(err=>{
