@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Cat Cake｜作品管理</title>
+<style>
+:root{--cream:#f6f0e7;--paper:#fffaf3;--brown:#5e4938;--muted:#8a725e;--line:#dfd1c0;--accent:#c89178}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#faf6ef,var(--cream));color:var(--brown);font-family:Arial,"Microsoft JhengHei",sans-serif;min-height:100vh}.wrap{width:min(760px,calc(100% - 28px));margin:42px auto}.panel{background:var(--paper);border:1px solid var(--line);border-radius:28px;padding:28px;box-shadow:0 18px 45px rgba(96,74,55,.12)}h1{margin:0 0 8px;font-size:34px}.sub{color:var(--muted);line-height:1.7;margin-bottom:26px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.field{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}.field.full{grid-column:1/-1}label{font-weight:700}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:14px;padding:13px 14px;background:#fff;color:var(--brown);outline:none}input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(200,145,120,.14)}textarea{min-height:110px;resize:vertical}.preview{margin-top:10px;border:1px dashed var(--line);border-radius:18px;min-height:210px;display:grid;place-items:center;overflow:hidden;color:var(--muted);background:#fbf5ec}.preview img{width:100%;max-height:420px;object-fit:contain}.actions{display:flex;gap:12px;align-items:center;margin-top:20px}.btn{border:0;border-radius:999px;padding:12px 20px;font-weight:700;cursor:pointer}.primary{background:var(--brown);color:#fff}.soft{background:#fff;border:1px solid var(--line);color:var(--brown)}.status{margin-top:18px;padding:13px 15px;border-radius:14px;display:none}.status.show{display:block}.ok{background:#edf6ed;color:#37603c}.error{background:#fff0ed;color:#9b3f31}.hint{font-size:13px;color:var(--muted);line-height:1.6}@media(max-width:620px){.grid{grid-template-columns:1fr}.field.full{grid-column:auto}.panel{padding:22px}.actions{align-items:stretch;flex-direction:column}.btn{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="panel">
+  <h1>Cat Cake 作品管理</h1>
+  <div class="sub">選擇照片、填寫名稱與分類，送出後就會自動出現在作品集首頁。</div>
+  <form id="uploadForm">
+    <div class="grid">
+      <div class="field"><label for="adminKey">管理密碼</label><input id="adminKey" type="password" required autocomplete="current-password"></div>
+      <div class="field"><label for="category">作品分類</label><input id="category" list="categoryList" placeholder="例如：生日蛋糕" required><datalist id="categoryList"><option>生日蛋糕</option><option>客製蛋糕</option><option>水果蛋糕</option><option>節慶甜點</option><option>彌月甜點</option></datalist></div>
+      <div class="field full"><label for="title">作品名稱</label><input id="title" maxlength="60" placeholder="例如：草莓奶油花生日蛋糕" required></div>
+      <div class="field full"><label for="description">作品說明</label><textarea id="description" maxlength="300" placeholder="簡短描述口味、主題或設計特色"></textarea></div>
+      <div class="field full"><label for="image">作品照片</label><input id="image" type="file" accept="image/jpeg,image/png,image/webp" required><div class="hint">建議使用 JPG / PNG / WebP，單張 10MB 以內；直式、正方形照片都可以。</div><div class="preview" id="preview">尚未選擇照片</div></div>
+    </div>
+    <div class="actions"><button class="btn primary" id="submitBtn" type="submit">上傳作品</button><a class="btn soft" href="index.html">返回作品集</a></div>
+    <div class="status" id="status"></div>
+  </form>
+</div></div>
+<script>
+const GAS_URL = "請貼上你的_GAS_WEB_APP_網址";
+const imageInput = document.getElementById("image");
+const preview = document.getElementById("preview");
+const statusBox = document.getElementById("status");
+let imageBase64 = "";
+let imageMimeType = "";
+let imageFileName = "";
+
+imageInput.addEventListener("change", async () => {
+  const file = imageInput.files[0];
+  if(!file){preview.textContent="尚未選擇照片";return;}
+  if(file.size > 10 * 1024 * 1024){showStatus("照片超過 10MB，請先縮小檔案。",false);imageInput.value="";return;}
+  imageMimeType = file.type; imageFileName = file.name;
+  imageBase64 = await fileToBase64(file);
+  preview.innerHTML = `<img src="${imageBase64}" alt="照片預覽">`;
+});
+
+document.getElementById("uploadForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  if(!GAS_URL.startsWith("http")){showStatus("請先在 admin.html 裡填入 GAS Web App 網址。",false);return;}
+  if(!imageBase64){showStatus("請先選擇一張作品照片。",false);return;}
+  const button = document.getElementById("submitBtn");
+  button.disabled = true; button.textContent = "上傳中…";
+  try{
+    const payload = {
+      action:"upload",
+      adminKey:document.getElementById("adminKey").value,
+      title:document.getElementById("title").value.trim(),
+      category:document.getElementById("category").value.trim(),
+      description:document.getElementById("description").value.trim(),
+      fileName:imageFileName,
+      mimeType:imageMimeType,
+      base64:imageBase64.split(",")[1]
+    };
+    const response = await fetch(GAS_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)});
+    const data = await response.json();
+    if(!data.ok) throw new Error(data.message || "上傳失敗");
+    showStatus("作品已上傳成功，首頁重新整理後就會出現。",true);
+    event.target.reset(); imageBase64=""; preview.textContent="尚未選擇照片";
+  }catch(error){showStatus(error.message || "上傳失敗，請稍後再試。",false);}
+  finally{button.disabled=false;button.textContent="上傳作品";}
+});
+function fileToBase64(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);});}
+function showStatus(message,ok){statusBox.textContent=message;statusBox.className=`status show ${ok?"ok":"error"}`;}
+</script>
+</body>
+</html>
