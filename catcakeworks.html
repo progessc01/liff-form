@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <meta name="theme-color" content="#f7f1e8">
   <title>Cat Cake｜完整作品集</title>
-  <meta name="description" content="Cat Cake 客製造型蛋糕完整作品集。">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,17 +13,14 @@
   <style>
     :root{
       --paper:#f7f1e8;
-      --paper-light:#fffdf8;
       --ink:#4d3b33;
       --muted:#806d63;
       --line:#dfd2c2;
       --rose:#bf9197;
-      --rose-soft:#ecd9dc;
-      --shadow:0 15px 36px rgba(78,58,47,.10);
     }
 
     *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
+
     body{
       margin:0;
       color:var(--ink);
@@ -39,138 +35,118 @@
         ),
         linear-gradient(180deg,#fbf7f0 0%,var(--paper) 100%);
     }
-    body.no-scroll{overflow:hidden}
-    a{color:inherit;text-decoration:none}
-    button{font:inherit}
-    .shell{width:min(1240px,calc(100% - 28px));margin:auto}
 
-    .page-header{
+    body.no-scroll{overflow:hidden}
+
+    a{
+      color:inherit;
+      text-decoration:none;
+    }
+
+    button{font:inherit}
+
+    .shell{
+      width:min(1240px,calc(100% - 24px));
+      margin:auto;
+    }
+
+    header{
       position:sticky;
       top:0;
-      z-index:30;
+      z-index:20;
       background:rgba(247,241,232,.92);
-      border-bottom:1px solid rgba(223,210,194,.8);
-      backdrop-filter:blur(14px)
+      border-bottom:1px solid var(--line);
+      backdrop-filter:blur(14px);
     }
+
     .header-inner{
-      min-height:68px;
+      min-height:66px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:16px
+      gap:16px;
     }
-    .back-link{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
+
+    .back{
       color:var(--muted);
       font-size:14px;
-      font-weight:600
+      font-weight:700;
     }
-    .page-brand{
+
+    .brand{
       font-family:"Noto Serif TC",serif;
       font-size:19px;
       font-weight:700;
-      letter-spacing:.08em
+      letter-spacing:.08em;
     }
-    .admin-link{
+
+    .upload{
       padding:9px 14px;
       color:#fff;
       background:var(--ink);
       border-radius:999px;
       font-size:13px;
-      font-weight:700
+      font-weight:700;
     }
 
     .intro{
-      padding:54px 0 30px;
-      text-align:center
+      padding:44px 0 26px;
+      text-align:center;
     }
+
     .intro small{
       color:var(--rose);
       font-size:11px;
       font-weight:700;
-      letter-spacing:.22em
-    }
-    .intro h1{
-      margin:12px 0 10px;
-      font-family:"Noto Serif TC",serif;
-      font-size:clamp(34px,5vw,54px);
-      line-height:1.35
-    }
-    .intro p{
-      margin:0;
-      color:var(--muted);
-      line-height:1.9
+      letter-spacing:.2em;
     }
 
-    .gallery-wrap{padding:18px 0 84px}
-    .gallery-top{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:16px;
-      margin-bottom:20px
+    .intro h1{
+      margin:10px 0 7px;
+      font-family:"Noto Serif TC",serif;
+      font-size:clamp(34px,5vw,52px);
     }
-    .work-count{
-      padding:8px 13px;
-      color:var(--rose);
-      background:rgba(236,217,220,.55);
-      border:1px solid rgba(191,145,151,.2);
-      border-radius:999px;
-      font-size:12px;
-      font-weight:700
-    }
-    .gallery-note{
+
+    .count{
       color:var(--muted);
-      font-size:13px
+      font-size:13px;
+    }
+
+    .gallery-wrap{
+      padding:14px 0 80px;
     }
 
     .gallery{
       display:grid;
       grid-template-columns:repeat(4,minmax(0,1fr));
-      gap:16px
+      gap:14px;
     }
+
     .card{
-      position:relative;
       overflow:hidden;
       aspect-ratio:1/1;
       background:#e9ded1;
       border:1px solid var(--line);
-      border-radius:16px;
-      box-shadow:0 10px 24px rgba(78,58,47,.07);
+      border-radius:14px;
       cursor:pointer;
-      transition:.22s ease
+      transition:.2s ease;
     }
+
     .card:hover{
-      transform:translateY(-4px);
-      box-shadow:var(--shadow)
+      transform:translateY(-3px);
+      box-shadow:0 12px 28px rgba(78,58,47,.1);
     }
+
     .card img{
       width:100%;
       height:100%;
       display:block;
       object-fit:cover;
-      transition:.35s ease
+      transition:.3s ease;
     }
-    .card:hover img{transform:scale(1.035)}
-    .card-overlay{
-      position:absolute;
-      right:0;
-      bottom:0;
-      left:0;
-      padding:34px 14px 13px;
-      color:#fff;
-      background:linear-gradient(180deg,transparent,rgba(34,25,21,.72));
-      opacity:0;
-      transition:.22s ease
-    }
-    .card:hover .card-overlay{opacity:1}
-    .card-title{
-      margin:0;
-      font-family:"Noto Serif TC",serif;
-      font-size:16px;
-      line-height:1.45
+
+    .card:hover img{
+      transform:scale(1.035);
     }
 
     .loading,.empty{
@@ -178,10 +154,8 @@
       padding:70px 24px;
       color:var(--muted);
       text-align:center;
-      line-height:1.9;
-      background:rgba(255,253,248,.6);
       border:1px dashed var(--rose);
-      border-radius:18px
+      border-radius:18px;
     }
 
     .lightbox{
@@ -189,20 +163,22 @@
       inset:0;
       z-index:80;
       display:none;
-      background:rgba(22,19,17,.98);
-      color:#fff;
+      background:rgba(20,18,16,.98);
       touch-action:none;
-      user-select:none
+      user-select:none;
     }
+
     .lightbox.open{display:block}
-    .viewer-stage{
+
+    .stage{
       position:absolute;
       inset:0;
       display:flex;
       align-items:center;
       justify-content:center;
-      overflow:hidden
+      overflow:hidden;
     }
+
     .viewer-image{
       max-width:none;
       max-height:none;
@@ -212,47 +188,40 @@
       transform-origin:center;
       transition:transform .16s ease;
       cursor:grab;
-      will-change:transform
     }
+
     .viewer-image.dragging{
       cursor:grabbing;
-      transition:none
+      transition:none;
     }
-    .viewer-bar{
+
+    .topbar{
       position:absolute;
       top:0;
       right:0;
       left:0;
-      z-index:6;
-      min-height:68px;
+      z-index:5;
+      min-height:64px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:12px;
-      padding:12px 16px;
-      background:linear-gradient(180deg,rgba(0,0,0,.7),transparent)
+      padding:11px 14px;
+      background:linear-gradient(180deg,rgba(0,0,0,.72),transparent);
     }
-    .viewer-title{
-      min-width:0;
-      margin:0;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-      font-family:"Noto Serif TC",serif;
-      font-size:17px
+
+    .viewer-count{
+      color:rgba(255,255,255,.76);
+      font-size:13px;
     }
-    .viewer-meta{
-      margin-top:3px;
-      color:rgba(255,255,255,.68);
-      font-size:12px
-    }
+
     .viewer-actions{
       display:flex;
-      gap:7px
+      gap:7px;
     }
+
     .viewer-btn{
-      width:42px;
-      height:42px;
+      width:40px;
+      height:40px;
       display:grid;
       place-items:center;
       color:#fff;
@@ -260,94 +229,60 @@
       border:1px solid rgba(255,255,255,.16);
       border-radius:50%;
       cursor:pointer;
-      font-size:19px
+      font-size:18px;
     }
-    .viewer-nav{
+
+    .nav-btn{
       position:absolute;
       top:50%;
       z-index:5;
-      width:48px;
-      height:66px;
+      width:46px;
+      height:62px;
       display:grid;
       place-items:center;
       transform:translateY(-50%);
       color:#fff;
       background:rgba(0,0,0,.3);
       border:1px solid rgba(255,255,255,.12);
-      border-radius:14px;
+      border-radius:13px;
       cursor:pointer;
-      font-size:38px
-    }
-    .viewer-prev{left:12px}
-    .viewer-next{right:12px}
-    .viewer-caption{
-      position:absolute;
-      right:16px;
-      bottom:16px;
-      left:16px;
-      z-index:5;
-      max-width:740px;
-      margin:auto;
-      padding:12px 15px;
-      color:rgba(255,255,255,.84);
-      text-align:center;
-      font-size:13px;
-      line-height:1.7;
-      background:rgba(0,0,0,.32);
-      border-radius:14px;
-      backdrop-filter:blur(8px)
+      font-size:36px;
     }
 
-    @media(max-width:960px){
-      .gallery{grid-template-columns:repeat(3,minmax(0,1fr))}
-    }
+    .prev{left:8px}
+    .next{right:8px}
 
-    @media(max-width:680px){
-      .header-inner{min-height:62px}
-      .page-brand{font-size:17px}
-      .admin-link{display:none}
-      .intro{padding:40px 0 24px}
-      .intro h1{font-size:34px}
-      .intro p{font-size:14px}
-      .gallery-top{
-        align-items:flex-start;
-        flex-direction:column;
-        gap:8px
+    @media(max-width:900px){
+      .gallery{
+        grid-template-columns:repeat(3,minmax(0,1fr));
       }
+    }
+
+    @media(max-width:600px){
+      .upload{display:none}
+      .intro{padding:34px 0 20px}
       .gallery{
         grid-template-columns:repeat(2,minmax(0,1fr));
-        gap:10px
+        gap:9px;
       }
-      .card{border-radius:12px}
-      .card-overlay{
-        padding:26px 10px 10px;
-        opacity:1
+      .card{border-radius:10px}
+      .nav-btn{
+        width:40px;
+        height:56px;
+        font-size:31px;
       }
-      .card-title{font-size:13px}
-      .viewer-title{max-width:170px;font-size:14px}
-      .viewer-btn{width:38px;height:38px;font-size:17px}
-      .viewer-nav{width:42px;height:58px;font-size:32px}
-      .viewer-prev{left:5px}
-      .viewer-next{right:5px}
-      .viewer-caption{
-        right:8px;
-        bottom:8px;
-        left:8px;
-        padding:9px 11px;
-        font-size:12px
-      }
+      .prev{left:4px}
+      .next{right:4px}
     }
   </style>
 </head>
 
 <body>
-  <header class="page-header">
+  <header>
     <div class="shell header-inner">
-      <a class="back-link" href="catcakeindex.html">← 返回首頁</a>
-
-      <div class="page-brand">Cat Cake</div>
-
-      <a class="admin-link" href="catcakeadmin.html">新增作品</a>
+      <a class="back" href="catcakeindex.html">← 返回首頁</a>
+      <div class="brand">Cat Cake</div>
+      <a class="upload" href="catcakeadmin.html">上傳作品</a>
     </div>
   </header>
 
@@ -356,178 +291,168 @@
       <div class="shell">
         <small>ALL CAKE STORIES</small>
         <h1>完整作品集</h1>
-        <p>慢慢瀏覽每一份完成過的甜點故事。</p>
+        <div class="count" id="workCount">作品載入中</div>
       </div>
     </section>
 
     <section class="gallery-wrap">
       <div class="shell">
-        <div class="gallery-top">
-          <div class="work-count" id="workCount">作品載入中</div>
-          <div class="gallery-note">點選照片可全螢幕查看，左右滑動切換作品。</div>
-        </div>
-
         <div class="gallery" id="gallery">
-          <div class="loading">正在整理 Cat Cake 的作品……</div>
+          <div class="loading">作品載入中……</div>
         </div>
       </div>
     </section>
   </main>
 
-  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="作品全螢幕預覽">
-    <div class="viewer-stage" id="viewerStage">
-      <img class="viewer-image" id="viewerImage" alt="Cat Cake 蛋糕作品大圖">
+  <div class="lightbox" id="lightbox">
+    <div class="stage" id="stage">
+      <img class="viewer-image" id="viewerImage" alt="蛋糕作品">
     </div>
 
-    <div class="viewer-bar">
-      <div>
-        <h2 class="viewer-title" id="viewerTitle"></h2>
-        <div class="viewer-meta" id="viewerMeta"></div>
-      </div>
+    <div class="topbar">
+      <div class="viewer-count" id="viewerCount"></div>
 
       <div class="viewer-actions">
-        <button class="viewer-btn" id="zoomOutBtn" type="button" aria-label="縮小">−</button>
-        <button class="viewer-btn" id="zoomResetBtn" type="button" aria-label="恢復大小">1:1</button>
-        <button class="viewer-btn" id="zoomInBtn" type="button" aria-label="放大">＋</button>
-        <button class="viewer-btn" id="closeBtn" type="button" aria-label="關閉">×</button>
+        <button class="viewer-btn" id="zoomOut" type="button">−</button>
+        <button class="viewer-btn" id="zoomReset" type="button">1:1</button>
+        <button class="viewer-btn" id="zoomIn" type="button">＋</button>
+        <button class="viewer-btn" id="closeBtn" type="button">×</button>
       </div>
     </div>
 
-    <button class="viewer-nav viewer-prev" id="prevBtn" type="button" aria-label="上一張">‹</button>
-    <button class="viewer-nav viewer-next" id="nextBtn" type="button" aria-label="下一張">›</button>
-
-    <div class="viewer-caption" id="viewerDescription"></div>
+    <button class="nav-btn prev" id="prevBtn" type="button">‹</button>
+    <button class="nav-btn next" id="nextBtn" type="button">›</button>
   </div>
 
   <script>
     const GAS_URL =
       "https://script.google.com/macros/s/AKfycbwFq-J0r1gkmFgAkQB-5oC3Bbtz4OpK1cpMDg9XeG_Ts4loi_NYR9WabKzTpPCDSNYung/exec";
 
-    const fallbackWorks = [
-      {
-        title:"奶油花造型蛋糕",
-        description:"溫柔的奶油色調，搭配細緻花朵裝飾。",
-        imageUrl:"https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1000&q=85"
-      },
-      {
-        title:"草莓鮮奶油蛋糕",
-        description:"新鮮草莓與輕盈鮮奶油，留下簡單柔和的甜。",
-        imageUrl:"https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?auto=format&fit=crop&w=1000&q=85"
-      },
-      {
-        title:"巧克力造型蛋糕",
-        description:"濃郁巧克力風味，搭配安靜而溫柔的設計。",
-        imageUrl:"https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?auto=format&fit=crop&w=1000&q=85"
-      }
-    ];
+    let works = [];
+    let currentIndex = 0;
+    let scale = 1;
+    let translateX = 0;
+    let translateY = 0;
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let startTranslateX = 0;
+    let startTranslateY = 0;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let pinchStartDistance = 0;
+    let pinchStartScale = 1;
 
-    let works=[];
-    let currentIndex=0;
-    let scale=1;
-    let translateX=0;
-    let translateY=0;
-    let isDragging=false;
-    let dragStartX=0;
-    let dragStartY=0;
-    let startTranslateX=0;
-    let startTranslateY=0;
-    let touchStartX=0;
-    let touchStartY=0;
-    let pinchStartDistance=0;
-    let pinchStartScale=1;
+    const lightbox =
+      document.getElementById("lightbox");
 
-    const lightbox=document.getElementById("lightbox");
-    const viewerStage=document.getElementById("viewerStage");
-    const viewerImage=document.getElementById("viewerImage");
+    const stage =
+      document.getElementById("stage");
+
+    const viewerImage =
+      document.getElementById("viewerImage");
 
     loadWorks();
 
-    async function loadWorks(){
-      try{
-        const response=await fetch(
-          `${GAS_URL}?action=list&t=${Date.now()}`,
-          {cache:"no-store"}
-        );
+    async function loadWorks() {
+      try {
+        const response =
+          await fetch(
+            `${GAS_URL}?action=list&t=${Date.now()}`,
+            { cache: "no-store" }
+          );
 
-        if(!response.ok){
-          throw new Error(`伺服器回應錯誤：${response.status}`);
+        const data =
+          await response.json();
+
+        if (!data.ok) {
+          throw new Error(
+            data.message || "讀取失敗"
+          );
         }
 
-        const data=await response.json();
+        works =
+          Array.isArray(data.items)
+            ? data.items
+            : [];
 
-        if(!data.ok){
-          throw new Error(data.message||"作品讀取失敗");
-        }
-
-        works=Array.isArray(data.items)?data.items:[];
-      }catch(error){
+      } catch (error) {
         console.error(error);
-        works=fallbackWorks;
+        works = [];
       }
 
       renderGallery();
-      updateCount();
+
+      document
+        .getElementById("workCount")
+        .textContent =
+          works.length
+            ? `目前共 ${works.length} 張作品`
+            : "目前尚無作品";
     }
 
-    function renderGallery(){
-      const gallery=document.getElementById("gallery");
+    function renderGallery() {
+      const gallery =
+        document.getElementById("gallery");
 
-      if(!works.length){
-        gallery.innerHTML=`
+      if (!works.length) {
+        gallery.innerHTML = `
           <div class="empty">
-            目前還沒有上傳作品。<br>
-            新作品上傳後會自動顯示在這裡。
+            目前尚無作品。
           </div>
         `;
         return;
       }
 
-      gallery.innerHTML=works.map((item,index)=>{
-        const title=item.title||"Cat Cake 造型蛋糕";
-
-        return `
+      gallery.innerHTML =
+        works.map((item, index) => `
           <article
             class="card"
             tabindex="0"
-            role="button"
-            aria-label="查看 ${escapeAttr(title)}"
             data-index="${index}"
           >
             <img
               loading="lazy"
-              src="${escapeAttr(item.imageUrl||"")}"
-              alt="${escapeAttr(title)}"
+              src="${escapeAttr(item.imageUrl || "")}"
+              alt="Cat Cake 蛋糕作品"
             >
-
-            <div class="card-overlay">
-              <h2 class="card-title">${escapeHtml(title)}</h2>
-            </div>
           </article>
-        `;
-      }).join("");
+        `).join("");
 
-      gallery.querySelectorAll(".card").forEach(card=>{
-        const open=()=>openViewer(Number(card.dataset.index));
+      gallery
+        .querySelectorAll(".card")
+        .forEach(card => {
+          const open = () => {
+            openViewer(
+              Number(card.dataset.index)
+            );
+          };
 
-        card.addEventListener("click",open);
-        card.addEventListener("keydown",event=>{
-          if(event.key==="Enter"||event.key===" "){
-            event.preventDefault();
-            open();
-          }
+          card.addEventListener(
+            "click",
+            open
+          );
+
+          card.addEventListener(
+            "keydown",
+            event => {
+              if (
+                event.key === "Enter" ||
+                event.key === " "
+              ) {
+                event.preventDefault();
+                open();
+              }
+            }
+          );
         });
-      });
     }
 
-    function updateCount(){
-      document.getElementById("workCount").textContent=
-        works.length?`目前共 ${works.length} 件作品`:"尚無作品";
-    }
+    function openViewer(index) {
+      currentIndex =
+        (index + works.length) %
+        works.length;
 
-    function openViewer(index){
-      if(!works.length)return;
-
-      currentIndex=(index+works.length)%works.length;
       resetTransform();
       updateViewer();
 
@@ -535,200 +460,340 @@
       document.body.classList.add("no-scroll");
     }
 
-    function closeViewer(){
+    function closeViewer() {
       lightbox.classList.remove("open");
       document.body.classList.remove("no-scroll");
       resetTransform();
     }
 
-    function updateViewer(){
-      const item=works[currentIndex];
-      const title=item.title||"Cat Cake 造型蛋糕";
-      const description=item.description||"Cat Cake 客製造型蛋糕作品。";
+    function updateViewer() {
+      const item =
+        works[currentIndex];
 
-      viewerImage.src=item.imageUrl||"";
-      viewerImage.alt=title;
+      viewerImage.src =
+        item.imageUrl || "";
 
-      document.getElementById("viewerTitle").textContent=title;
-      document.getElementById("viewerDescription").textContent=description;
-      document.getElementById("viewerMeta").textContent=
-        `${currentIndex+1} / ${works.length}`;
+      document
+        .getElementById("viewerCount")
+        .textContent =
+          `${currentIndex + 1} / ${works.length}`;
 
       applyTransform();
     }
 
-    function showPrevious(){
-      currentIndex=(currentIndex-1+works.length)%works.length;
+    function showPrevious() {
+      currentIndex =
+        (currentIndex - 1 + works.length) %
+        works.length;
+
       resetTransform();
       updateViewer();
     }
 
-    function showNext(){
-      currentIndex=(currentIndex+1)%works.length;
+    function showNext() {
+      currentIndex =
+        (currentIndex + 1) %
+        works.length;
+
       resetTransform();
       updateViewer();
     }
 
-    function setScale(nextScale){
-      scale=Math.min(5,Math.max(1,nextScale));
+    function setScale(value) {
+      scale =
+        Math.min(
+          5,
+          Math.max(1, value)
+        );
 
-      if(scale===1){
-        translateX=0;
-        translateY=0;
+      if (scale === 1) {
+        translateX = 0;
+        translateY = 0;
       }
 
       applyTransform();
     }
 
-    function resetTransform(){
-      scale=1;
-      translateX=0;
-      translateY=0;
+    function resetTransform() {
+      scale = 1;
+      translateX = 0;
+      translateY = 0;
       applyTransform();
     }
 
-    function applyTransform(){
-      viewerImage.style.transform=
+    function applyTransform() {
+      viewerImage.style.transform =
         `translate(${translateX}px,${translateY}px) scale(${scale})`;
     }
 
-    function getTouchDistance(touches){
-      const dx=touches[0].clientX-touches[1].clientX;
-      const dy=touches[0].clientY-touches[1].clientY;
-      return Math.hypot(dx,dy);
+    function getTouchDistance(touches) {
+      const dx =
+        touches[0].clientX -
+        touches[1].clientX;
+
+      const dy =
+        touches[0].clientY -
+        touches[1].clientY;
+
+      return Math.hypot(dx, dy);
     }
 
-    document.getElementById("closeBtn")
-      .addEventListener("click",closeViewer);
+    document
+      .getElementById("closeBtn")
+      .addEventListener(
+        "click",
+        closeViewer
+      );
 
-    document.getElementById("prevBtn")
-      .addEventListener("click",showPrevious);
+    document
+      .getElementById("prevBtn")
+      .addEventListener(
+        "click",
+        showPrevious
+      );
 
-    document.getElementById("nextBtn")
-      .addEventListener("click",showNext);
+    document
+      .getElementById("nextBtn")
+      .addEventListener(
+        "click",
+        showNext
+      );
 
-    document.getElementById("zoomInBtn")
-      .addEventListener("click",()=>setScale(scale+.25));
+    document
+      .getElementById("zoomIn")
+      .addEventListener(
+        "click",
+        () => setScale(scale + .25)
+      );
 
-    document.getElementById("zoomOutBtn")
-      .addEventListener("click",()=>setScale(scale-.25));
+    document
+      .getElementById("zoomOut")
+      .addEventListener(
+        "click",
+        () => setScale(scale - .25)
+      );
 
-    document.getElementById("zoomResetBtn")
-      .addEventListener("click",resetTransform);
+    document
+      .getElementById("zoomReset")
+      .addEventListener(
+        "click",
+        resetTransform
+      );
 
-    viewerStage.addEventListener("wheel",event=>{
-      event.preventDefault();
-      setScale(scale+(event.deltaY<0?.2:-.2));
-    },{passive:false});
-
-    viewerImage.addEventListener("dblclick",()=>{
-      setScale(scale===1?2:1);
-    });
-
-    viewerImage.addEventListener("mousedown",event=>{
-      if(scale<=1)return;
-
-      isDragging=true;
-      viewerImage.classList.add("dragging");
-      dragStartX=event.clientX;
-      dragStartY=event.clientY;
-      startTranslateX=translateX;
-      startTranslateY=translateY;
-      event.preventDefault();
-    });
-
-    window.addEventListener("mousemove",event=>{
-      if(!isDragging)return;
-
-      translateX=startTranslateX+(event.clientX-dragStartX);
-      translateY=startTranslateY+(event.clientY-dragStartY);
-      applyTransform();
-    });
-
-    window.addEventListener("mouseup",()=>{
-      isDragging=false;
-      viewerImage.classList.remove("dragging");
-    });
-
-    viewerStage.addEventListener("touchstart",event=>{
-      if(event.touches.length===1){
-        touchStartX=event.touches[0].clientX;
-        touchStartY=event.touches[0].clientY;
-
-        if(scale>1){
-          isDragging=true;
-          dragStartX=touchStartX;
-          dragStartY=touchStartY;
-          startTranslateX=translateX;
-          startTranslateY=translateY;
-        }
-      }
-
-      if(event.touches.length===2){
-        pinchStartDistance=getTouchDistance(event.touches);
-        pinchStartScale=scale;
-      }
-    },{passive:true});
-
-    viewerStage.addEventListener("touchmove",event=>{
-      if(event.touches.length===2){
+    stage.addEventListener(
+      "wheel",
+      event => {
         event.preventDefault();
 
-        const distance=getTouchDistance(event.touches);
-        setScale(pinchStartScale*(distance/pinchStartDistance));
-        return;
+        setScale(
+          scale +
+          (event.deltaY < 0 ? .2 : -.2)
+        );
+      },
+      { passive: false }
+    );
+
+    viewerImage.addEventListener(
+      "dblclick",
+      () => {
+        setScale(
+          scale === 1 ? 2 : 1
+        );
       }
+    );
 
-      if(event.touches.length===1&&scale>1&&isDragging){
+    viewerImage.addEventListener(
+      "mousedown",
+      event => {
+        if (scale <= 1) return;
+
+        isDragging = true;
+        viewerImage.classList.add("dragging");
+
+        dragStartX = event.clientX;
+        dragStartY = event.clientY;
+
+        startTranslateX = translateX;
+        startTranslateY = translateY;
+
         event.preventDefault();
+      }
+    );
 
-        translateX=startTranslateX+(event.touches[0].clientX-dragStartX);
-        translateY=startTranslateY+(event.touches[0].clientY-dragStartY);
+    window.addEventListener(
+      "mousemove",
+      event => {
+        if (!isDragging) return;
+
+        translateX =
+          startTranslateX +
+          (event.clientX - dragStartX);
+
+        translateY =
+          startTranslateY +
+          (event.clientY - dragStartY);
+
         applyTransform();
       }
-    },{passive:false});
+    );
 
-    viewerStage.addEventListener("touchend",event=>{
-      if(event.touches.length===0){
-        if(scale===1){
-          const changed=event.changedTouches[0];
-          const diffX=changed.clientX-touchStartX;
-          const diffY=changed.clientY-touchStartY;
+    window.addEventListener(
+      "mouseup",
+      () => {
+        isDragging = false;
+        viewerImage.classList.remove("dragging");
+      }
+    );
 
-          if(Math.abs(diffX)>60&&Math.abs(diffX)>Math.abs(diffY)){
-            diffX<0?showNext():showPrevious();
+    stage.addEventListener(
+      "touchstart",
+      event => {
+        if (event.touches.length === 1) {
+          touchStartX =
+            event.touches[0].clientX;
+
+          touchStartY =
+            event.touches[0].clientY;
+
+          if (scale > 1) {
+            isDragging = true;
+            dragStartX = touchStartX;
+            dragStartY = touchStartY;
+            startTranslateX = translateX;
+            startTranslateY = translateY;
           }
         }
 
-        isDragging=false;
+        if (event.touches.length === 2) {
+          pinchStartDistance =
+            getTouchDistance(event.touches);
+
+          pinchStartScale =
+            scale;
+        }
+      },
+      { passive: true }
+    );
+
+    stage.addEventListener(
+      "touchmove",
+      event => {
+        if (event.touches.length === 2) {
+          event.preventDefault();
+
+          const distance =
+            getTouchDistance(event.touches);
+
+          setScale(
+            pinchStartScale *
+            (
+              distance /
+              pinchStartDistance
+            )
+          );
+
+          return;
+        }
+
+        if (
+          event.touches.length === 1 &&
+          scale > 1 &&
+          isDragging
+        ) {
+          event.preventDefault();
+
+          translateX =
+            startTranslateX +
+            (
+              event.touches[0].clientX -
+              dragStartX
+            );
+
+          translateY =
+            startTranslateY +
+            (
+              event.touches[0].clientY -
+              dragStartY
+            );
+
+          applyTransform();
+        }
+      },
+      { passive: false }
+    );
+
+    stage.addEventListener(
+      "touchend",
+      event => {
+        if (event.touches.length === 0) {
+          if (scale === 1) {
+            const changed =
+              event.changedTouches[0];
+
+            const diffX =
+              changed.clientX -
+              touchStartX;
+
+            const diffY =
+              changed.clientY -
+              touchStartY;
+
+            if (
+              Math.abs(diffX) > 60 &&
+              Math.abs(diffX) >
+                Math.abs(diffY)
+            ) {
+              diffX < 0
+                ? showNext()
+                : showPrevious();
+            }
+          }
+
+          isDragging = false;
+        }
+      },
+      { passive: true }
+    );
+
+    document.addEventListener(
+      "keydown",
+      event => {
+        if (
+          !lightbox
+            .classList
+            .contains("open")
+        ) {
+          return;
+        }
+
+        if (event.key === "Escape") {
+          closeViewer();
+        }
+
+        if (event.key === "ArrowLeft") {
+          showPrevious();
+        }
+
+        if (event.key === "ArrowRight") {
+          showNext();
+        }
       }
-    },{passive:true});
+    );
 
-    document.addEventListener("keydown",event=>{
-      if(!lightbox.classList.contains("open"))return;
-
-      if(event.key==="Escape")closeViewer();
-      if(event.key==="ArrowLeft")showPrevious();
-      if(event.key==="ArrowRight")showNext();
-      if(event.key==="+"||event.key==="=")setScale(scale+.25);
-      if(event.key==="-")setScale(scale-.25);
-      if(event.key==="0")resetTransform();
-    });
-
-    function escapeHtml(value=""){
+    function escapeHtml(value = "") {
       return String(value).replace(
         /[&<>'"]/g,
-        character=>({
-          "&":"&amp;",
-          "<":"&lt;",
-          ">":"&gt;",
-          "'":"&#39;",
-          '"':"&quot;"
+        character => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          "'": "&#39;",
+          '"': "&quot;"
         })[character]
       );
     }
 
-    function escapeAttr(value=""){
+    function escapeAttr(value = "") {
       return escapeHtml(value);
     }
   </script>
