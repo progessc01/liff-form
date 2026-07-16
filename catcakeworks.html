@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <meta name="theme-color" content="#f4ecdf">
+  <meta name="theme-color" content="#f7f1e8">
   <title>Cat Cake｜完整作品集</title>
-  <meta name="description" content="Cat Cake 客製造型蛋糕作品集，收錄帶有手作溫度的甜點作品。">
+  <meta name="description" content="Cat Cake 客製造型蛋糕完整作品集。">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,19 +13,14 @@
 
   <style>
     :root{
-      --paper:#f8f3ea;
+      --paper:#f7f1e8;
       --paper-light:#fffdf8;
-      --paper-deep:#eee3d4;
-      --ink:#4f3d34;
-      --muted:#7f6b60;
-      --line:#d9cbbb;
-      --rose:#c99fa1;
-      --rose-soft:#ead6d7;
-      --green:#9ba78f;
-      --green-soft:#dce2d5;
-      --sand:#d7bd9e;
-      --shadow:0 18px 40px rgba(83,62,50,.11);
-      --radius:28px;
+      --ink:#4d3b33;
+      --muted:#806d63;
+      --line:#dfd2c2;
+      --rose:#bf9197;
+      --rose-soft:#ecd9dc;
+      --shadow:0 15px 36px rgba(78,58,47,.10);
     }
 
     *{box-sizing:border-box}
@@ -35,218 +30,166 @@
       color:var(--ink);
       font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif;
       background:
-        linear-gradient(rgba(255,255,255,.12),rgba(255,255,255,.12)),
-        repeating-linear-gradient(0deg,rgba(93,72,58,.025) 0,rgba(93,72,58,.025) 1px,transparent 1px,transparent 4px),
-        radial-gradient(circle at 10% 6%,rgba(255,255,255,.96),transparent 25%),
+        repeating-linear-gradient(
+          0deg,
+          rgba(84,63,51,.022) 0,
+          rgba(84,63,51,.022) 1px,
+          transparent 1px,
+          transparent 4px
+        ),
         linear-gradient(180deg,#fbf7f0 0%,var(--paper) 100%);
-      overflow-x:hidden;
     }
     body.no-scroll{overflow:hidden}
     a{color:inherit;text-decoration:none}
     button{font:inherit}
-    img{max-width:100%}
-    .shell{width:min(1160px,calc(100% - 28px));margin:auto}
+    .shell{width:min(1240px,calc(100% - 28px));margin:auto}
 
-    .topbar{
-      position:sticky;top:0;z-index:30;
-      background:rgba(248,243,234,.9);
-      border-bottom:1px solid rgba(217,203,187,.8);
+    .page-header{
+      position:sticky;
+      top:0;
+      z-index:30;
+      background:rgba(247,241,232,.92);
+      border-bottom:1px solid rgba(223,210,194,.8);
       backdrop-filter:blur(14px)
     }
-    .nav{
-      min-height:72px;display:flex;align-items:center;
-      justify-content:space-between;gap:18px
+    .header-inner{
+      min-height:68px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px
     }
-    .brand{display:flex;align-items:center;gap:12px}
-    .brand-seal{
-      width:46px;height:46px;display:grid;place-items:center;
-      border:1px solid var(--line);border-radius:50%;
-      background:var(--paper-light);
-      box-shadow:0 8px 18px rgba(83,62,50,.07);
-      font-size:23px;transform:rotate(-5deg)
+    .back-link{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      color:var(--muted);
+      font-size:14px;
+      font-weight:600
     }
-    .brand-title{
+    .page-brand{
       font-family:"Noto Serif TC",serif;
-      font-weight:700;font-size:21px;letter-spacing:.08em
+      font-size:19px;
+      font-weight:700;
+      letter-spacing:.08em
     }
-    .brand small{
-      display:block;color:var(--muted);font-size:10px;
-      letter-spacing:.18em;margin-top:2px
-    }
-    .nav-actions{display:flex;gap:10px;align-items:center}
-    .btn{
-      min-height:42px;padding:10px 17px;
-      display:inline-flex;align-items:center;justify-content:center;
-      border-radius:999px;border:1px solid var(--line);
-      background:rgba(255,253,248,.92);
-      font-weight:700;cursor:pointer;transition:.2s ease
-    }
-    .btn:hover{transform:translateY(-2px)}
-    .btn-primary{
-      color:#fff;background:var(--ink);border-color:var(--ink);
-      box-shadow:0 9px 20px rgba(79,61,52,.18)
+    .admin-link{
+      padding:9px 14px;
+      color:#fff;
+      background:var(--ink);
+      border-radius:999px;
+      font-size:13px;
+      font-weight:700
     }
 
-    .hero{padding:72px 0 60px;position:relative}
-    .hero::before{
-      content:"";position:absolute;left:-60px;top:80px;
-      width:180px;height:180px;border-radius:50%;
-      background:rgba(234,214,215,.42);filter:blur(1px)
-    }
-    .hero-grid{
-      position:relative;z-index:2;
-      display:grid;grid-template-columns:.92fr 1.08fr;
-      gap:56px;align-items:center
-    }
-    .full-portfolio-hero{
-      grid-template-columns:1fr;
-      max-width:760px;
-      margin:0 auto;
+    .intro{
+      padding:54px 0 30px;
       text-align:center
     }
-    .full-portfolio-hero .scrapbook{display:none}
-    .full-portfolio-hero .hero-actions{justify-content:center}
-    .eyebrow{
-      color:var(--rose);font-size:12px;font-weight:700;
-      letter-spacing:.19em
+    .intro small{
+      color:var(--rose);
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.22em
     }
-    h1,h2,h3{margin:0;font-family:"Noto Serif TC",serif}
-    h1{
-      margin-top:16px;font-size:clamp(42px,6vw,70px);
-      line-height:1.24;letter-spacing:.02em
+    .intro h1{
+      margin:12px 0 10px;
+      font-family:"Noto Serif TC",serif;
+      font-size:clamp(34px,5vw,54px);
+      line-height:1.35
     }
-    .hero p{
-      margin:24px 0 28px;max-width:610px;
-      color:var(--muted);font-size:16px;line-height:2
-    }
-    .hero-actions{display:flex;flex-wrap:wrap;gap:12px}
-    .hero-note{
-      margin-top:24px;color:var(--muted);
-      font-family:"Noto Serif TC",serif;font-size:14px;line-height:1.9
+    .intro p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.9
     }
 
-    .scrapbook{
-      position:relative;min-height:530px
+    .gallery-wrap{padding:18px 0 84px}
+    .gallery-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:20px
     }
-    .wash{
-      position:absolute;inset:42px 12px 20px 35px;
-      background:
-        radial-gradient(circle at 25% 20%,rgba(255,255,255,.72),transparent 25%),
-        linear-gradient(145deg,rgba(234,214,215,.9),rgba(220,226,213,.88));
-      border-radius:47% 53% 45% 55% / 53% 44% 56% 47%;
-      transform:rotate(-2deg)
-    }
-    .photo{
-      position:absolute;overflow:hidden;background:var(--paper-light);
-      border:9px solid var(--paper-light);
-      box-shadow:var(--shadow)
-    }
-    .photo img{width:100%;height:100%;display:block;object-fit:cover}
-    .photo.one{
-      left:2%;top:112px;width:45%;height:330px;
-      transform:rotate(-5deg);border-radius:10px
-    }
-    .photo.two{
-      right:7%;top:8px;width:40%;height:280px;
-      transform:rotate(4deg);border-radius:10px
-    }
-    .photo.three{
-      right:10%;bottom:18px;width:39%;height:238px;
-      transform:rotate(2deg);border-radius:10px
-    }
-    .tape{
-      position:absolute;width:92px;height:28px;
-      background:rgba(214,188,153,.58);
-      box-shadow:inset 0 0 0 1px rgba(120,93,70,.06)
-    }
-    .tape.one{left:14%;top:94px;transform:rotate(-8deg)}
-    .tape.two{right:17%;top:0;transform:rotate(7deg)}
-    .tape.three{right:18%;bottom:238px;transform:rotate(-3deg)}
-    .sprig{
-      position:absolute;color:var(--green);font-size:68px;
-      line-height:1;opacity:.78
-    }
-    .sprig.left{left:-8px;bottom:12px;transform:rotate(-22deg)}
-    .sprig.right{right:-2px;top:172px;transform:rotate(18deg)}
-    .sketch-badge{
-      position:absolute;left:47%;top:48%;
-      width:88px;height:88px;display:grid;place-items:center;
-      transform:translate(-50%,-50%) rotate(-8deg);
-      background:var(--paper-light);
-      border:1px dashed var(--line);border-radius:50%;
-      box-shadow:0 10px 24px rgba(83,62,50,.09);
-      font-size:36px
-    }
-    .scrap-caption{
-      position:absolute;left:50%;bottom:18px;transform:translateX(-50%);
-      padding:9px 15px;white-space:nowrap;
-      background:rgba(255,253,248,.92);border:1px solid var(--line);
-      border-radius:999px;color:var(--muted);font-size:12px;font-weight:600
-    }
-
-    .section{padding:58px 0 92px}
-    .section-head{
-      display:flex;align-items:end;justify-content:space-between;
-      gap:20px;margin-bottom:28px
-    }
-    .section-head h2{font-size:clamp(31px,4vw,46px)}
-    .section-head p{margin:9px 0 0;color:var(--muted);line-height:1.85}
     .work-count{
-      flex-shrink:0;padding:9px 14px;
-      color:var(--rose);background:rgba(234,214,215,.56);
-      border:1px solid rgba(201,159,161,.24);
-      border-radius:999px;font-size:13px;font-weight:700
+      padding:8px 13px;
+      color:var(--rose);
+      background:rgba(236,217,220,.55);
+      border:1px solid rgba(191,145,151,.2);
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700
     }
+    .gallery-note{
+      color:var(--muted);
+      font-size:13px
+    }
+
     .gallery{
-      display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:16px
     }
     .card{
-      overflow:hidden;background:var(--paper-light);
-      border:1px solid var(--line);border-radius:18px;
-      box-shadow:0 12px 28px rgba(83,62,50,.08);
-      cursor:pointer;transition:.22s ease
-    }
-    .card:nth-child(3n+1){transform:rotate(-.35deg)}
-    .card:nth-child(3n+2){transform:rotate(.25deg)}
-    .card:nth-child(3n+3){transform:rotate(-.15deg)}
-    .card:hover{transform:translateY(-5px) rotate(0);box-shadow:var(--shadow)}
-    .card-media{aspect-ratio:4/5;background:var(--paper-deep);overflow:hidden}
-    .card img{width:100%;height:100%;display:block;object-fit:cover;transition:.35s ease}
-    .card:hover img{transform:scale(1.035)}
-    .card-body{padding:18px 18px 20px;min-height:116px}
-    .card h3{font-size:20px;line-height:1.5}
-    .card p{
-      margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.75;
-      display:-webkit-box;-webkit-box-orient:vertical;
-      -webkit-line-clamp:2;overflow:hidden
-    }
-    .loading,.empty{
-      grid-column:1/-1;padding:64px 24px;
-      text-align:center;color:var(--muted);line-height:1.9;
-      background:rgba(255,253,248,.58);
-      border:1px dashed var(--rose);border-radius:22px
-    }
-
-    .about{
-      display:grid;grid-template-columns:.9fr 1.1fr;
-      gap:34px;padding:40px;
-      background:
-        linear-gradient(145deg,rgba(255,253,248,.96),rgba(220,226,213,.45));
+      position:relative;
+      overflow:hidden;
+      aspect-ratio:1/1;
+      background:#e9ded1;
       border:1px solid var(--line);
-      border-radius:30px;box-shadow:var(--shadow)
+      border-radius:16px;
+      box-shadow:0 10px 24px rgba(78,58,47,.07);
+      cursor:pointer;
+      transition:.22s ease
     }
-    .about h2{margin-top:12px;font-size:38px;line-height:1.45}
-    .about p{margin:0;color:var(--muted);font-size:16px;line-height:2}
-    .highlight{color:var(--rose);font-weight:700}
+    .card:hover{
+      transform:translateY(-4px);
+      box-shadow:var(--shadow)
+    }
+    .card img{
+      width:100%;
+      height:100%;
+      display:block;
+      object-fit:cover;
+      transition:.35s ease
+    }
+    .card:hover img{transform:scale(1.035)}
+    .card-overlay{
+      position:absolute;
+      right:0;
+      bottom:0;
+      left:0;
+      padding:34px 14px 13px;
+      color:#fff;
+      background:linear-gradient(180deg,transparent,rgba(34,25,21,.72));
+      opacity:0;
+      transition:.22s ease
+    }
+    .card:hover .card-overlay{opacity:1}
+    .card-title{
+      margin:0;
+      font-family:"Noto Serif TC",serif;
+      font-size:16px;
+      line-height:1.45
+    }
 
-    footer{padding:24px 0 42px;color:var(--muted);font-size:13px;text-align:center}
+    .loading,.empty{
+      grid-column:1/-1;
+      padding:70px 24px;
+      color:var(--muted);
+      text-align:center;
+      line-height:1.9;
+      background:rgba(255,253,248,.6);
+      border:1px dashed var(--rose);
+      border-radius:18px
+    }
 
     .lightbox{
       position:fixed;
       inset:0;
       z-index:80;
       display:none;
-      background:rgba(24,20,18,.97);
+      background:rgba(22,19,17,.98);
       color:#fff;
       touch-action:none;
       user-select:none
@@ -266,7 +209,7 @@
       width:auto;
       height:auto;
       object-fit:contain;
-      transform-origin:center center;
+      transform-origin:center;
       transition:transform .16s ease;
       cursor:grab;
       will-change:transform
@@ -275,269 +218,153 @@
       cursor:grabbing;
       transition:none
     }
-    .viewer-topbar{
+    .viewer-bar{
       position:absolute;
       top:0;
-      left:0;
       right:0;
+      left:0;
       z-index:6;
-      min-height:72px;
+      min-height:68px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:16px;
-      padding:14px 18px;
-      background:linear-gradient(180deg,rgba(0,0,0,.66),transparent)
-    }
-    .viewer-info{
-      min-width:0
+      gap:12px;
+      padding:12px 16px;
+      background:linear-gradient(180deg,rgba(0,0,0,.7),transparent)
     }
     .viewer-title{
+      min-width:0;
       margin:0;
-      font-family:"Noto Serif TC",serif;
-      font-size:18px;
-      font-weight:600;
       overflow:hidden;
       text-overflow:ellipsis;
-      white-space:nowrap
+      white-space:nowrap;
+      font-family:"Noto Serif TC",serif;
+      font-size:17px
     }
     .viewer-meta{
-      margin-top:4px;
-      color:rgba(255,255,255,.72);
+      margin-top:3px;
+      color:rgba(255,255,255,.68);
       font-size:12px
     }
     .viewer-actions{
       display:flex;
-      align-items:center;
-      gap:8px
+      gap:7px
     }
-    .viewer-button{
-      width:44px;
-      height:44px;
+    .viewer-btn{
+      width:42px;
+      height:42px;
       display:grid;
       place-items:center;
       color:#fff;
       background:rgba(255,255,255,.12);
-      border:1px solid rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.16);
       border-radius:50%;
       cursor:pointer;
-      font-size:21px;
-      backdrop-filter:blur(8px)
-    }
-    .viewer-button:hover{
-      background:rgba(255,255,255,.2)
+      font-size:19px
     }
     .viewer-nav{
       position:absolute;
       top:50%;
       z-index:5;
-      width:52px;
-      height:72px;
+      width:48px;
+      height:66px;
       display:grid;
       place-items:center;
       transform:translateY(-50%);
       color:#fff;
-      background:rgba(0,0,0,.28);
+      background:rgba(0,0,0,.3);
       border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;
       cursor:pointer;
-      font-size:42px;
-      line-height:1;
-      backdrop-filter:blur(8px)
+      font-size:38px
     }
-    .viewer-prev{
-      left:14px;
-      border-radius:16px
-    }
-    .viewer-next{
-      right:14px;
-      border-radius:16px
-    }
+    .viewer-prev{left:12px}
+    .viewer-next{right:12px}
     .viewer-caption{
       position:absolute;
-      right:18px;
-      bottom:18px;
-      left:18px;
+      right:16px;
+      bottom:16px;
+      left:16px;
       z-index:5;
-      max-width:760px;
+      max-width:740px;
       margin:auto;
-      padding:13px 16px;
-      color:rgba(255,255,255,.86);
+      padding:12px 15px;
+      color:rgba(255,255,255,.84);
       text-align:center;
-      font-size:14px;
+      font-size:13px;
       line-height:1.7;
-      background:rgba(0,0,0,.34);
-      border:1px solid rgba(255,255,255,.1);
-      border-radius:16px;
-      backdrop-filter:blur(10px)
-    }
-    .zoom-hint{
-      position:absolute;
-      left:50%;
-      bottom:92px;
-      z-index:4;
-      transform:translateX(-50%);
-      padding:7px 12px;
-      color:rgba(255,255,255,.72);
-      background:rgba(0,0,0,.28);
-      border-radius:999px;
-      font-size:12px;
-      opacity:0;
-      pointer-events:none;
-      transition:opacity .2s ease
-    }
-    .lightbox.open .zoom-hint{
-      animation:viewerHint 3.2s ease 1
-    }
-    @keyframes viewerHint{
-      0%,70%{opacity:1}
-      100%{opacity:0}
-    }
-    @media(max-width:920px){
-      .hero-grid{grid-template-columns:1fr}
-      .scrapbook{width:min(650px,100%);margin:auto}
-      .gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
-      .about{grid-template-columns:1fr}
-      .lightbox-inner{grid-template-columns:1fr;max-height:94vh}
-      .lightbox-image-wrap{min-height:300px;max-height:62vh}
-      .lightbox img{max-height:62vh}
+      background:rgba(0,0,0,.32);
+      border-radius:14px;
+      backdrop-filter:blur(8px)
     }
 
-    @media(max-width:600px){
-      .shell{width:min(100% - 22px,1160px)}
-      .nav{min-height:66px}
-      .brand small{display:none}
-      .nav .btn-soft{display:none}
-      .nav .btn-primary{padding:9px 13px;font-size:13px}
-      .hero{padding:44px 0 30px}
-      h1{font-size:40px}
-      .hero p{font-size:15px}
-      .hero-actions{flex-direction:column}
-      .hero-actions .btn{width:100%}
-      .scrapbook{min-height:455px;margin-top:8px}
-      .photo.one{width:49%;height:278px;top:94px;left:1%}
-      .photo.two{width:42%;height:238px;right:5%;top:5px}
-      .photo.three{width:41%;height:195px;right:7%;bottom:14px}
-      .sketch-badge{width:66px;height:66px;font-size:28px}
-      .sprig{font-size:48px}
-      .scrap-caption{font-size:11px;padding:8px 11px}
-      .section{padding:48px 0 68px}
-      .section-head{display:block}
-      .work-count{width:max-content;margin-top:16px}
-      .gallery{grid-template-columns:1fr;gap:18px}
-      .card-media{aspect-ratio:1/1}
-      .about{padding:27px 22px}
-      .about h2{font-size:30px}
-      .about p{font-size:15px}
-      .viewer-topbar{
-        min-height:62px;
-        padding:10px 12px
+    @media(max-width:960px){
+      .gallery{grid-template-columns:repeat(3,minmax(0,1fr))}
+    }
+
+    @media(max-width:680px){
+      .header-inner{min-height:62px}
+      .page-brand{font-size:17px}
+      .admin-link{display:none}
+      .intro{padding:40px 0 24px}
+      .intro h1{font-size:34px}
+      .intro p{font-size:14px}
+      .gallery-top{
+        align-items:flex-start;
+        flex-direction:column;
+        gap:8px
       }
-      .viewer-title{
-        max-width:190px;
-        font-size:15px
+      .gallery{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:10px
       }
-      .viewer-button{
-        width:40px;
-        height:40px;
-        font-size:19px
+      .card{border-radius:12px}
+      .card-overlay{
+        padding:26px 10px 10px;
+        opacity:1
       }
-      .viewer-nav{
-        width:44px;
-        height:60px;
-        font-size:35px
-      }
-      .viewer-prev{left:6px}
-      .viewer-next{right:6px}
+      .card-title{font-size:13px}
+      .viewer-title{max-width:170px;font-size:14px}
+      .viewer-btn{width:38px;height:38px;font-size:17px}
+      .viewer-nav{width:42px;height:58px;font-size:32px}
+      .viewer-prev{left:5px}
+      .viewer-next{right:5px}
       .viewer-caption{
-        right:10px;
-        bottom:10px;
-        left:10px;
-        padding:10px 12px;
-        font-size:13px
+        right:8px;
+        bottom:8px;
+        left:8px;
+        padding:9px 11px;
+        font-size:12px
       }
-      .zoom-hint{bottom:78px}
     }
   </style>
 </head>
 
 <body>
-  <header class="topbar">
-    <div class="shell nav">
-      <a class="brand" href="#top" aria-label="Cat Cake 首頁">
-        <span class="brand-seal">🐈</span>
-        <span>
-          <span class="brand-title">Cat Cake</span>
-          <small>HANDMADE CUSTOM CAKES</small>
-        </span>
-      </a>
+  <header class="page-header">
+    <div class="shell header-inner">
+      <a class="back-link" href="catcakeindex.html">← 返回首頁</a>
 
-      <nav class="nav-actions">
-        <a class="btn btn-soft" href="catcakeindex.html">返回首頁</a>
-        <a class="btn btn-primary" href="catcakeadmin.html">新增作品</a>
-      </nav>
+      <div class="page-brand">Cat Cake</div>
+
+      <a class="admin-link" href="catcakeadmin.html">新增作品</a>
     </div>
   </header>
 
-  <main id="top">
-    <section class="hero">
-      <div class="shell hero-grid">
-        <div>
-          <div class="eyebrow">ALL CAKE STORIES</div>
-
-          <h1>
-            Cat Cake<br>
-            完整作品集
-          </h1>
-
-          <p>
-            這裡收錄過往完成的造型蛋糕作品。
-            可以慢慢瀏覽不同主題、色彩與設計，
-            找到屬於你的甜點靈感。
-          </p>
-
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="#works">開始瀏覽</a>
-            <a class="btn btn-soft" href="catcakeindex.html">返回首頁</a>
-          </div>
-        </div>
-
-        <div class="scrapbook" aria-label="Cat Cake 小店長照片">
-          <div class="wash"></div>
-
-          <div class="tape one"></div>
-          <div class="tape two"></div>
-          <div class="tape three"></div>
-
-          <div class="photo one">
-            <img src="catcake-cat-1.jpg" alt="抱著草莓的 Cat Cake 小店長">
-          </div>
-
-          <div class="photo two">
-            <img src="catcake-cat-2.jpg" alt="穿著水手服的 Cat Cake 小店長">
-          </div>
-
-          <div class="photo three">
-            <img src="catcake-cat-3.jpg" alt="穿著藍色格紋服裝的 Cat Cake 小店長">
-          </div>
-
-          <div class="sprig left">❧</div>
-          <div class="sprig right">❧</div>
-          <div class="sketch-badge">🐾</div>
-          <div class="scrap-caption">Cat Cake 的三張小日常</div>
-        </div>
+  <main>
+    <section class="intro">
+      <div class="shell">
+        <small>ALL CAKE STORIES</small>
+        <h1>完整作品集</h1>
+        <p>慢慢瀏覽每一份完成過的甜點故事。</p>
       </div>
     </section>
 
-    <section class="section" id="works">
+    <section class="gallery-wrap">
       <div class="shell">
-        <div class="section-head">
-          <div>
-            <div class="eyebrow">CAKE STORIES</div>
-            <h2>造型蛋糕作品集</h2>
-            <p>點選照片可放大查看作品與說明，最新作品會顯示在最前面。</p>
-          </div>
-
+        <div class="gallery-top">
           <div class="work-count" id="workCount">作品載入中</div>
+          <div class="gallery-note">點選照片可全螢幕查看，左右滑動切換作品。</div>
         </div>
 
         <div class="gallery" id="gallery">
@@ -545,54 +372,31 @@
         </div>
       </div>
     </section>
-
-    <section class="section" id="about">
-      <div class="shell about">
-        <div>
-          <div class="eyebrow">ABOUT CAT CAKE</div>
-          <h2>每一顆蛋糕，都是一封寫給重要日子的信。</h2>
-        </div>
-
-        <p>
-          Cat Cake 喜歡以
-          <span class="highlight">柔和的色彩、細緻的裝飾與可愛的造型</span>
-          ，為生日、紀念日和日常裡值得慶祝的小事，製作專屬蛋糕。
-          <br><br>
-          這裡會持續留下完成過的作品，希望每一張照片，
-          都能成為下一份甜點靈感的起點。
-        </p>
-      </div>
-    </section>
   </main>
-
-  <footer>
-    🐈　© <span id="year"></span> Cat Cake · Handmade with love
-  </footer>
 
   <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="作品全螢幕預覽">
     <div class="viewer-stage" id="viewerStage">
-      <img class="viewer-image" id="lightboxImage" alt="Cat Cake 蛋糕作品大圖">
+      <img class="viewer-image" id="viewerImage" alt="Cat Cake 蛋糕作品大圖">
     </div>
 
-    <div class="viewer-topbar">
-      <div class="viewer-info">
-        <h3 class="viewer-title" id="lightboxTitle"></h3>
+    <div class="viewer-bar">
+      <div>
+        <h2 class="viewer-title" id="viewerTitle"></h2>
         <div class="viewer-meta" id="viewerMeta"></div>
       </div>
 
       <div class="viewer-actions">
-        <button class="viewer-button" id="zoomOutBtn" type="button" aria-label="縮小">−</button>
-        <button class="viewer-button" id="zoomResetBtn" type="button" aria-label="恢復原始大小">1:1</button>
-        <button class="viewer-button" id="zoomInBtn" type="button" aria-label="放大">＋</button>
-        <button class="viewer-button" id="closeLightbox" type="button" aria-label="關閉">×</button>
+        <button class="viewer-btn" id="zoomOutBtn" type="button" aria-label="縮小">−</button>
+        <button class="viewer-btn" id="zoomResetBtn" type="button" aria-label="恢復大小">1:1</button>
+        <button class="viewer-btn" id="zoomInBtn" type="button" aria-label="放大">＋</button>
+        <button class="viewer-btn" id="closeBtn" type="button" aria-label="關閉">×</button>
       </div>
     </div>
 
-    <button class="viewer-nav viewer-prev" id="prevImageBtn" type="button" aria-label="上一張">‹</button>
-    <button class="viewer-nav viewer-next" id="nextImageBtn" type="button" aria-label="下一張">›</button>
+    <button class="viewer-nav viewer-prev" id="prevBtn" type="button" aria-label="上一張">‹</button>
+    <button class="viewer-nav viewer-next" id="nextBtn" type="button" aria-label="下一張">›</button>
 
-    <div class="viewer-caption" id="lightboxDescription"></div>
-    <div class="zoom-hint">雙指縮放・左右滑動・滾輪縮放</div>
+    <div class="viewer-caption" id="viewerDescription"></div>
   </div>
 
   <script>
@@ -634,22 +438,12 @@
 
     const lightbox=document.getElementById("lightbox");
     const viewerStage=document.getElementById("viewerStage");
-    const viewerImage=document.getElementById("lightboxImage");
-
-    document.getElementById("year").textContent =
-      new Date().getFullYear();
+    const viewerImage=document.getElementById("viewerImage");
 
     loadWorks();
 
     async function loadWorks(){
-      const gallery=document.getElementById("gallery");
-      gallery.innerHTML='<div class="loading">正在整理 Cat Cake 的作品……</div>';
-
       try{
-        if(!GAS_URL.startsWith("http")){
-          throw new Error("尚未設定 GAS 網址");
-        }
-
         const response=await fetch(
           `${GAS_URL}?action=list&t=${Date.now()}`,
           {cache:"no-store"}
@@ -667,12 +461,12 @@
 
         works=Array.isArray(data.items)?data.items:[];
       }catch(error){
-        console.error("Cat Cake 作品讀取失敗：",error);
+        console.error(error);
         works=fallbackWorks;
       }
 
       renderGallery();
-      updateWorkCount();
+      updateCount();
     }
 
     function renderGallery(){
@@ -682,7 +476,7 @@
         gallery.innerHTML=`
           <div class="empty">
             目前還沒有上傳作品。<br>
-            新作品上傳後，會自動顯示在這裡。
+            新作品上傳後會自動顯示在這裡。
           </div>
         `;
         return;
@@ -690,7 +484,6 @@
 
       gallery.innerHTML=works.map((item,index)=>{
         const title=item.title||"Cat Cake 造型蛋糕";
-        const description=item.description||"Cat Cake 客製造型蛋糕作品。";
 
         return `
           <article
@@ -700,27 +493,21 @@
             aria-label="查看 ${escapeAttr(title)}"
             data-index="${index}"
           >
-            <div class="card-media">
-              <img
-                loading="lazy"
-                src="${escapeAttr(item.imageUrl||"")}"
-                alt="${escapeAttr(title)}"
-                onerror="this.src='https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1000&q=80'"
-              >
-            </div>
+            <img
+              loading="lazy"
+              src="${escapeAttr(item.imageUrl||"")}"
+              alt="${escapeAttr(title)}"
+            >
 
-            <div class="card-body">
-              <h3>${escapeHtml(title)}</h3>
-              <p>${escapeHtml(description)}</p>
+            <div class="card-overlay">
+              <h2 class="card-title">${escapeHtml(title)}</h2>
             </div>
           </article>
         `;
       }).join("");
 
       gallery.querySelectorAll(".card").forEach(card=>{
-        const open=()=>{
-          openLightbox(Number(card.dataset.index));
-        };
+        const open=()=>openViewer(Number(card.dataset.index));
 
         card.addEventListener("click",open);
         card.addEventListener("keydown",event=>{
@@ -732,14 +519,12 @@
       });
     }
 
-    function updateWorkCount(){
-      const workCount=document.getElementById("workCount");
-      workCount.textContent=works.length
-        ?`目前共 ${works.length} 件作品`
-        :"尚無作品";
+    function updateCount(){
+      document.getElementById("workCount").textContent=
+        works.length?`目前共 ${works.length} 件作品`:"尚無作品";
     }
 
-    function openLightbox(index){
+    function openViewer(index){
       if(!works.length)return;
 
       currentIndex=(index+works.length)%works.length;
@@ -750,7 +535,7 @@
       document.body.classList.add("no-scroll");
     }
 
-    function closeLightbox(){
+    function closeViewer(){
       lightbox.classList.remove("open");
       document.body.classList.remove("no-scroll");
       resetTransform();
@@ -758,16 +543,14 @@
 
     function updateViewer(){
       const item=works[currentIndex];
-      if(!item)return;
-
       const title=item.title||"Cat Cake 造型蛋糕";
       const description=item.description||"Cat Cake 客製造型蛋糕作品。";
 
       viewerImage.src=item.imageUrl||"";
       viewerImage.alt=title;
 
-      document.getElementById("lightboxTitle").textContent=title;
-      document.getElementById("lightboxDescription").textContent=description;
+      document.getElementById("viewerTitle").textContent=title;
+      document.getElementById("viewerDescription").textContent=description;
       document.getElementById("viewerMeta").textContent=
         `${currentIndex+1} / ${works.length}`;
 
@@ -806,7 +589,7 @@
 
     function applyTransform(){
       viewerImage.style.transform=
-        `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+        `translate(${translateX}px,${translateY}px) scale(${scale})`;
     }
 
     function getTouchDistance(touches){
@@ -815,13 +598,13 @@
       return Math.hypot(dx,dy);
     }
 
-    document.getElementById("closeLightbox")
-      .addEventListener("click",closeLightbox);
+    document.getElementById("closeBtn")
+      .addEventListener("click",closeViewer);
 
-    document.getElementById("prevImageBtn")
+    document.getElementById("prevBtn")
       .addEventListener("click",showPrevious);
 
-    document.getElementById("nextImageBtn")
+    document.getElementById("nextBtn")
       .addEventListener("click",showNext);
 
     document.getElementById("zoomInBtn")
@@ -890,14 +673,15 @@
     viewerStage.addEventListener("touchmove",event=>{
       if(event.touches.length===2){
         event.preventDefault();
+
         const distance=getTouchDistance(event.touches);
-        const ratio=distance/pinchStartDistance;
-        setScale(pinchStartScale*ratio);
+        setScale(pinchStartScale*(distance/pinchStartDistance));
         return;
       }
 
       if(event.touches.length===1&&scale>1&&isDragging){
         event.preventDefault();
+
         translateX=startTranslateX+(event.touches[0].clientX-dragStartX);
         translateY=startTranslateY+(event.touches[0].clientY-dragStartY);
         applyTransform();
@@ -923,18 +707,12 @@
     document.addEventListener("keydown",event=>{
       if(!lightbox.classList.contains("open"))return;
 
-      if(event.key==="Escape")closeLightbox();
+      if(event.key==="Escape")closeViewer();
       if(event.key==="ArrowLeft")showPrevious();
       if(event.key==="ArrowRight")showNext();
       if(event.key==="+"||event.key==="=")setScale(scale+.25);
       if(event.key==="-")setScale(scale-.25);
       if(event.key==="0")resetTransform();
-    });
-
-    lightbox.addEventListener("click",event=>{
-      if(event.target===lightbox){
-        closeLightbox();
-      }
     });
 
     function escapeHtml(value=""){
