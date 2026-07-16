@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <meta name="theme-color" content="#f4ecdf">
-  <title>Cat Cake｜造型蛋糕作品集</title>
+  <title>Cat Cake｜完整作品集</title>
   <meta name="description" content="Cat Cake 客製造型蛋糕作品集，收錄帶有手作溫度的甜點作品。">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -98,6 +98,14 @@
       display:grid;grid-template-columns:.92fr 1.08fr;
       gap:56px;align-items:center
     }
+    .full-portfolio-hero{
+      grid-template-columns:1fr;
+      max-width:760px;
+      margin:0 auto;
+      text-align:center
+    }
+    .full-portfolio-hero .scrapbook{display:none}
+    .full-portfolio-hero .hero-actions{justify-content:center}
     .eyebrow{
       color:var(--rose);font-size:12px;font-weight:700;
       letter-spacing:.19em
@@ -183,36 +191,11 @@
     }
     .section-head h2{font-size:clamp(31px,4vw,46px)}
     .section-head p{margin:9px 0 0;color:var(--muted);line-height:1.85}
-    .section-side{
-      flex-shrink:0;
-      display:flex;
-      flex-direction:column;
-      align-items:flex-end;
-      gap:10px
-    }
     .work-count{
-      padding:9px 14px;
+      flex-shrink:0;padding:9px 14px;
       color:var(--rose);background:rgba(234,214,215,.56);
       border:1px solid rgba(201,159,161,.24);
       border-radius:999px;font-size:13px;font-weight:700
-    }
-    .portfolio-link{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      padding:12px 18px;
-      color:#fff;
-      background:var(--ink);
-      border:1px solid var(--ink);
-      border-radius:999px;
-      font-size:14px;
-      font-weight:700;
-      box-shadow:0 9px 20px rgba(79,61,52,.16);
-      transition:.2s ease
-    }
-    .portfolio-link:hover{
-      transform:translateY(-2px);
-      background:#3f3029
     }
     .gallery{
       display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px
@@ -242,19 +225,6 @@
       text-align:center;color:var(--muted);line-height:1.9;
       background:rgba(255,253,248,.58);
       border:1px dashed var(--rose);border-radius:22px
-    }
-    .more-works{
-      margin-top:30px;
-      padding:25px;
-      text-align:center;
-      background:rgba(255,253,248,.68);
-      border:1px dashed var(--line);
-      border-radius:22px
-    }
-    .more-works p{
-      margin:0 0 15px;
-      color:var(--muted);
-      line-height:1.8
     }
 
     .about{
@@ -328,11 +298,7 @@
       .scrap-caption{font-size:11px;padding:8px 11px}
       .section{padding:48px 0 68px}
       .section-head{display:block}
-      .section-side{
-        margin-top:18px;
-        align-items:flex-start
-      }
-      .work-count{width:max-content}
+      .work-count{width:max-content;margin-top:16px}
       .gallery{grid-template-columns:1fr;gap:18px}
       .card-media{aspect-ratio:1/1}
       .about{padding:27px 22px}
@@ -358,7 +324,7 @@
       </a>
 
       <nav class="nav-actions">
-        <a class="btn btn-soft" href="#works">瀏覽作品</a>
+        <a class="btn btn-soft" href="catcakeindex.html">返回首頁</a>
         <a class="btn btn-primary" href="catcakeadmin.html">新增作品</a>
       </nav>
     </div>
@@ -368,26 +334,22 @@
     <section class="hero">
       <div class="shell hero-grid">
         <div>
-          <div class="eyebrow">CAT CAKE · PORTFOLIO</div>
+          <div class="eyebrow">ALL CAKE STORIES</div>
 
           <h1>
-            把喜歡的模樣，<br>
-            做成一份溫柔的甜。
+            Cat Cake<br>
+            完整作品集
           </h1>
 
           <p>
-            這裡收錄 Cat Cake 歷年製作的客製造型蛋糕。
-            每一件作品，都來自一個重要的日子，
-            也保存著一段值得被記住的可愛心意。
+            這裡收錄過往完成的造型蛋糕作品。
+            可以慢慢瀏覽不同主題、色彩與設計，
+            找到屬於你的甜點靈感。
           </p>
 
           <div class="hero-actions">
-            <a class="btn btn-primary" href="#works">閱讀作品集</a>
-            <a class="btn btn-soft" href="#about">關於 Cat Cake</a>
-          </div>
-
-          <div class="hero-note">
-            手作、少量製作，也相信甜點能替日常留下溫度。
+            <a class="btn btn-primary" href="#works">開始瀏覽</a>
+            <a class="btn btn-soft" href="catcakeindex.html">返回首頁</a>
           </div>
         </div>
 
@@ -422,29 +384,16 @@
       <div class="shell">
         <div class="section-head">
           <div>
-            <div class="eyebrow">LATEST CAKE STORIES</div>
-            <h2>最新作品</h2>
-            <p>首頁先分享最近完成的三件作品，更多蛋糕故事收錄在完整作品集裡。</p>
+            <div class="eyebrow">CAKE STORIES</div>
+            <h2>造型蛋糕作品集</h2>
+            <p>點選照片可放大查看作品與說明，最新作品會顯示在最前面。</p>
           </div>
 
-          <div class="section-side">
-            <div class="work-count" id="workCount">作品載入中</div>
-            <a class="portfolio-link" href="catcakeworks.html">
-              查看完整作品集
-              <span aria-hidden="true">→</span>
-            </a>
-          </div>
+          <div class="work-count" id="workCount">作品載入中</div>
         </div>
 
         <div class="gallery" id="gallery">
           <div class="loading">正在整理 Cat Cake 的作品……</div>
-        </div>
-
-        <div class="more-works">
-          <p>想看看更多不同主題與風格的造型蛋糕嗎？</p>
-          <a class="btn btn-primary" href="catcakeworks.html">
-            前往完整作品集
-          </a>
         </div>
       </div>
     </section>
@@ -564,9 +513,7 @@
         return;
       }
 
-      const latestWorks = works.slice(0, 3);
-
-      gallery.innerHTML=latestWorks.map((item,index)=>{
+      gallery.innerHTML=works.map((item,index)=>{
         const title=item.title||"Cat Cake 造型蛋糕";
         const description=item.description||"Cat Cake 客製造型蛋糕作品。";
 
@@ -598,7 +545,7 @@
       gallery.querySelectorAll(".card").forEach(card=>{
         const open=()=>{
           const index=Number(card.dataset.index);
-          openLightbox(latestWorks[index]);
+          openLightbox(works[index]);
         };
 
         card.addEventListener("click",open);
@@ -614,7 +561,7 @@
     function updateWorkCount(){
       const workCount=document.getElementById("workCount");
       workCount.textContent=works.length
-        ?`完整作品集共 ${works.length} 件`
+        ?`目前共 ${works.length} 件作品`
         :"尚無作品";
     }
 
