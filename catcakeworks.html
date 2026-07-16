@@ -242,32 +242,156 @@
     footer{padding:24px 0 42px;color:var(--muted);font-size:13px;text-align:center}
 
     .lightbox{
-      position:fixed;inset:0;z-index:60;
-      display:none;align-items:center;justify-content:center;
-      padding:20px;background:rgba(63,46,40,.86);backdrop-filter:blur(8px)
+      position:fixed;
+      inset:0;
+      z-index:80;
+      display:none;
+      background:rgba(24,20,18,.97);
+      color:#fff;
+      touch-action:none;
+      user-select:none
     }
-    .lightbox.open{display:flex}
-    .lightbox-inner{
-      position:relative;width:min(980px,100%);max-height:92vh;
-      display:grid;grid-template-columns:1.25fr .75fr;
-      overflow:hidden;background:var(--paper-light);border-radius:24px
+    .lightbox.open{display:block}
+    .viewer-stage{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden
     }
-    .lightbox-image-wrap{display:grid;place-items:center;background:#3b2e2a;min-height:450px}
-    .lightbox img{width:100%;height:100%;max-height:92vh;object-fit:contain}
-    .lightbox-info{padding:34px;overflow:auto}
-    .lightbox-label{
-      margin-bottom:14px;color:var(--rose);
-      font-size:11px;font-weight:700;letter-spacing:.16em
+    .viewer-image{
+      max-width:none;
+      max-height:none;
+      width:auto;
+      height:auto;
+      object-fit:contain;
+      transform-origin:center center;
+      transition:transform .16s ease;
+      cursor:grab;
+      will-change:transform
     }
-    .lightbox-info h3{font-size:30px;line-height:1.45}
-    .lightbox-info p{color:var(--muted);line-height:1.95}
-    .close{
-      position:absolute;right:14px;top:14px;z-index:2;
-      width:42px;height:42px;border-radius:50%;
-      border:1px solid var(--line);background:rgba(255,253,248,.92);
-      cursor:pointer;font-size:22px
+    .viewer-image.dragging{
+      cursor:grabbing;
+      transition:none
     }
-
+    .viewer-topbar{
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      z-index:6;
+      min-height:72px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding:14px 18px;
+      background:linear-gradient(180deg,rgba(0,0,0,.66),transparent)
+    }
+    .viewer-info{
+      min-width:0
+    }
+    .viewer-title{
+      margin:0;
+      font-family:"Noto Serif TC",serif;
+      font-size:18px;
+      font-weight:600;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap
+    }
+    .viewer-meta{
+      margin-top:4px;
+      color:rgba(255,255,255,.72);
+      font-size:12px
+    }
+    .viewer-actions{
+      display:flex;
+      align-items:center;
+      gap:8px
+    }
+    .viewer-button{
+      width:44px;
+      height:44px;
+      display:grid;
+      place-items:center;
+      color:#fff;
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:50%;
+      cursor:pointer;
+      font-size:21px;
+      backdrop-filter:blur(8px)
+    }
+    .viewer-button:hover{
+      background:rgba(255,255,255,.2)
+    }
+    .viewer-nav{
+      position:absolute;
+      top:50%;
+      z-index:5;
+      width:52px;
+      height:72px;
+      display:grid;
+      place-items:center;
+      transform:translateY(-50%);
+      color:#fff;
+      background:rgba(0,0,0,.28);
+      border:1px solid rgba(255,255,255,.12);
+      cursor:pointer;
+      font-size:42px;
+      line-height:1;
+      backdrop-filter:blur(8px)
+    }
+    .viewer-prev{
+      left:14px;
+      border-radius:16px
+    }
+    .viewer-next{
+      right:14px;
+      border-radius:16px
+    }
+    .viewer-caption{
+      position:absolute;
+      right:18px;
+      bottom:18px;
+      left:18px;
+      z-index:5;
+      max-width:760px;
+      margin:auto;
+      padding:13px 16px;
+      color:rgba(255,255,255,.86);
+      text-align:center;
+      font-size:14px;
+      line-height:1.7;
+      background:rgba(0,0,0,.34);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:16px;
+      backdrop-filter:blur(10px)
+    }
+    .zoom-hint{
+      position:absolute;
+      left:50%;
+      bottom:92px;
+      z-index:4;
+      transform:translateX(-50%);
+      padding:7px 12px;
+      color:rgba(255,255,255,.72);
+      background:rgba(0,0,0,.28);
+      border-radius:999px;
+      font-size:12px;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .2s ease
+    }
+    .lightbox.open .zoom-hint{
+      animation:viewerHint 3.2s ease 1
+    }
+    @keyframes viewerHint{
+      0%,70%{opacity:1}
+      100%{opacity:0}
+    }
     @media(max-width:920px){
       .hero-grid{grid-template-columns:1fr}
       .scrapbook{width:min(650px,100%);margin:auto}
@@ -304,10 +428,34 @@
       .about{padding:27px 22px}
       .about h2{font-size:30px}
       .about p{font-size:15px}
-      .lightbox{padding:9px}
-      .lightbox-inner{border-radius:18px}
-      .lightbox-info{padding:25px 22px}
-      .lightbox-info h3{font-size:25px}
+      .viewer-topbar{
+        min-height:62px;
+        padding:10px 12px
+      }
+      .viewer-title{
+        max-width:190px;
+        font-size:15px
+      }
+      .viewer-button{
+        width:40px;
+        height:40px;
+        font-size:19px
+      }
+      .viewer-nav{
+        width:44px;
+        height:60px;
+        font-size:35px
+      }
+      .viewer-prev{left:6px}
+      .viewer-next{right:6px}
+      .viewer-caption{
+        right:10px;
+        bottom:10px;
+        left:10px;
+        padding:10px 12px;
+        font-size:13px
+      }
+      .zoom-hint{bottom:78px}
     }
   </style>
 </head>
@@ -421,20 +569,30 @@
     🐈　© <span id="year"></span> Cat Cake · Handmade with love
   </footer>
 
-  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="作品預覽">
-    <div class="lightbox-inner">
-      <button class="close" id="closeLightbox" type="button" aria-label="關閉">×</button>
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="作品全螢幕預覽">
+    <div class="viewer-stage" id="viewerStage">
+      <img class="viewer-image" id="lightboxImage" alt="Cat Cake 蛋糕作品大圖">
+    </div>
 
-      <div class="lightbox-image-wrap">
-        <img id="lightboxImage" alt="Cat Cake 蛋糕作品大圖">
+    <div class="viewer-topbar">
+      <div class="viewer-info">
+        <h3 class="viewer-title" id="lightboxTitle"></h3>
+        <div class="viewer-meta" id="viewerMeta"></div>
       </div>
 
-      <div class="lightbox-info">
-        <div class="lightbox-label">CAT CAKE · CAKE STORY</div>
-        <h3 id="lightboxTitle"></h3>
-        <p id="lightboxDescription"></p>
+      <div class="viewer-actions">
+        <button class="viewer-button" id="zoomOutBtn" type="button" aria-label="縮小">−</button>
+        <button class="viewer-button" id="zoomResetBtn" type="button" aria-label="恢復原始大小">1:1</button>
+        <button class="viewer-button" id="zoomInBtn" type="button" aria-label="放大">＋</button>
+        <button class="viewer-button" id="closeLightbox" type="button" aria-label="關閉">×</button>
       </div>
     </div>
+
+    <button class="viewer-nav viewer-prev" id="prevImageBtn" type="button" aria-label="上一張">‹</button>
+    <button class="viewer-nav viewer-next" id="nextImageBtn" type="button" aria-label="下一張">›</button>
+
+    <div class="viewer-caption" id="lightboxDescription"></div>
+    <div class="zoom-hint">雙指縮放・左右滑動・滾輪縮放</div>
   </div>
 
   <script>
@@ -460,6 +618,23 @@
     ];
 
     let works=[];
+    let currentIndex=0;
+    let scale=1;
+    let translateX=0;
+    let translateY=0;
+    let isDragging=false;
+    let dragStartX=0;
+    let dragStartY=0;
+    let startTranslateX=0;
+    let startTranslateY=0;
+    let touchStartX=0;
+    let touchStartY=0;
+    let pinchStartDistance=0;
+    let pinchStartScale=1;
+
+    const lightbox=document.getElementById("lightbox");
+    const viewerStage=document.getElementById("viewerStage");
+    const viewerImage=document.getElementById("lightboxImage");
 
     document.getElementById("year").textContent =
       new Date().getFullYear();
@@ -544,8 +719,7 @@
 
       gallery.querySelectorAll(".card").forEach(card=>{
         const open=()=>{
-          const index=Number(card.dataset.index);
-          openLightbox(works[index]);
+          openLightbox(Number(card.dataset.index));
         };
 
         card.addEventListener("click",open);
@@ -565,39 +739,200 @@
         :"尚無作品";
     }
 
-    function openLightbox(item){
+    function openLightbox(index){
+      if(!works.length)return;
+
+      currentIndex=(index+works.length)%works.length;
+      resetTransform();
+      updateViewer();
+
+      lightbox.classList.add("open");
+      document.body.classList.add("no-scroll");
+    }
+
+    function closeLightbox(){
+      lightbox.classList.remove("open");
+      document.body.classList.remove("no-scroll");
+      resetTransform();
+    }
+
+    function updateViewer(){
+      const item=works[currentIndex];
       if(!item)return;
 
       const title=item.title||"Cat Cake 造型蛋糕";
       const description=item.description||"Cat Cake 客製造型蛋糕作品。";
 
-      const image=document.getElementById("lightboxImage");
-      image.src=item.imageUrl||"";
-      image.alt=title;
+      viewerImage.src=item.imageUrl||"";
+      viewerImage.alt=title;
 
       document.getElementById("lightboxTitle").textContent=title;
       document.getElementById("lightboxDescription").textContent=description;
-      document.getElementById("lightbox").classList.add("open");
-      document.body.classList.add("no-scroll");
+      document.getElementById("viewerMeta").textContent=
+        `${currentIndex+1} / ${works.length}`;
+
+      applyTransform();
     }
 
-    function closeLightbox(){
-      document.getElementById("lightbox").classList.remove("open");
-      document.body.classList.remove("no-scroll");
+    function showPrevious(){
+      currentIndex=(currentIndex-1+works.length)%works.length;
+      resetTransform();
+      updateViewer();
+    }
+
+    function showNext(){
+      currentIndex=(currentIndex+1)%works.length;
+      resetTransform();
+      updateViewer();
+    }
+
+    function setScale(nextScale){
+      scale=Math.min(5,Math.max(1,nextScale));
+
+      if(scale===1){
+        translateX=0;
+        translateY=0;
+      }
+
+      applyTransform();
+    }
+
+    function resetTransform(){
+      scale=1;
+      translateX=0;
+      translateY=0;
+      applyTransform();
+    }
+
+    function applyTransform(){
+      viewerImage.style.transform=
+        `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    }
+
+    function getTouchDistance(touches){
+      const dx=touches[0].clientX-touches[1].clientX;
+      const dy=touches[0].clientY-touches[1].clientY;
+      return Math.hypot(dx,dy);
     }
 
     document.getElementById("closeLightbox")
       .addEventListener("click",closeLightbox);
 
-    document.getElementById("lightbox")
-      .addEventListener("click",event=>{
-        if(event.target.id==="lightbox"){
-          closeLightbox();
+    document.getElementById("prevImageBtn")
+      .addEventListener("click",showPrevious);
+
+    document.getElementById("nextImageBtn")
+      .addEventListener("click",showNext);
+
+    document.getElementById("zoomInBtn")
+      .addEventListener("click",()=>setScale(scale+.25));
+
+    document.getElementById("zoomOutBtn")
+      .addEventListener("click",()=>setScale(scale-.25));
+
+    document.getElementById("zoomResetBtn")
+      .addEventListener("click",resetTransform);
+
+    viewerStage.addEventListener("wheel",event=>{
+      event.preventDefault();
+      setScale(scale+(event.deltaY<0?.2:-.2));
+    },{passive:false});
+
+    viewerImage.addEventListener("dblclick",()=>{
+      setScale(scale===1?2:1);
+    });
+
+    viewerImage.addEventListener("mousedown",event=>{
+      if(scale<=1)return;
+
+      isDragging=true;
+      viewerImage.classList.add("dragging");
+      dragStartX=event.clientX;
+      dragStartY=event.clientY;
+      startTranslateX=translateX;
+      startTranslateY=translateY;
+      event.preventDefault();
+    });
+
+    window.addEventListener("mousemove",event=>{
+      if(!isDragging)return;
+
+      translateX=startTranslateX+(event.clientX-dragStartX);
+      translateY=startTranslateY+(event.clientY-dragStartY);
+      applyTransform();
+    });
+
+    window.addEventListener("mouseup",()=>{
+      isDragging=false;
+      viewerImage.classList.remove("dragging");
+    });
+
+    viewerStage.addEventListener("touchstart",event=>{
+      if(event.touches.length===1){
+        touchStartX=event.touches[0].clientX;
+        touchStartY=event.touches[0].clientY;
+
+        if(scale>1){
+          isDragging=true;
+          dragStartX=touchStartX;
+          dragStartY=touchStartY;
+          startTranslateX=translateX;
+          startTranslateY=translateY;
         }
-      });
+      }
+
+      if(event.touches.length===2){
+        pinchStartDistance=getTouchDistance(event.touches);
+        pinchStartScale=scale;
+      }
+    },{passive:true});
+
+    viewerStage.addEventListener("touchmove",event=>{
+      if(event.touches.length===2){
+        event.preventDefault();
+        const distance=getTouchDistance(event.touches);
+        const ratio=distance/pinchStartDistance;
+        setScale(pinchStartScale*ratio);
+        return;
+      }
+
+      if(event.touches.length===1&&scale>1&&isDragging){
+        event.preventDefault();
+        translateX=startTranslateX+(event.touches[0].clientX-dragStartX);
+        translateY=startTranslateY+(event.touches[0].clientY-dragStartY);
+        applyTransform();
+      }
+    },{passive:false});
+
+    viewerStage.addEventListener("touchend",event=>{
+      if(event.touches.length===0){
+        if(scale===1){
+          const changed=event.changedTouches[0];
+          const diffX=changed.clientX-touchStartX;
+          const diffY=changed.clientY-touchStartY;
+
+          if(Math.abs(diffX)>60&&Math.abs(diffX)>Math.abs(diffY)){
+            diffX<0?showNext():showPrevious();
+          }
+        }
+
+        isDragging=false;
+      }
+    },{passive:true});
 
     document.addEventListener("keydown",event=>{
-      if(event.key==="Escape"){
+      if(!lightbox.classList.contains("open"))return;
+
+      if(event.key==="Escape")closeLightbox();
+      if(event.key==="ArrowLeft")showPrevious();
+      if(event.key==="ArrowRight")showNext();
+      if(event.key==="+"||event.key==="=")setScale(scale+.25);
+      if(event.key==="-")setScale(scale-.25);
+      if(event.key==="0")resetTransform();
+    });
+
+    lightbox.addEventListener("click",event=>{
+      if(event.target===lightbox){
         closeLightbox();
       }
     });
