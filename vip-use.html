@@ -999,13 +999,51 @@ function buildAccount(
  */
 function clearAfterSuccess() {
 
+  /*
+   * 清除客戶端卡片快取，
+   * 下次開啟卡片頁一定重新抓最新資料。
+   */
+  try {
+
+    const customerName =
+      localStorage.getItem("customerName") || "";
+
+    const phone =
+      localStorage.getItem("phone") || "";
+
+    const cacheKey =
+      "customerCardsCache_" +
+      String(phone).replace(/[^\w\u4e00-\u9fff]/g, "") +
+      "_" +
+      String(customerName).replace(/[^\w\u4e00-\u9fff]/g, "");
+
+    localStorage.removeItem(cacheKey);
+
+    /*
+     * 目前這張卡資訊也清掉
+     */
+    localStorage.removeItem("useCardNo");
+    localStorage.removeItem("useCardStatus");
+    localStorage.removeItem("useVehicleType");
+    localStorage.removeItem("usePackageType");
+    localStorage.removeItem("useRemainingTimes");
+    localStorage.removeItem("useTotalTimes");
+
+  } catch(err) {
+
+    console.warn(err);
+
+  }
+
   mainArea.innerHTML = `
     <div class="card">
+
       <h2>✅ 核銷完成</h2>
 
       <p style="color:#ccc;">
         此頁面已清空，請勿重複操作。
       </p>
+
     </div>
   `;
 }
