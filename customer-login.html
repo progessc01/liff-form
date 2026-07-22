@@ -39,6 +39,140 @@
     name="apple-mobile-web-app-title"
     content="安建VIP"
   >
+
+  <style>
+    /* =========================================
+       登入頁進度條
+    ========================================= */
+
+    .login-progress {
+      width: 100%;
+      margin-top: 16px;
+      opacity: 1;
+      transform: translateY(0);
+      transition:
+        opacity 0.25s ease,
+        transform 0.25s ease;
+    }
+
+    .login-progress[hidden] {
+      display: none !important;
+    }
+
+    .login-progress.is-hiding {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+
+    .login-progress-track {
+      width: 100%;
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #dce7ef;
+      box-shadow:
+        inset 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    .login-progress-bar {
+      width: 0%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(
+        90deg,
+        #0f75bc 0%,
+        #38a3db 55%,
+        #0f75bc 100%
+      );
+      background-size: 200% 100%;
+      transition: width 0.35s ease;
+      animation: loginProgressShine 1.2s linear infinite;
+    }
+
+    .login-progress-bar.is-success {
+      background: linear-gradient(
+        90deg,
+        #198754 0%,
+        #42b883 55%,
+        #198754 100%
+      );
+      background-size: 200% 100%;
+    }
+
+    .login-progress-bar.is-error {
+      background: #d93025;
+      animation: none;
+    }
+
+    .login-progress-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 8px;
+      min-height: 22px;
+      font-size: 14px;
+      color: #425466;
+    }
+
+    .login-progress-text {
+      flex: 1;
+      text-align: left;
+    }
+
+    .login-progress-percent {
+      min-width: 40px;
+      text-align: right;
+      font-weight: 700;
+      color: #0f75bc;
+    }
+
+    .login-progress-percent.is-success {
+      color: #198754;
+    }
+
+    .login-progress-percent.is-error {
+      color: #d93025;
+    }
+
+    #loginBtn:disabled {
+      cursor: not-allowed;
+      opacity: 0.72;
+    }
+
+    #result {
+      min-height: 24px;
+      line-height: 1.6;
+    }
+
+    .login-result-error {
+      color: #c62828;
+      font-weight: 700;
+    }
+
+    .login-result-success {
+      color: #198754;
+      font-weight: 700;
+    }
+
+    @keyframes loginProgressShine {
+      from {
+        background-position: 200% 0;
+      }
+
+      to {
+        background-position: -200% 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .login-progress,
+      .login-progress-bar {
+        transition: none;
+        animation: none;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -77,7 +211,7 @@
       type="button"
       id="togglePasswordBtn"
       onclick="togglePassword()"
-      aria-label="顯示或隱藏密碼"
+      aria-label="顯示密碼"
       style="
         position:absolute;
         right:12px;
@@ -108,10 +242,42 @@
     登入
   </button>
 
+  <!-- 登入進度條 -->
+  <div
+    id="loginProgress"
+    class="login-progress"
+    aria-live="polite"
+    hidden
+  >
+    <div class="login-progress-track">
+      <div
+        id="loginProgressBar"
+        class="login-progress-bar"
+      ></div>
+    </div>
+
+    <div class="login-progress-info">
+      <span
+        id="loginProgressText"
+        class="login-progress-text"
+      >
+        準備登入...
+      </span>
+
+      <span
+        id="loginProgressPercent"
+        class="login-progress-percent"
+      >
+        0%
+      </span>
+    </div>
+  </div>
+
   <br><br>
 
   <button
     type="button"
+    id="registerBtn"
     onclick="location.href='customer-register.html'"
   >
     註冊
@@ -121,6 +287,7 @@
 
   <button
     type="button"
+    id="forgotPasswordBtn"
     onclick="location.href='forgot-password.html'"
   >
     忘記密碼
@@ -128,237 +295,795 @@
 
   <br><br>
 
-  <div id="result"></div>
+  <div
+    id="result"
+    role="status"
+    aria-live="polite"
+  ></div>
 
 </div>
 
 <script>
+  const GAS_URL =
+    "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
 
-const GAS_URL =
-  "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
-
-let isLoggingIn = false;
-
-
-/**
- * 密碼顯示切換
- */
-function togglePassword() {
-
-  const input =
-    document.getElementById("password");
-
-  const btn =
-    document.getElementById(
-      "togglePasswordBtn"
-    );
-
-  const showPassword =
-    input.type === "password";
-
-  input.type =
-    showPassword
-      ? "text"
-      : "password";
-
-  btn.innerText =
-    showPassword
-      ? "🙈"
-      : "👁️";
-}
+  let isLoggingIn = false;
+  let loginProgressValue = 0;
+  let loginProgressTimer = null;
+  let loginProgressStageTimer = null;
 
 
-/**
- * 客戶登入
- */
-async function loginCustomer() {
+  /**
+   * 顯示／隱藏密碼
+   */
+  function togglePassword() {
 
-  if(isLoggingIn) {
-    return;
-  }
+    const input =
+      document.getElementById("password");
 
-  const name =
-    document
-      .getElementById("customerName")
-      .value
-      .replace(/\u3000/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-
-  const password =
-    document
-      .getElementById("password")
-      .value
-      .trim();
-
-  const result =
-    document.getElementById("result");
-
-  if(!name || !password) {
-    alert("請輸入姓名與會員密碼");
-    return;
-  }
-
-  if(password.length < 8) {
-    alert("密碼至少需8位");
-    return;
-  }
-
-  setLoginLoading(true);
-
-  result.innerHTML = "";
-
-  const controller =
-    new AbortController();
-
-  const timeoutId =
-    setTimeout(function() {
-      controller.abort();
-    }, 15000);
-
-  try {
-
-    const form =
-      new URLSearchParams();
-
-    form.append(
-      "type",
-      "loginCustomer"
-    );
-
-    form.append(
-      "name",
-      name
-    );
-
-    form.append(
-      "password",
-      password
-    );
-
-    /*
-     * 加入時間戳避免瀏覽器或中間快取。
-     */
-    form.append(
-      "_t",
-      String(Date.now())
-    );
-
-    const response =
-      await fetch(GAS_URL, {
-        method: "POST",
-        body: form,
-        cache: "no-store",
-        signal: controller.signal
-      });
-
-    const responseText =
-      await response.text();
-
-    let data;
-
-    try {
-
-      data =
-        JSON.parse(responseText);
-
-    } catch(parseError) {
-
-      console.error(
-        "GAS 非 JSON 回傳：",
-        responseText
+    const btn =
+      document.getElementById(
+        "togglePasswordBtn"
       );
 
-      throw new Error(
-        "伺服器回傳格式錯誤"
-      );
-    }
+    const showPassword =
+      input.type === "password";
 
-    if(data.status !== "OK") {
+    input.type =
+      showPassword
+        ? "text"
+        : "password";
 
-      result.innerHTML =
-        "❌ 姓名或密碼錯誤";
+    btn.innerText =
+      showPassword
+        ? "🙈"
+        : "👁️";
 
-      setLoginLoading(false);
+    btn.setAttribute(
+      "aria-label",
+      showPassword
+        ? "隱藏密碼"
+        : "顯示密碼"
+    );
+  }
+
+
+  /**
+   * 客戶登入
+   */
+  async function loginCustomer() {
+
+    if(isLoggingIn) {
       return;
     }
 
-    localStorage.setItem(
-      "customerName",
-      data.name
-    );
+    const nameInput =
+      document.getElementById(
+        "customerName"
+      );
 
-    localStorage.setItem(
-      "phone",
-      data.phone
-    );
+    const passwordInput =
+      document.getElementById(
+        "password"
+      );
 
-    location.replace(
-      "customer-home.html"
-    );
+    const result =
+      document.getElementById("result");
 
-  } catch(err) {
+    const name =
+      normalizeCustomerName(
+        nameInput.value
+      );
 
-    console.error(
-      "loginCustomer error:",
-      err
-    );
+    const password =
+      String(passwordInput.value || "")
+        .trim();
 
-    if(err.name === "AbortError") {
+    result.innerHTML = "";
 
-      result.innerHTML =
-        "❌ 連線逾時，請重新登入";
+    if(!name || !password) {
 
-    } else {
+      showLoginError(
+        "請輸入姓名與會員密碼"
+      );
 
-      result.innerHTML =
-        "❌ 登入失敗，請稍後再試";
-    }
-
-    setLoginLoading(false);
-
-  } finally {
-
-    clearTimeout(timeoutId);
-  }
-}
-
-
-/**
- * 登入按鈕狀態
- */
-function setLoginLoading(loading) {
-
-  const loginBtn =
-    document.getElementById("loginBtn");
-
-  isLoggingIn = loading;
-
-  loginBtn.disabled = loading;
-
-  loginBtn.innerText =
-    loading
-      ? "登入中..."
-      : "登入";
-}
-
-
-/**
- * 密碼欄按 Enter 直接登入
- */
-document
-  .getElementById("password")
-  .addEventListener(
-    "keydown",
-    function(event) {
-
-      if(event.key === "Enter") {
-        event.preventDefault();
-        loginCustomer();
+      if(!name) {
+        nameInput.focus();
+      } else {
+        passwordInput.focus();
       }
-    }
-  );
 
+      return;
+    }
+
+    if(password.length < 8) {
+
+      showLoginError(
+        "會員密碼至少需要 8 位"
+      );
+
+      passwordInput.focus();
+      return;
+    }
+
+    setLoginLoading(true);
+    startLoginProgress();
+
+    const controller =
+      new AbortController();
+
+    const timeoutId =
+      setTimeout(function() {
+        controller.abort();
+      }, 15000);
+
+    try {
+
+      updateLoginProgress(
+        12,
+        "正在建立安全連線..."
+      );
+
+      const form =
+        new URLSearchParams();
+
+      form.append(
+        "type",
+        "loginCustomer"
+      );
+
+      form.append(
+        "name",
+        name
+      );
+
+      form.append(
+        "password",
+        password
+      );
+
+      form.append(
+        "_t",
+        String(Date.now())
+      );
+
+      const response =
+        await fetch(GAS_URL, {
+          method: "POST",
+          body: form,
+          cache: "no-store",
+          signal: controller.signal
+        });
+
+      updateLoginProgress(
+        Math.max(
+          loginProgressValue,
+          72
+        ),
+        "正在接收會員資料..."
+      );
+
+      if(!response.ok) {
+        throw new Error(
+          "HTTP_ERROR_" +
+          response.status
+        );
+      }
+
+      const responseText =
+        await response.text();
+
+      let data;
+
+      try {
+
+        data =
+          JSON.parse(responseText);
+
+      } catch(parseError) {
+
+        console.error(
+          "GAS 回傳內容不是 JSON：",
+          responseText
+        );
+
+        throw new Error(
+          "INVALID_SERVER_RESPONSE"
+        );
+      }
+
+      updateLoginProgress(
+        94,
+        "正在確認登入結果..."
+      );
+
+      if(data.status !== "OK") {
+
+        failLoginProgress(
+          "姓名或密碼錯誤"
+        );
+
+        showLoginError(
+          data.message ||
+          "姓名或密碼錯誤"
+        );
+
+        setLoginLoading(false);
+
+        setTimeout(function() {
+          hideLoginProgress();
+        }, 1200);
+
+        return;
+      }
+
+      localStorage.setItem(
+        "customerName",
+        String(data.name || name)
+      );
+
+      localStorage.setItem(
+        "phone",
+        String(data.phone || "")
+      );
+
+      completeLoginProgress(
+        "登入成功，正在進入會員專區..."
+      );
+
+      result.innerHTML =
+        '<div class="login-result-success">' +
+        "✓ 登入成功" +
+        "</div>";
+
+      setTimeout(function() {
+
+        location.replace(
+          "customer-home.html"
+        );
+
+      }, 500);
+
+    } catch(err) {
+
+      console.error(
+        "loginCustomer error:",
+        err
+      );
+
+      let errorMessage =
+        "登入失敗，請稍後再試";
+
+      if(err.name === "AbortError") {
+
+        errorMessage =
+          "連線逾時，請重新登入";
+
+      } else if(
+        err.message ===
+        "INVALID_SERVER_RESPONSE"
+      ) {
+
+        errorMessage =
+          "伺服器回傳格式錯誤，請稍後再試";
+      }
+
+      failLoginProgress(
+        errorMessage
+      );
+
+      showLoginError(
+        errorMessage
+      );
+
+      setLoginLoading(false);
+
+      setTimeout(function() {
+        hideLoginProgress();
+      }, 1500);
+
+    } finally {
+
+      clearTimeout(timeoutId);
+    }
+  }
+
+
+  /**
+   * 啟動登入進度
+   *
+   * fetch 無法取得 GAS 真實執行百分比，
+   * 因此進度會平順前進到 88%，
+   * 收到回應後才完成至 100%。
+   */
+  function startLoginProgress() {
+
+    stopLoginProgressTimers();
+
+    const progress =
+      document.getElementById(
+        "loginProgress"
+      );
+
+    const bar =
+      document.getElementById(
+        "loginProgressBar"
+      );
+
+    const percent =
+      document.getElementById(
+        "loginProgressPercent"
+      );
+
+    progress.hidden = false;
+    progress.classList.remove(
+      "is-hiding"
+    );
+
+    bar.classList.remove(
+      "is-success",
+      "is-error"
+    );
+
+    percent.classList.remove(
+      "is-success",
+      "is-error"
+    );
+
+    loginProgressValue = 4;
+
+    updateLoginProgress(
+      4,
+      "準備登入..."
+    );
+
+    loginProgressStageTimer =
+      setTimeout(function() {
+
+        updateLoginProgress(
+          18,
+          "正在連接會員系統..."
+        );
+
+      }, 250);
+
+    loginProgressTimer =
+      setInterval(function() {
+
+        if(loginProgressValue >= 88) {
+          return;
+        }
+
+        let increase = 1;
+
+        if(loginProgressValue < 35) {
+
+          increase =
+            randomInteger(2, 5);
+
+        } else if(
+          loginProgressValue < 65
+        ) {
+
+          increase =
+            randomInteger(1, 3);
+
+        } else {
+
+          increase = 1;
+        }
+
+        const nextValue =
+          Math.min(
+            loginProgressValue +
+            increase,
+            88
+          );
+
+        let statusText =
+          "正在驗證會員資料...";
+
+        if(nextValue >= 68) {
+
+          statusText =
+            "正在等待伺服器回應...";
+
+        } else if(nextValue >= 38) {
+
+          statusText =
+            "正在確認姓名與密碼...";
+        }
+
+        updateLoginProgress(
+          nextValue,
+          statusText
+        );
+
+      }, 420);
+  }
+
+
+  /**
+   * 更新進度條
+   */
+  function updateLoginProgress(
+    value,
+    text
+  ) {
+
+    const bar =
+      document.getElementById(
+        "loginProgressBar"
+      );
+
+    const textElement =
+      document.getElementById(
+        "loginProgressText"
+      );
+
+    const percent =
+      document.getElementById(
+        "loginProgressPercent"
+      );
+
+    const safeValue =
+      Math.max(
+        0,
+        Math.min(
+          100,
+          Math.round(
+            Number(value) || 0
+          )
+        )
+      );
+
+    loginProgressValue =
+      safeValue;
+
+    bar.style.width =
+      safeValue + "%";
+
+    percent.innerText =
+      safeValue + "%";
+
+    if(text) {
+      textElement.innerText = text;
+    }
+  }
+
+
+  /**
+   * 登入成功
+   */
+  function completeLoginProgress(text) {
+
+    stopLoginProgressTimers();
+
+    const bar =
+      document.getElementById(
+        "loginProgressBar"
+      );
+
+    const percent =
+      document.getElementById(
+        "loginProgressPercent"
+      );
+
+    bar.classList.remove(
+      "is-error"
+    );
+
+    bar.classList.add(
+      "is-success"
+    );
+
+    percent.classList.remove(
+      "is-error"
+    );
+
+    percent.classList.add(
+      "is-success"
+    );
+
+    updateLoginProgress(
+      100,
+      text ||
+      "登入成功"
+    );
+  }
+
+
+  /**
+   * 登入失敗
+   */
+  function failLoginProgress(text) {
+
+    stopLoginProgressTimers();
+
+    const bar =
+      document.getElementById(
+        "loginProgressBar"
+      );
+
+    const percent =
+      document.getElementById(
+        "loginProgressPercent"
+      );
+
+    bar.classList.remove(
+      "is-success"
+    );
+
+    bar.classList.add(
+      "is-error"
+    );
+
+    percent.classList.remove(
+      "is-success"
+    );
+
+    percent.classList.add(
+      "is-error"
+    );
+
+    document
+      .getElementById(
+        "loginProgressText"
+      )
+      .innerText =
+        text || "登入失敗";
+  }
+
+
+  /**
+   * 收起進度條
+   */
+  function hideLoginProgress() {
+
+    stopLoginProgressTimers();
+
+    const progress =
+      document.getElementById(
+        "loginProgress"
+      );
+
+    progress.classList.add(
+      "is-hiding"
+    );
+
+    setTimeout(function() {
+
+      progress.hidden = true;
+
+      progress.classList.remove(
+        "is-hiding"
+      );
+
+      resetLoginProgress();
+
+    }, 260);
+  }
+
+
+  /**
+   * 重設進度條
+   */
+  function resetLoginProgress() {
+
+    loginProgressValue = 0;
+
+    const bar =
+      document.getElementById(
+        "loginProgressBar"
+      );
+
+    const percent =
+      document.getElementById(
+        "loginProgressPercent"
+      );
+
+    bar.style.width = "0%";
+
+    bar.classList.remove(
+      "is-success",
+      "is-error"
+    );
+
+    percent.innerText = "0%";
+
+    percent.classList.remove(
+      "is-success",
+      "is-error"
+    );
+
+    document
+      .getElementById(
+        "loginProgressText"
+      )
+      .innerText =
+        "準備登入...";
+  }
+
+
+  /**
+   * 停止所有進度計時器
+   */
+  function stopLoginProgressTimers() {
+
+    if(loginProgressTimer) {
+
+      clearInterval(
+        loginProgressTimer
+      );
+
+      loginProgressTimer = null;
+    }
+
+    if(loginProgressStageTimer) {
+
+      clearTimeout(
+        loginProgressStageTimer
+      );
+
+      loginProgressStageTimer = null;
+    }
+  }
+
+
+  /**
+   * 登入按鈕與輸入欄狀態
+   */
+  function setLoginLoading(loading) {
+
+    const loginBtn =
+      document.getElementById(
+        "loginBtn"
+      );
+
+    const nameInput =
+      document.getElementById(
+        "customerName"
+      );
+
+    const passwordInput =
+      document.getElementById(
+        "password"
+      );
+
+    const registerBtn =
+      document.getElementById(
+        "registerBtn"
+      );
+
+    const forgotPasswordBtn =
+      document.getElementById(
+        "forgotPasswordBtn"
+      );
+
+    isLoggingIn =
+      Boolean(loading);
+
+    loginBtn.disabled =
+      Boolean(loading);
+
+    nameInput.disabled =
+      Boolean(loading);
+
+    passwordInput.disabled =
+      Boolean(loading);
+
+    registerBtn.disabled =
+      Boolean(loading);
+
+    forgotPasswordBtn.disabled =
+      Boolean(loading);
+
+    loginBtn.innerText =
+      loading
+        ? "登入中..."
+        : "登入";
+  }
+
+
+  /**
+   * 顯示錯誤訊息
+   */
+  function showLoginError(message) {
+
+    document
+      .getElementById("result")
+      .innerHTML =
+        '<div class="login-result-error">' +
+        escapeHtml(message) +
+        "</div>";
+  }
+
+
+  /**
+   * 統一姓名格式
+   */
+  function normalizeCustomerName(value) {
+
+    return String(value || "")
+      .replace(/\u3000/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+
+  /**
+   * HTML 安全處理
+   */
+  function escapeHtml(value) {
+
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+
+  /**
+   * 隨機整數
+   */
+  function randomInteger(
+    min,
+    max
+  ) {
+
+    return Math.floor(
+      Math.random() *
+      (max - min + 1)
+    ) + min;
+  }
+
+
+  /**
+   * 姓名按 Enter 後跳到密碼
+   */
+  document
+    .getElementById(
+      "customerName"
+    )
+    .addEventListener(
+      "keydown",
+      function(event) {
+
+        if(event.key === "Enter") {
+
+          event.preventDefault();
+
+          document
+            .getElementById(
+              "password"
+            )
+            .focus();
+        }
+      }
+    );
+
+
+  /**
+   * 密碼按 Enter 直接登入
+   */
+  document
+    .getElementById(
+      "password"
+    )
+    .addEventListener(
+      "keydown",
+      function(event) {
+
+        if(event.key === "Enter") {
+
+          event.preventDefault();
+
+          loginCustomer();
+        }
+      }
+    );
 </script>
 
 </body>
