@@ -2,10 +2,154 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
   <title>卡片核銷</title>
-  <link rel="stylesheet" href="customer-style.css">
+
+  <link
+    rel="stylesheet"
+    href="customer-style.css"
+  >
+
+  <style>
+    /* =========================================
+       核銷進度條
+    ========================================= */
+
+    .use-progress {
+      width: 100%;
+      margin-top: 16px;
+      opacity: 1;
+      transform: translateY(0);
+      transition:
+        opacity 0.25s ease,
+        transform 0.25s ease;
+    }
+
+    .use-progress[hidden] {
+      display: none !important;
+    }
+
+    .use-progress.is-hiding {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+
+    .use-progress-track {
+      width: 100%;
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      box-shadow:
+        inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .use-progress-bar {
+      width: 0%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(
+        90deg,
+        #00b8d9 0%,
+        #45e3ff 55%,
+        #00b8d9 100%
+      );
+      background-size: 200% 100%;
+      transition: width 0.35s ease;
+      animation: useProgressShine 1.2s linear infinite;
+    }
+
+    .use-progress-bar.is-success {
+      background: linear-gradient(
+        90deg,
+        #198754 0%,
+        #55d697 55%,
+        #198754 100%
+      );
+      background-size: 200% 100%;
+    }
+
+    .use-progress-bar.is-error {
+      background: #d93025;
+      animation: none;
+    }
+
+    .use-progress-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 8px;
+      min-height: 22px;
+      font-size: 14px;
+      color: #d8efff;
+    }
+
+    .use-progress-text {
+      flex: 1;
+      text-align: left;
+    }
+
+    .use-progress-percent {
+      min-width: 42px;
+      text-align: right;
+      font-weight: 700;
+      color: #45e3ff;
+    }
+
+    .use-progress-percent.is-success {
+      color: #55d697;
+    }
+
+    .use-progress-percent.is-error {
+      color: #ff7770;
+    }
+
+    #useBtn:disabled {
+      cursor: not-allowed;
+      opacity: 0.72;
+    }
+
+    #result {
+      min-height: 24px;
+      line-height: 1.6;
+    }
+
+    .result-error {
+      color: #ff6b6b;
+      font-weight: 700;
+    }
+
+    .result-info {
+      color: #f7d774;
+      font-weight: 700;
+    }
+
+    @keyframes useProgressShine {
+      from {
+        background-position: 200% 0;
+      }
+
+      to {
+        background-position: -200% 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .use-progress,
+      .use-progress-bar {
+        transition: none;
+        animation: none;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -16,9 +160,15 @@
 
     <div class="card">
       <p>核銷卡號：</p>
-      <h2 id="cardNoText">讀取中...</h2>
 
-      <div id="cardInfo" style="margin-top:15px;">
+      <h2 id="cardNoText">
+        讀取中...
+      </h2>
+
+      <div
+        id="cardInfo"
+        style="margin-top:15px;"
+      >
         ⏳ 讀取卡片資料中...
       </div>
     </div>
@@ -41,6 +191,7 @@
       placeholder="請輸入工號，例如：001"
       inputmode="numeric"
       autocomplete="off"
+      enterkeyhint="next"
     >
 
     <br><br>
@@ -51,82 +202,252 @@
       placeholder="請輸入密碼"
       autocomplete="current-password"
       inputmode="text"
+      enterkeyhint="go"
     >
 
     <br><br>
 
-    <button type="button" id="useBtn" onclick="useCard('no')">
+    <button
+      type="button"
+      id="useBtn"
+      onclick="useCard('no')"
+    >
       確認核銷
     </button>
+
+    <div
+      id="useProgress"
+      class="use-progress"
+      aria-live="polite"
+      hidden
+    >
+      <div class="use-progress-track">
+        <div
+          id="useProgressBar"
+          class="use-progress-bar"
+        ></div>
+      </div>
+
+      <div class="use-progress-info">
+        <span
+          id="useProgressText"
+          class="use-progress-text"
+        >
+          準備核銷...
+        </span>
+
+        <span
+          id="useProgressPercent"
+          class="use-progress-percent"
+        >
+          0%
+        </span>
+      </div>
+    </div>
 
   </div>
 
   <br>
 
-  <div id="result"></div>
+  <div
+    id="result"
+    role="status"
+    aria-live="polite"
+  ></div>
 
 </div>
 
 <script>
 
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+const GAS_URL =
+  "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
 
-const params = new URLSearchParams(window.location.search);
-const cardNo = params.get("cardNo");
+const params =
+  new URLSearchParams(
+    window.location.search
+  );
 
-const result = document.getElementById("result");
-const mainArea = document.getElementById("mainArea");
-const cardInfo = document.getElementById("cardInfo");
+const cardNo =
+  String(
+    params.get("cardNo") || ""
+  ).trim();
+
+const result =
+  document.getElementById("result");
+
+const mainArea =
+  document.getElementById("mainArea");
+
+const cardInfo =
+  document.getElementById("cardInfo");
 
 let isUsing = false;
 
+let useProgressValue = 0;
+let useProgressTimer = null;
+
+
+/**
+ * 初始化頁面
+ */
 if(!cardNo) {
-  document.getElementById("cardNoText").innerText = "無卡號";
+
+  document
+    .getElementById("cardNoText")
+    .innerText =
+      "無卡號";
+
   cardInfo.innerHTML = "";
-  result.innerHTML = "❌ QR CODE錯誤，沒有卡號";
+
+  showResultError(
+    "QR CODE 錯誤，沒有卡號"
+  );
+
 } else {
-  document.getElementById("cardNoText").innerText = cardNo;
+
+  document
+    .getElementById("cardNoText")
+    .innerText =
+      cardNo;
+
   loadCardInfo();
 }
 
-function loadCardInfo() {
 
-  const form = new URLSearchParams();
+/**
+ * 讀取卡片資料
+ */
+async function loadCardInfo() {
 
-  form.append("type", "searchCard");
-  form.append("cardNo", cardNo);
+  const controller =
+    new AbortController();
 
-  fetch(GAS_URL, {
-    method: "POST",
-    body: form
-  })
-  .then(r => r.text())
-  .then(t => JSON.parse(t))
-  .then(data => {
+  const timeoutId =
+    setTimeout(function() {
+      controller.abort();
+    }, 15000);
+
+  try {
+
+    const form =
+      new URLSearchParams();
+
+    form.append(
+      "type",
+      "searchCard"
+    );
+
+    form.append(
+      "cardNo",
+      cardNo
+    );
+
+    form.append(
+      "_t",
+      String(Date.now())
+    );
+
+    const response =
+      await fetch(GAS_URL, {
+        method: "POST",
+        body: form,
+        cache: "no-store",
+        signal: controller.signal
+      });
+
+    if(!response.ok) {
+      throw new Error(
+        "HTTP_ERROR_" +
+        response.status
+      );
+    }
+
+    const responseText =
+      await response.text();
+
+    let data;
+
+    try {
+
+      data =
+        JSON.parse(responseText);
+
+    } catch(err) {
+
+      console.error(
+        "searchCard 非 JSON 回傳：",
+        responseText
+      );
+
+      throw new Error(
+        "INVALID_SERVER_RESPONSE"
+      );
+    }
 
     if(data.status !== "OK") {
+
       cardInfo.innerHTML = `
-        <div style="color:red; font-weight:bold;">
+        <div style="
+          color:#ff5555;
+          font-weight:bold;
+        ">
           ❌ 查無此卡號
         </div>
       `;
+
       return;
     }
 
-    const card = data.card || {};
+    const card =
+      data.card || {};
 
-    let statusText = card.status || "";
+    let statusText =
+      String(card.status || "");
 
-    if(statusText === "SOLD") statusText = "可使用";
-    if(statusText === "FINISHED") statusText = "已用完";
-    if(statusText === "REFUND") statusText = "已退款";
-    if(statusText === "VOID") statusText = "已作廢";
+    if(statusText === "SOLD") {
+      statusText = "可使用";
+    }
 
-    let remainingTimes = Number(card.remainingTimes || 0);
+    if(statusText === "FINISHED") {
+      statusText = "已用完";
+    }
 
-    if(card.status === "VOID" || card.status === "REFUND") {
+    if(statusText === "REFUND") {
+      statusText = "已退款";
+    }
+
+    if(statusText === "VOID") {
+      statusText = "已作廢";
+    }
+
+    let remainingTimes =
+      Number(
+        card.remainingTimes || 0
+      );
+
+    if(
+      card.status === "VOID" ||
+      card.status === "REFUND"
+    ) {
       remainingTimes = 0;
     }
+
+    const vehicleType =
+      escapeHtml(
+        card.vehicleType ||
+        "未設定"
+      );
+
+    const packageType =
+      escapeHtml(
+        card.packageType ||
+        "未設定"
+      );
+
+    const totalTimes =
+      escapeHtml(
+        card.totalTimes || ""
+      );
 
     cardInfo.innerHTML = `
       <div style="
@@ -138,7 +459,10 @@ function loadCardInfo() {
         text-align:center;
       ">
 
-        <div style="font-size:15px; color:#9fdfff;">
+        <div style="
+          font-size:15px;
+          color:#9fdfff;
+        ">
           本卡適用車型
         </div>
 
@@ -148,12 +472,17 @@ function loadCardInfo() {
           color:#ffffff;
           margin-top:6px;
         ">
-          ${card.vehicleType || "未設定"}
+          ${vehicleType}
         </div>
 
-        <hr style="border-color:rgba(255,255,255,0.2);">
+        <hr style="
+          border-color:rgba(255,255,255,0.2);
+        ">
 
-        <div style="font-size:15px; color:#9fdfff;">
+        <div style="
+          font-size:15px;
+          color:#9fdfff;
+        ">
           使用服務
         </div>
 
@@ -164,13 +493,20 @@ function loadCardInfo() {
           margin-top:6px;
           line-height:1.4;
         ">
-          ${card.packageType || "未設定"}
+          ${packageType}
         </div>
 
-        <hr style="border-color:rgba(255,255,255,0.2);">
+        <hr style="
+          border-color:rgba(255,255,255,0.2);
+        ">
 
-        <div style="font-size:18px; font-weight:bold;">
-          剩餘次數：${remainingTimes} / ${card.totalTimes || ""}
+        <div style="
+          font-size:18px;
+          font-weight:bold;
+        ">
+          剩餘次數：
+          ${remainingTimes} /
+          ${totalTimes}
         </div>
 
         <div style="
@@ -178,82 +514,102 @@ function loadCardInfo() {
           font-size:16px;
           font-weight:bold;
           color:${
-            card.status === "SOLD" ? "#00ff99" :
-            card.status === "VOID" || card.status === "REFUND" || card.status === "FINISHED" ? "#ff5555" :
-            "#ffcc00"
+            card.status === "SOLD"
+              ? "#00ff99"
+              : (
+                  card.status === "VOID" ||
+                  card.status === "REFUND" ||
+                  card.status === "FINISHED"
+                )
+                ? "#ff5555"
+                : "#ffcc00"
           };
         ">
-          狀態：${statusText}
+          狀態：
+          ${escapeHtml(statusText)}
         </div>
 
       </div>
     `;
 
-  })
-  .catch(err => {
-    console.log(err);
-    cardInfo.innerHTML = "❌ 卡片資料讀取失敗";
-  });
-}
+  } catch(err) {
 
-function resetUseButton() {
-  isUsing = false;
+    console.error(
+      "loadCardInfo error:",
+      err
+    );
 
-  const btn = document.getElementById("useBtn");
-  if(btn) {
-    btn.disabled = false;
-    btn.innerText = "確認核銷";
+    if(err.name === "AbortError") {
+
+      cardInfo.innerHTML =
+        "❌ 卡片資料讀取逾時";
+
+    } else {
+
+      cardInfo.innerHTML =
+        "❌ 卡片資料讀取失敗";
+    }
+
+  } finally {
+
+    clearTimeout(timeoutId);
   }
 }
 
-function lockUseButton() {
-  isUsing = true;
 
-  const btn = document.getElementById("useBtn");
-  if(btn) {
-    btn.disabled = true;
-    btn.innerText = "核銷中...";
-  }
-}
+/**
+ * 核銷卡片
+ */
+async function useCard(
+  allowDuplicate
+) {
 
-function buildAccount(storeCode, staffNo) {
-
-  staffNo = String(staffNo || "")
-    .trim()
-    .replace(/\s/g, "");
-
-  if(!staffNo) return "";
-
-  if(staffNo.includes("-")) {
-    return staffNo.toUpperCase();
+  if(isUsing) {
+    return;
   }
 
-  return storeCode + "-" + staffNo;
-}
+  const storeCodeElement =
+    document.getElementById(
+      "storeCode"
+    );
 
-function clearAfterSuccess() {
+  const staffNoElement =
+    document.getElementById(
+      "staffNo"
+    );
 
-  mainArea.innerHTML = `
-    <div class="card">
-      <h2>✅ 核銷完成</h2>
-      <p style="color:#ccc;">
-        此頁面已清空，請勿重複操作。
-      </p>
-    </div>
-  `;
-}
+  const passwordElement =
+    document.getElementById(
+      "password"
+    );
 
-function useCard(allowDuplicate) {
+  if(
+    !storeCodeElement ||
+    !staffNoElement ||
+    !passwordElement
+  ) {
+    return;
+  }
 
-  if(isUsing) return;
+  const storeCode =
+    storeCodeElement.value.trim();
 
-  const storeCode = document.getElementById("storeCode").value.trim();
-  const staffNo = document.getElementById("staffNo").value.trim();
-  const password = document.getElementById("password").value.trim();
+  const staffNo =
+    staffNoElement.value.trim();
 
-  const account = buildAccount(storeCode, staffNo);
+  const password =
+    passwordElement.value.trim();
 
-  allowDuplicate = allowDuplicate || "no";
+  const account =
+    buildAccount(
+      storeCode,
+      staffNo
+    );
+
+  allowDuplicate =
+    allowDuplicate || "no";
+
+  result.innerHTML = "";
 
   if(!cardNo) {
     alert("沒有卡號，無法核銷");
@@ -262,127 +618,927 @@ function useCard(allowDuplicate) {
 
   if(!storeCode) {
     alert("請選擇分店");
+    storeCodeElement.focus();
     return;
   }
 
   if(!staffNo) {
     alert("請輸入工號");
+    staffNoElement.focus();
     return;
   }
 
   if(!password) {
     alert("請輸入密碼");
+    passwordElement.focus();
     return;
   }
 
   if(allowDuplicate !== "yes") {
-    if(!confirm("確認要核銷此卡片嗎？")) {
+
+    const confirmed =
+      confirm(
+        "確認要核銷此卡片嗎？"
+      );
+
+    if(!confirmed) {
       return;
     }
   }
 
   lockUseButton();
+  startUseProgress();
 
-  result.innerHTML = "⏳ 核銷中...";
+  const controller =
+    new AbortController();
 
-  const form = new URLSearchParams();
+  const timeoutId =
+    setTimeout(function() {
+      controller.abort();
+    }, 20000);
 
-  form.append("type", "useCard");
-  form.append("cardNo", cardNo);
-  form.append("account", account);
-  form.append("password", password);
-  form.append("allowDuplicate", allowDuplicate);
+  try {
 
-  fetch(GAS_URL, {
-    method: "POST",
-    body: form
-  })
-  .then(r => r.text())
-  .then(t => JSON.parse(t))
-  .then(data => {
+    updateUseProgress(
+      12,
+      "正在連接核銷系統..."
+    );
+
+    const form =
+      new URLSearchParams();
+
+    form.append(
+      "type",
+      "useCard"
+    );
+
+    form.append(
+      "cardNo",
+      cardNo
+    );
+
+    form.append(
+      "account",
+      account
+    );
+
+    form.append(
+      "password",
+      password
+    );
+
+    form.append(
+      "allowDuplicate",
+      allowDuplicate
+    );
+
+    form.append(
+      "_t",
+      String(Date.now())
+    );
+
+    const response =
+      await fetch(GAS_URL, {
+        method: "POST",
+        body: form,
+        cache: "no-store",
+        signal: controller.signal
+      });
+
+    updateUseProgress(
+      Math.max(
+        useProgressValue,
+        72
+      ),
+      "正在接收核銷結果..."
+    );
+
+    if(!response.ok) {
+      throw new Error(
+        "HTTP_ERROR_" +
+        response.status
+      );
+    }
+
+    const responseText =
+      await response.text();
+
+    let data;
+
+    try {
+
+      data =
+        JSON.parse(responseText);
+
+    } catch(err) {
+
+      console.error(
+        "useCard 非 JSON 回傳：",
+        responseText
+      );
+
+      throw new Error(
+        "INVALID_SERVER_RESPONSE"
+      );
+    }
+
+    updateUseProgress(
+      94,
+      "正在確認核銷結果..."
+    );
 
     if(data.status === "NEED_CONFIRM") {
 
-      resetUseButton();
+      stopUseProgressTimers();
 
-      if(confirm("此卡片剛剛已核銷過，確定要再次核銷嗎？")) {
+      updateUseProgress(
+        100,
+        "偵測到短時間重複核銷"
+      );
+
+      const confirmed =
+        confirm(
+          "此卡片剛剛已核銷過，確定要再次核銷嗎？"
+        );
+
+      if(confirmed) {
+
+        resetUseButton();
+        hideUseProgressImmediately();
+
         useCard("yes");
+
       } else {
-        result.innerHTML = "已取消連續核銷";
+
+        failUseProgress(
+          "已取消連續核銷"
+        );
+
+        result.innerHTML = `
+          <div class="result-info">
+            已取消連續核銷
+          </div>
+        `;
+
+        resetUseButton();
+
+        setTimeout(function() {
+          hideUseProgress();
+        }, 1200);
       }
 
       return;
     }
 
     if(data.status === "REFUND") {
-      result.innerHTML = "❌ 此卡片已退款，無法使用";
-      resetUseButton();
+
+      handleUseError(
+        "此卡片已退款，無法使用"
+      );
+
       return;
     }
 
     if(data.status === "LOGIN_ERROR") {
-      result.innerHTML = "❌ 分店、工號或密碼錯誤";
-      resetUseButton();
+
+      handleUseError(
+        "分店、工號或密碼錯誤"
+      );
+
       return;
     }
 
     if(data.status === "NOT_FOUND") {
-      result.innerHTML = "❌ 查無此卡號";
-      resetUseButton();
+
+      handleUseError(
+        "查無此卡號"
+      );
+
       return;
     }
 
     if(data.status === "NO_TIMES") {
-      result.innerHTML = "❌ 此卡片已無剩餘次數";
-      resetUseButton();
+
+      handleUseError(
+        "此卡片已無剩餘次數"
+      );
+
       return;
     }
 
     if(data.status === "VOID") {
-      result.innerHTML = "❌ 此卡片已作廢，無法使用";
-      resetUseButton();
+
+      handleUseError(
+        "此卡片已作廢，無法使用"
+      );
+
       return;
     }
 
     if(data.status !== "OK") {
-      result.innerHTML = "❌ 核銷失敗：" + (data.message || "");
-      resetUseButton();
+
+      handleUseError(
+        "核銷失敗：" +
+        (
+          data.message ||
+          "未知錯誤"
+        )
+      );
+
       return;
     }
+
+    completeUseProgress(
+      "核銷成功"
+    );
 
     clearAfterSuccess();
 
     result.innerHTML = `
       <div class="card">
         <h2>✅ 核銷成功</h2>
-        <p><b>卡號：</b>${data.cardNo}</p>
-        <p><b>使用服務：</b>${data.packageType}</p>
-        <p><b>核銷分店：</b>${data.storeCode} ${data.storeName}</p>
-        <p><b>核銷人員：</b>${data.staffName}</p>
-        <p><b>扣除次數：</b>1</p>
-        <p><b>剩餘次數：</b>${data.afterTimes}</p>
-        <p style="color:red; font-weight:bold;">
+
+        <p>
+          <b>卡號：</b>
+          ${escapeHtml(data.cardNo)}
+        </p>
+
+        <p>
+          <b>使用服務：</b>
+          ${escapeHtml(data.packageType)}
+        </p>
+
+        <p>
+          <b>核銷分店：</b>
+          ${escapeHtml(data.storeCode)}
+          ${escapeHtml(data.storeName)}
+        </p>
+
+        <p>
+          <b>核銷人員：</b>
+          ${escapeHtml(data.staffName)}
+        </p>
+
+        <p>
+          <b>扣除次數：</b>
+          1
+        </p>
+
+        <p>
+          <b>剩餘次數：</b>
+          ${escapeHtml(data.afterTimes)}
+        </p>
+
+        <p style="
+          color:red;
+          font-weight:bold;
+        ">
           畫面已清空，請勿重複核銷。
         </p>
       </div>
     `;
 
-    setTimeout(() => {
+    setTimeout(function() {
+
       result.innerHTML = `
         <div class="card">
           <h2>✅ 核銷完成</h2>
-          <p>資料已清空，請關閉此頁面。</p>
+          <p>
+            資料已清空，請關閉此頁面。
+          </p>
         </div>
       `;
+
     }, 3000);
 
-  })
-  .catch(err => {
-    console.log(err);
-    result.innerHTML = "❌ 系統錯誤";
-    resetUseButton();
-  });
+  } catch(err) {
 
+    console.error(
+      "useCard error:",
+      err
+    );
+
+    let message =
+      "系統錯誤，請稍後再試";
+
+    if(err.name === "AbortError") {
+
+      message =
+        "核銷連線逾時，請重新操作";
+
+    } else if(
+      err.message ===
+      "INVALID_SERVER_RESPONSE"
+    ) {
+
+      message =
+        "伺服器回傳格式錯誤";
+    }
+
+    handleUseError(message);
+
+  } finally {
+
+    clearTimeout(timeoutId);
+  }
+}
+
+
+/**
+ * 錯誤統一處理
+ */
+function handleUseError(message) {
+
+  failUseProgress(message);
+
+  showResultError(message);
+
+  resetUseButton();
+
+  setTimeout(function() {
+    hideUseProgress();
+  }, 1500);
+}
+
+
+/**
+ * 組合員工帳號
+ */
+function buildAccount(
+  storeCode,
+  staffNo
+) {
+
+  const normalizedStaffNo =
+    String(staffNo || "")
+      .trim()
+      .replace(/\s/g, "");
+
+  if(!normalizedStaffNo) {
+    return "";
+  }
+
+  if(
+    normalizedStaffNo.includes("-")
+  ) {
+    return normalizedStaffNo
+      .toUpperCase();
+  }
+
+  return (
+    String(storeCode || "")
+      .toUpperCase() +
+    "-" +
+    normalizedStaffNo
+  );
+}
+
+
+/**
+ * 核銷成功後清空
+ */
+function clearAfterSuccess() {
+
+  mainArea.innerHTML = `
+    <div class="card">
+      <h2>✅ 核銷完成</h2>
+
+      <p style="color:#ccc;">
+        此頁面已清空，請勿重複操作。
+      </p>
+    </div>
+  `;
+}
+
+
+/**
+ * 鎖定核銷按鈕
+ */
+function lockUseButton() {
+
+  isUsing = true;
+
+  const btn =
+    document.getElementById(
+      "useBtn"
+    );
+
+  if(btn) {
+
+    btn.disabled = true;
+    btn.innerText = "核銷中...";
+  }
+
+  setUseFormDisabled(true);
+}
+
+
+/**
+ * 恢復核銷按鈕
+ */
+function resetUseButton() {
+
+  isUsing = false;
+
+  const btn =
+    document.getElementById(
+      "useBtn"
+    );
+
+  if(btn) {
+
+    btn.disabled = false;
+    btn.innerText = "確認核銷";
+  }
+
+  setUseFormDisabled(false);
+}
+
+
+/**
+ * 鎖定或恢復表單
+ */
+function setUseFormDisabled(
+  disabled
+) {
+
+  [
+    "storeCode",
+    "staffNo",
+    "password"
+  ].forEach(function(id) {
+
+    const element =
+      document.getElementById(id);
+
+    if(element) {
+      element.disabled =
+        Boolean(disabled);
+    }
+  });
+}
+
+
+/**
+ * 啟動進度條
+ */
+function startUseProgress() {
+
+  stopUseProgressTimers();
+
+  const progress =
+    document.getElementById(
+      "useProgress"
+    );
+
+  const bar =
+    document.getElementById(
+      "useProgressBar"
+    );
+
+  const percent =
+    document.getElementById(
+      "useProgressPercent"
+    );
+
+  progress.hidden = false;
+
+  progress.classList.remove(
+    "is-hiding"
+  );
+
+  bar.classList.remove(
+    "is-success",
+    "is-error"
+  );
+
+  percent.classList.remove(
+    "is-success",
+    "is-error"
+  );
+
+  useProgressValue = 4;
+
+  updateUseProgress(
+    4,
+    "準備核銷..."
+  );
+
+  useProgressTimer =
+    setInterval(function() {
+
+      if(useProgressValue >= 88) {
+        return;
+      }
+
+      let increase = 1;
+
+      if(useProgressValue < 35) {
+
+        increase =
+          randomInteger(2, 5);
+
+      } else if(
+        useProgressValue < 65
+      ) {
+
+        increase =
+          randomInteger(1, 3);
+
+      }
+
+      const nextValue =
+        Math.min(
+          useProgressValue +
+          increase,
+          88
+        );
+
+      let text =
+        "正在驗證員工資料...";
+
+      if(nextValue >= 70) {
+
+        text =
+          "正在等待核銷結果...";
+
+      } else if(nextValue >= 42) {
+
+        text =
+          "正在確認卡片狀態...";
+      }
+
+      updateUseProgress(
+        nextValue,
+        text
+      );
+
+    }, 420);
+}
+
+
+/**
+ * 更新進度
+ */
+function updateUseProgress(
+  value,
+  text
+) {
+
+  const bar =
+    document.getElementById(
+      "useProgressBar"
+    );
+
+  const textElement =
+    document.getElementById(
+      "useProgressText"
+    );
+
+  const percent =
+    document.getElementById(
+      "useProgressPercent"
+    );
+
+  if(
+    !bar ||
+    !textElement ||
+    !percent
+  ) {
+    return;
+  }
+
+  const safeValue =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        Math.round(
+          Number(value) || 0
+        )
+      )
+    );
+
+  useProgressValue =
+    safeValue;
+
+  bar.style.width =
+    safeValue + "%";
+
+  percent.innerText =
+    safeValue + "%";
+
+  if(text) {
+    textElement.innerText = text;
+  }
+}
+
+
+/**
+ * 核銷成功
+ */
+function completeUseProgress(text) {
+
+  stopUseProgressTimers();
+
+  const bar =
+    document.getElementById(
+      "useProgressBar"
+    );
+
+  const percent =
+    document.getElementById(
+      "useProgressPercent"
+    );
+
+  if(bar) {
+    bar.classList.remove(
+      "is-error"
+    );
+
+    bar.classList.add(
+      "is-success"
+    );
+  }
+
+  if(percent) {
+    percent.classList.remove(
+      "is-error"
+    );
+
+    percent.classList.add(
+      "is-success"
+    );
+  }
+
+  updateUseProgress(
+    100,
+    text || "核銷成功"
+  );
+}
+
+
+/**
+ * 核銷失敗
+ */
+function failUseProgress(text) {
+
+  stopUseProgressTimers();
+
+  const bar =
+    document.getElementById(
+      "useProgressBar"
+    );
+
+  const percent =
+    document.getElementById(
+      "useProgressPercent"
+    );
+
+  if(bar) {
+    bar.classList.remove(
+      "is-success"
+    );
+
+    bar.classList.add(
+      "is-error"
+    );
+  }
+
+  if(percent) {
+    percent.classList.remove(
+      "is-success"
+    );
+
+    percent.classList.add(
+      "is-error"
+    );
+  }
+
+  const textElement =
+    document.getElementById(
+      "useProgressText"
+    );
+
+  if(textElement) {
+    textElement.innerText =
+      text || "核銷失敗";
+  }
+}
+
+
+/**
+ * 收起進度條
+ */
+function hideUseProgress() {
+
+  stopUseProgressTimers();
+
+  const progress =
+    document.getElementById(
+      "useProgress"
+    );
+
+  if(!progress) {
+    return;
+  }
+
+  progress.classList.add(
+    "is-hiding"
+  );
+
+  setTimeout(function() {
+
+    progress.hidden = true;
+
+    progress.classList.remove(
+      "is-hiding"
+    );
+
+    resetUseProgress();
+
+  }, 260);
+}
+
+
+/**
+ * 立刻隱藏進度條
+ */
+function hideUseProgressImmediately() {
+
+  stopUseProgressTimers();
+
+  const progress =
+    document.getElementById(
+      "useProgress"
+    );
+
+  if(progress) {
+    progress.hidden = true;
+  }
+
+  resetUseProgress();
+}
+
+
+/**
+ * 重設進度條
+ */
+function resetUseProgress() {
+
+  useProgressValue = 0;
+
+  const bar =
+    document.getElementById(
+      "useProgressBar"
+    );
+
+  const percent =
+    document.getElementById(
+      "useProgressPercent"
+    );
+
+  const text =
+    document.getElementById(
+      "useProgressText"
+    );
+
+  if(bar) {
+
+    bar.style.width = "0%";
+
+    bar.classList.remove(
+      "is-success",
+      "is-error"
+    );
+  }
+
+  if(percent) {
+
+    percent.innerText = "0%";
+
+    percent.classList.remove(
+      "is-success",
+      "is-error"
+    );
+  }
+
+  if(text) {
+    text.innerText =
+      "準備核銷...";
+  }
+}
+
+
+/**
+ * 停止進度計時器
+ */
+function stopUseProgressTimers() {
+
+  if(useProgressTimer) {
+
+    clearInterval(
+      useProgressTimer
+    );
+
+    useProgressTimer = null;
+  }
+}
+
+
+/**
+ * 顯示錯誤
+ */
+function showResultError(message) {
+
+  result.innerHTML = `
+    <div class="result-error">
+      ❌ ${escapeHtml(message)}
+    </div>
+  `;
+}
+
+
+/**
+ * HTML 安全處理
+ */
+function escapeHtml(value) {
+
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+
+/**
+ * 隨機整數
+ */
+function randomInteger(
+  min,
+  max
+) {
+
+  return Math.floor(
+    Math.random() *
+    (max - min + 1)
+  ) + min;
+}
+
+
+/**
+ * 工號按 Enter 跳至密碼
+ */
+const staffNoElement =
+  document.getElementById(
+    "staffNo"
+  );
+
+if(staffNoElement) {
+
+  staffNoElement.addEventListener(
+    "keydown",
+    function(event) {
+
+      if(event.key === "Enter") {
+
+        event.preventDefault();
+
+        document
+          .getElementById(
+            "password"
+          )
+          .focus();
+      }
+    }
+  );
+}
+
+
+/**
+ * 密碼按 Enter 執行核銷
+ */
+const passwordElement =
+  document.getElementById(
+    "password"
+  );
+
+if(passwordElement) {
+
+  passwordElement.addEventListener(
+    "keydown",
+    function(event) {
+
+      if(event.key === "Enter") {
+
+        event.preventDefault();
+
+        useCard("no");
+      }
+    }
+  );
 }
 
 </script>
