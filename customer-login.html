@@ -2,17 +2,43 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>會員登入</title>
 
-  <link rel="stylesheet" href="customer-style.css">
+  <link
+    rel="stylesheet"
+    href="customer-style.css"
+  >
 
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0f75bc">
-  <link rel="apple-touch-icon" href="ajlogo.jpg">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="安建VIP">
+  <link
+    rel="manifest"
+    href="manifest.json"
+  >
+
+  <meta
+    name="theme-color"
+    content="#0f75bc"
+  >
+
+  <link
+    rel="apple-touch-icon"
+    href="ajlogo.jpg"
+  >
+
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-title"
+    content="安建VIP"
+  >
 </head>
 
 <body>
@@ -26,6 +52,7 @@
     id="customerName"
     placeholder="請輸入姓名"
     autocomplete="name"
+    enterkeyhint="next"
   >
 
   <br><br>
@@ -38,6 +65,7 @@
       placeholder="請輸入會員密碼"
       autocomplete="current-password"
       inputmode="text"
+      enterkeyhint="go"
       style="
         width:100%;
         box-sizing:border-box;
@@ -49,6 +77,7 @@
       type="button"
       id="togglePasswordBtn"
       onclick="togglePassword()"
+      aria-label="顯示或隱藏密碼"
       style="
         position:absolute;
         right:12px;
@@ -71,19 +100,29 @@
 
   <br><br>
 
-  <button type="button" id="loginBtn" onclick="loginCustomer()">
+  <button
+    type="button"
+    id="loginBtn"
+    onclick="loginCustomer()"
+  >
     登入
   </button>
 
   <br><br>
 
-  <button type="button" onclick="location.href='customer-register.html'">
+  <button
+    type="button"
+    onclick="location.href='customer-register.html'"
+  >
     註冊
   </button>
 
   <br><br>
 
-  <button type="button" onclick="location.href='forgot-password.html'">
+  <button
+    type="button"
+    onclick="location.href='forgot-password.html'"
+  >
     忘記密碼
   </button>
 
@@ -95,32 +134,65 @@
 
 <script>
 
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+const GAS_URL =
+  "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
 
 let isLoggingIn = false;
 
+
+/**
+ * 密碼顯示切換
+ */
 function togglePassword() {
 
-  const input = document.getElementById("password");
-  const btn = document.getElementById("togglePasswordBtn");
+  const input =
+    document.getElementById("password");
 
-  if(input.type === "password") {
-    input.type = "text";
-    btn.innerText = "🙈";
-  } else {
-    input.type = "password";
-    btn.innerText = "👁️";
-  }
+  const btn =
+    document.getElementById(
+      "togglePasswordBtn"
+    );
+
+  const showPassword =
+    input.type === "password";
+
+  input.type =
+    showPassword
+      ? "text"
+      : "password";
+
+  btn.innerText =
+    showPassword
+      ? "🙈"
+      : "👁️";
 }
 
-function loginCustomer() {
 
-  if(isLoggingIn) return;
+/**
+ * 客戶登入
+ */
+async function loginCustomer() {
 
-  const name = document.getElementById("customerName").value.trim();
-  const password = document.getElementById("password").value.trim();
-  const result = document.getElementById("result");
-  const loginBtn = document.getElementById("loginBtn");
+  if(isLoggingIn) {
+    return;
+  }
+
+  const name =
+    document
+      .getElementById("customerName")
+      .value
+      .replace(/\u3000/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+  const password =
+    document
+      .getElementById("password")
+      .value
+      .trim();
+
+  const result =
+    document.getElementById("result");
 
   if(!name || !password) {
     alert("請輸入姓名與會員密碼");
@@ -132,56 +204,160 @@ function loginCustomer() {
     return;
   }
 
-  isLoggingIn = true;
-  loginBtn.disabled = true;
-  loginBtn.innerText = "登入中...";
+  setLoginLoading(true);
 
   result.innerHTML = "";
 
-  const form = new URLSearchParams();
+  const controller =
+    new AbortController();
 
-  form.append("type", "loginCustomer");
-  form.append("name", name);
-  form.append("password", password);
+  const timeoutId =
+    setTimeout(function() {
+      controller.abort();
+    }, 15000);
 
-  fetch(GAS_URL, {
-    method: "POST",
-    body: form
-  })
-  .then(r => r.text())
-  .then(t => {
-    console.log(t);
-    return JSON.parse(t);
-  })
-  .then(data => {
+  try {
+
+    const form =
+      new URLSearchParams();
+
+    form.append(
+      "type",
+      "loginCustomer"
+    );
+
+    form.append(
+      "name",
+      name
+    );
+
+    form.append(
+      "password",
+      password
+    );
+
+    /*
+     * 加入時間戳避免瀏覽器或中間快取。
+     */
+    form.append(
+      "_t",
+      String(Date.now())
+    );
+
+    const response =
+      await fetch(GAS_URL, {
+        method: "POST",
+        body: form,
+        cache: "no-store",
+        signal: controller.signal
+      });
+
+    const responseText =
+      await response.text();
+
+    let data;
+
+    try {
+
+      data =
+        JSON.parse(responseText);
+
+    } catch(parseError) {
+
+      console.error(
+        "GAS 非 JSON 回傳：",
+        responseText
+      );
+
+      throw new Error(
+        "伺服器回傳格式錯誤"
+      );
+    }
 
     if(data.status !== "OK") {
-      result.innerHTML = "❌ 姓名或密碼錯誤";
-      resetLoginButton();
+
+      result.innerHTML =
+        "❌ 姓名或密碼錯誤";
+
+      setLoginLoading(false);
       return;
     }
 
-    localStorage.setItem("customerName", data.name);
-    localStorage.setItem("phone", data.phone);
+    localStorage.setItem(
+      "customerName",
+      data.name
+    );
 
-    location.href = "customer-home.html";
+    localStorage.setItem(
+      "phone",
+      data.phone
+    );
 
-  })
-  .catch(err => {
-    console.log(err);
-    result.innerHTML = "❌ 登入失敗，請稍後再試";
-    resetLoginButton();
-  });
+    location.replace(
+      "customer-home.html"
+    );
 
+  } catch(err) {
+
+    console.error(
+      "loginCustomer error:",
+      err
+    );
+
+    if(err.name === "AbortError") {
+
+      result.innerHTML =
+        "❌ 連線逾時，請重新登入";
+
+    } else {
+
+      result.innerHTML =
+        "❌ 登入失敗，請稍後再試";
+    }
+
+    setLoginLoading(false);
+
+  } finally {
+
+    clearTimeout(timeoutId);
+  }
 }
 
-function resetLoginButton() {
-  const loginBtn = document.getElementById("loginBtn");
 
-  isLoggingIn = false;
-  loginBtn.disabled = false;
-  loginBtn.innerText = "登入";
+/**
+ * 登入按鈕狀態
+ */
+function setLoginLoading(loading) {
+
+  const loginBtn =
+    document.getElementById("loginBtn");
+
+  isLoggingIn = loading;
+
+  loginBtn.disabled = loading;
+
+  loginBtn.innerText =
+    loading
+      ? "登入中..."
+      : "登入";
 }
+
+
+/**
+ * 密碼欄按 Enter 直接登入
+ */
+document
+  .getElementById("password")
+  .addEventListener(
+    "keydown",
+    function(event) {
+
+      if(event.key === "Enter") {
+        event.preventDefault();
+        loginCustomer();
+      }
+    }
+  );
 
 </script>
 
