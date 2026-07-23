@@ -269,6 +269,42 @@ select:disabled{
   cursor:not-allowed;
 }
 
+.rememberPasswordWrap{
+  margin-top:15px;
+}
+
+.rememberPasswordLabel{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+
+  margin:0;
+
+  color:#66515a;
+
+  font-size:15px;
+  font-weight:800;
+
+  cursor:pointer;
+  user-select:none;
+}
+
+.rememberPasswordLabel input{
+  width:20px;
+  height:20px;
+  min-height:0;
+
+  margin:0;
+
+  accent-color:var(--primary);
+
+  cursor:pointer;
+}
+
+.rememberPasswordLabel span{
+  line-height:1;
+}
+
 .buttonRow{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -556,9 +592,9 @@ select:disabled{
   </header>
 
   <form
-    id="loginForm"
-    novalidate
-  >
+  id="loginForm"
+  novalidate
+>
 
     <div class="formGroup">
 
@@ -591,6 +627,7 @@ select:disabled{
         <option value="AJ04">
           AJ04｜山福店
         </option>
+
       </select>
 
     </div>
@@ -637,13 +674,33 @@ select:disabled{
           id="passwordToggle"
           class="passwordToggle"
           type="button"
-          aria-label="顯示密碼"
           onclick="togglePassword()"
         >
           顯示
         </button>
 
       </div>
+
+    </div>
+
+    <div
+      class="rememberPasswordWrap"
+    >
+
+      <label
+        class="rememberPasswordLabel"
+      >
+
+        <input
+          id="rememberPassword"
+          type="checkbox"
+        >
+
+        <span>
+          記住密碼
+        </span>
+
+      </label>
 
     </div>
 
@@ -668,7 +725,7 @@ select:disabled{
 
     </div>
 
-  </form>
+</form>
 
   <section
     id="progressWrap"
@@ -728,6 +785,8 @@ const LOGIN_TIMEOUT_MS = 30000;
  * 記住上次選擇分店時使用的 Key。
  */
 const LAST_STORE_KEY = "aj_last_store_code";
+const REMEMBER_LOGIN_KEY =
+  "aj_remember_login";
 
 let progressTimer = null;
 let progressValue = 0;
@@ -765,7 +824,6 @@ window.addEventListener(
 
   }
 );
-
 function initializeLoginPage(){
 
   const form =
@@ -782,7 +840,8 @@ function initializeLoginPage(){
     }
   );
 
-  restoreLastStore();
+  restoreRememberLogin();
+
   updateConnectionState();
 
   document
@@ -796,10 +855,43 @@ function initializeLoginPage(){
     .getElementById("storeCode")
     .addEventListener(
       "change",
-      saveLastStore
+      saveRememberLogin
     );
-}
 
+  document
+    .getElementById("staffNo")
+    .addEventListener(
+      "input",
+      saveRememberLogin
+    );
+
+  document
+    .getElementById("rememberPassword")
+    .addEventListener(
+      "change",
+      saveRememberLogin
+    );
+
+  document
+    .getElementById("password")
+    .addEventListener(
+      "input",
+      function(){
+
+        if(
+          document.getElementById(
+            "rememberPassword"
+          ).checked
+        ){
+
+          saveRememberLogin();
+
+        }
+
+      }
+    );
+
+}
 
 /* =========================================================
  * 網路狀態
@@ -912,6 +1004,109 @@ function restoreLastStore(){
       error
     );
   }
+}
+
+
+function saveRememberLogin(){
+
+  try{
+
+    const remember =
+      document.getElementById(
+        "rememberPassword"
+      ).checked;
+
+    const data = {
+
+      storeCode:
+        document
+          .getElementById("storeCode")
+          .value
+          .trim(),
+
+      staffNo:
+        document
+          .getElementById("staffNo")
+          .value
+          .trim(),
+
+      rememberPassword:
+        remember,
+
+      password:
+        remember
+          ? document
+              .getElementById("password")
+              .value
+          : ""
+
+    };
+
+    localStorage.setItem(
+      REMEMBER_LOGIN_KEY,
+      JSON.stringify(data)
+    );
+
+  }catch(error){
+
+    console.log(error);
+
+  }
+
+}
+function restoreRememberLogin(){
+
+  try{
+
+    const text =
+      localStorage.getItem(
+        REMEMBER_LOGIN_KEY
+      );
+
+    if(!text){
+      return;
+    }
+
+    const data =
+      JSON.parse(text);
+
+    if(data.storeCode){
+
+      document.getElementById(
+        "storeCode"
+      ).value =
+        data.storeCode;
+
+    }
+
+    if(data.staffNo){
+
+      document.getElementById(
+        "staffNo"
+      ).value =
+        data.staffNo;
+
+    }
+
+    if(data.rememberPassword){
+
+      document.getElementById(
+        "rememberPassword"
+      ).checked = true;
+
+      document.getElementById(
+        "password"
+      ).value =
+        data.password || "";
+
+    }
+
+  }catch(error){
+
+    console.log(error);
+
+  }
+
 }
 
 
@@ -1588,17 +1783,43 @@ async function login(){
       "正在建立登入資料"
     );
 
-    const loginText =
-      JSON.stringify(result);
+const loginText =
+  JSON.stringify(result);
 
-    saveLoginStorage(
-      loginText
-    );
+/*
+ * 儲存登入資訊
+ */
+saveLoginStorage(
+  loginText
+);
 
-    const encodedLoginData =
-      encodeLoginData(
-        loginText
-      );
+/*
+ * 記住登入資料
+ */
+saveRememberLogin();
+
+/*
+ * 如果沒有勾選記住密碼
+ * 清除密碼
+ */
+if(
+  !document.getElementById(
+    "rememberPassword"
+  ).checked
+){
+
+  document.getElementById(
+    "password"
+  ).value = "";
+
+  saveRememberLogin();
+
+}
+
+const encodedLoginData =
+  encodeLoginData(
+    loginText
+  );
 
     finishProgress();
 
@@ -1640,7 +1861,6 @@ function saveLoginStorage(loginText){
   /*
    * GitHub Pages 與 GAS 是不同網域。
    * 此處資料主要作為 GitHub 網域備份。
-   * GAS index 會透過 loginData 建立自己的 localStorage。
    */
   try{
 
@@ -1676,8 +1896,23 @@ function saveLoginStorage(loginText){
       error
     );
   }
-}
 
+  /*
+   * 同步更新登入記憶
+   */
+  try{
+
+    saveRememberLogin();
+
+  }catch(error){
+
+    console.log(
+      "記住登入資料失敗",
+      error
+    );
+  }
+
+}
 function encodeLoginData(loginText){
 
   try{
