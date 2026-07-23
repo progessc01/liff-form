@@ -2,223 +2,1051 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1,viewport-fit=cover"
+>
+
+<meta name="theme-color" content="#8d5d70">
+
 <title>安建員工登入</title>
 
 <style>
+:root{
+  --primary:#9a6579;
+  --primary-dark:#765061;
+  --primary-light:#f3e5ea;
+
+  --register:#5f6672;
+  --register-dark:#454b55;
+
+  --text:#4e3e45;
+  --text-soft:#806a73;
+
+  --danger:#c93636;
+  --danger-bg:#fff0f0;
+
+  --success:#25824b;
+  --success-bg:#ecf8f1;
+
+  --warning:#a36214;
+  --warning-bg:#fff7e8;
+
+  --border:#dfd4d8;
+  --background-top:#f6ece8;
+  --background-middle:#ead9d3;
+  --background-bottom:#ddc7c0;
+
+  --shadow:0 18px 50px rgba(75,48,58,.16);
+}
+
 *{
   box-sizing:border-box;
 }
 
+html,
 body{
   margin:0;
+  min-height:100%;
+}
+
+body{
   min-height:100vh;
-  font-family:Arial,"Microsoft JhengHei",sans-serif;
-  background:linear-gradient(180deg,#f2e5df,#ead8d2,#dfc9c2);
+  min-height:100dvh;
+
+  font-family:
+    Arial,
+    "Microsoft JhengHei",
+    "Noto Sans TC",
+    sans-serif;
+
+  background:
+    radial-gradient(
+      circle at 20% 5%,
+      rgba(255,255,255,.78),
+      transparent 34%
+    ),
+    linear-gradient(
+      180deg,
+      var(--background-top),
+      var(--background-middle),
+      var(--background-bottom)
+    );
+
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:20px;
+
+  padding:
+    max(20px,env(safe-area-inset-top))
+    max(18px,env(safe-area-inset-right))
+    max(20px,env(safe-area-inset-bottom))
+    max(18px,env(safe-area-inset-left));
+
+  color:var(--text);
 }
 
-.box{
+button,
+input,
+select{
+  font:inherit;
+}
+
+.loginCard{
   width:100%;
-  max-width:420px;
-  background:white;
-  border-radius:26px;
-  padding:28px;
-  box-shadow:0 10px 30px rgba(0,0,0,.12);
+  max-width:430px;
+
+  background:rgba(255,255,255,.96);
+
+  border:1px solid rgba(255,255,255,.7);
+  border-radius:28px;
+
+  padding:30px 28px 24px;
+
+  box-shadow:var(--shadow);
+
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
 }
 
-h1{
-  margin:0 0 22px;
+.brand{
   text-align:center;
-  color:#5b4650;
+  margin-bottom:24px;
+}
+
+.brandBadge{
+  width:58px;
+  height:58px;
+
+  margin:0 auto 12px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:19px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      var(--primary-dark)
+    );
+
+  color:#fff;
+
+  font-size:24px;
+  font-weight:900;
+
+  box-shadow:
+    0 10px 24px rgba(141,93,112,.28);
+}
+
+.brandTitle{
+  margin:0;
+
+  font-size:27px;
+  line-height:1.25;
+  font-weight:900;
+  letter-spacing:.5px;
+
+  color:#57434c;
+}
+
+.brandSub{
+  margin-top:7px;
+
+  font-size:14px;
+  line-height:1.5;
+  font-weight:700;
+
+  color:var(--text-soft);
+}
+
+.formGroup{
+  margin-top:17px;
 }
 
 label{
   display:block;
-  margin-top:14px;
+
+  margin-bottom:8px;
+
+  color:#59444d;
+
+  font-size:16px;
   font-weight:900;
-  color:#5b4650;
 }
 
-input,
-select,
-button{
-  width:100%;
-  padding:15px;
-  margin-top:8px;
-  font-size:18px;
-  border-radius:16px;
-  box-sizing:border-box;
+.fieldWrap{
+  position:relative;
 }
 
 input,
 select{
-  border:1px solid #ddd;
+  width:100%;
+  min-height:54px;
+
+  border:1px solid var(--border);
+  border-radius:16px;
+
   background:#fff;
-  color:#4a3d42;
+  color:var(--text);
+
+  padding:13px 15px;
+
+  font-size:17px;
+  font-weight:700;
+
   outline:none;
+
+  transition:
+    border-color .18s ease,
+    box-shadow .18s ease,
+    background .18s ease;
+}
+
+select{
+  appearance:auto;
+}
+
+input::placeholder{
+  color:#ae9da4;
+  font-weight:500;
 }
 
 input:focus,
 select:focus{
-  border-color:#b7778d;
-  box-shadow:0 0 0 4px rgba(183,119,141,.12);
+  border-color:var(--primary);
+
+  box-shadow:
+    0 0 0 4px rgba(154,101,121,.13);
 }
 
-button{
-  margin-top:22px;
+input:disabled,
+select:disabled{
+  background:#f4f1f2;
+  color:#94868c;
+}
+
+.passwordInput{
+  padding-right:69px;
+}
+
+.passwordToggle{
+  position:absolute;
+  top:50%;
+  right:8px;
+
+  width:auto;
+  min-width:52px;
+  min-height:38px;
+
+  margin:0;
+  padding:6px 10px;
+
+  transform:translateY(-50%);
+
   border:0;
-  background:linear-gradient(135deg,#b7778d,#8d5d70);
-  color:white;
+  border-radius:11px;
+
+  background:#f1eaed;
+  color:#725766;
+
+  font-size:13px;
   font-weight:900;
+
   cursor:pointer;
 }
 
-button:disabled{
+.passwordToggle:hover{
+  background:#e9dce1;
+}
+
+.passwordToggle:disabled{
   opacity:.55;
   cursor:not-allowed;
 }
 
-.msg{
-  display:none;
-  margin-top:15px;
-  padding:14px;
-  border-radius:14px;
-  background:#dc2626;
-  color:white;
+.buttonRow{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:11px;
+
+  margin-top:24px;
+}
+
+.mainButton,
+.registerButton{
+  width:100%;
+  min-height:54px;
+
+  margin:0;
+  padding:13px 12px;
+
+  border:0;
+  border-radius:16px;
+
+  color:#fff;
+
+  font-size:17px;
   font-weight:900;
-  text-align:center;
-  line-height:1.5;
+
+  cursor:pointer;
+
+  transition:
+    transform .12s ease,
+    opacity .18s ease,
+    box-shadow .18s ease;
+}
+
+.mainButton{
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      var(--primary-dark)
+    );
+
+  box-shadow:
+    0 9px 22px rgba(141,93,112,.25);
+}
+
+.registerButton{
+  background:
+    linear-gradient(
+      135deg,
+      var(--register),
+      var(--register-dark)
+    );
+
+  box-shadow:
+    0 9px 22px rgba(69,75,85,.18);
+}
+
+.mainButton:active,
+.registerButton:active,
+.passwordToggle:active{
+  transform:scale(.985);
+}
+
+.mainButton:disabled,
+.registerButton:disabled{
+  opacity:.52;
+  cursor:not-allowed;
+  transform:none;
+  box-shadow:none;
 }
 
 .progressWrap{
   display:none;
-  margin-top:18px;
+  margin-top:20px;
 }
 
 .progressTrack{
   width:100%;
-  height:13px;
-  background:#eadde2;
-  border-radius:999px;
+  height:12px;
+
   overflow:hidden;
+
+  border-radius:999px;
+  background:#eadfe3;
 }
 
 .progressBar{
   width:0%;
   height:100%;
-  background:linear-gradient(135deg,#b7778d,#8d5d70);
+
   border-radius:999px;
-  transition:width .25s ease;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      var(--primary-dark)
+    );
+
+  transition:
+    width .25s ease,
+    background .2s ease;
 }
 
 .progressText{
   margin-top:9px;
+
   text-align:center;
-  color:#7a4e60;
+
+  color:#765666;
+
   font-size:14px;
+  line-height:1.4;
   font-weight:900;
+}
+
+.message{
+  display:none;
+
+  margin-top:17px;
+  padding:13px 14px;
+
+  border:1px solid transparent;
+  border-radius:14px;
+
+  text-align:center;
+
+  font-size:15px;
+  line-height:1.55;
+  font-weight:900;
+
+  word-break:break-word;
+}
+
+.message.error{
+  display:block;
+
+  color:var(--danger);
+  background:var(--danger-bg);
+  border-color:#f0bebe;
+}
+
+.message.success{
+  display:block;
+
+  color:var(--success);
+  background:var(--success-bg);
+  border-color:#b9dfc9;
+}
+
+.message.warning{
+  display:block;
+
+  color:var(--warning);
+  background:var(--warning-bg);
+  border-color:#eed3a2;
+}
+
+.connectionState{
+  display:none;
+
+  margin-bottom:15px;
+  padding:11px 13px;
+
+  border-radius:13px;
+
+  background:var(--danger-bg);
+  color:var(--danger);
+
+  text-align:center;
+  font-size:14px;
+  line-height:1.45;
+  font-weight:900;
+}
+
+.connectionState.show{
+  display:block;
+}
+
+.footer{
+  margin-top:21px;
+
+  text-align:center;
+
+  color:#9b858e;
+
+  font-size:12px;
+  line-height:1.55;
+  font-weight:700;
+}
+
+.loadingDot::after{
+  content:"";
+
+  display:inline-block;
+  width:1.2em;
+
+  text-align:left;
+
+  animation:dots 1.2s steps(4,end) infinite;
+}
+
+@keyframes dots{
+  0%{
+    content:"";
+  }
+
+  25%{
+    content:".";
+  }
+
+  50%{
+    content:"..";
+  }
+
+  75%,
+  100%{
+    content:"...";
+  }
+}
+
+@media(max-width:430px){
+
+  body{
+    align-items:flex-start;
+    padding-top:22px;
+  }
+
+  .loginCard{
+    padding:26px 21px 22px;
+    border-radius:24px;
+  }
+
+  .brandTitle{
+    font-size:25px;
+  }
+
+  .buttonRow{
+    grid-template-columns:1fr;
+  }
+
+  .registerButton{
+    background:#626974;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+
+  *,
+  *::before,
+  *::after{
+    scroll-behavior:auto !important;
+    transition:none !important;
+    animation:none !important;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<div class="box">
+<main class="loginCard">
 
-  <h1>安建員工登入</h1>
+  <div
+    id="connectionState"
+    class="connectionState"
+    role="alert"
+  >
+    目前沒有網路連線，請確認網路後再登入。
+  </div>
 
-  <form id="loginForm" onsubmit="return login();">
+  <header class="brand">
 
-    <label for="storeCode">分店</label>
-    <select id="storeCode" required>
-      <option value="">請選擇分店</option>
-      <option value="AJ01">AJ01｜總店</option>
-      <option value="AJ02">AJ02｜員林店</option>
-      <option value="AJ03">AJ03｜彰南店</option>
-      <option value="AJ04">AJ04｜山福店</option>
-    </select>
+    <div class="brandBadge" aria-hidden="true">
+      AJ
+    </div>
 
-    <label for="staffNo">工號</label>
-    <input
-      id="staffNo"
-      placeholder="請輸入工號，例如 001"
-      inputmode="numeric"
-      autocomplete="username"
-      required
-    >
+    <h1 class="brandTitle">
+      安建員工登入
+    </h1>
 
-    <label for="password">密碼</label>
-    <input
-      id="password"
-      type="password"
-      placeholder="請輸入密碼"
-      autocomplete="current-password"
-      required
-    >
+    <div class="brandSub">
+      請選擇所屬分店並輸入員工帳號
+    </div>
 
-    <button id="loginBtn" type="submit">
-      員工登入
-    </button>
+  </header>
+
+  <form
+    id="loginForm"
+    novalidate
+  >
+
+    <div class="formGroup">
+
+      <label for="storeCode">
+        所屬分店
+      </label>
+
+      <select
+        id="storeCode"
+        name="storeCode"
+        autocomplete="organization"
+        required
+      >
+        <option value="">
+          請選擇分店
+        </option>
+
+        <option value="AJ01">
+          AJ01｜總店
+        </option>
+
+        <option value="AJ02">
+          AJ02｜員林店
+        </option>
+
+        <option value="AJ03">
+          AJ03｜彰南店
+        </option>
+
+        <option value="AJ04">
+          AJ04｜山福店
+        </option>
+      </select>
+
+    </div>
+
+    <div class="formGroup">
+
+      <label for="staffNo">
+        員工工號
+      </label>
+
+      <input
+        id="staffNo"
+        name="staffNo"
+        type="text"
+        placeholder="例如：001"
+        inputmode="numeric"
+        autocomplete="username"
+        maxlength="10"
+        required
+      >
+
+    </div>
+
+    <div class="formGroup">
+
+      <label for="password">
+        登入密碼
+      </label>
+
+      <div class="fieldWrap">
+
+        <input
+          id="password"
+          class="passwordInput"
+          name="password"
+          type="password"
+          placeholder="請輸入密碼"
+          autocomplete="current-password"
+          maxlength="100"
+          required
+        >
+
+        <button
+          id="passwordToggle"
+          class="passwordToggle"
+          type="button"
+          aria-label="顯示密碼"
+          onclick="togglePassword()"
+        >
+          顯示
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="buttonRow">
+
+      <button
+        id="loginBtn"
+        class="mainButton"
+        type="submit"
+      >
+        員工登入
+      </button>
+
+      <button
+        id="registerBtn"
+        class="registerButton"
+        type="button"
+        onclick="goRegister()"
+      >
+        員工註冊
+      </button>
+
+    </div>
 
   </form>
 
-  <div id="progressWrap" class="progressWrap">
+  <section
+    id="progressWrap"
+    class="progressWrap"
+    aria-live="polite"
+  >
+
     <div class="progressTrack">
-      <div id="progressBar" class="progressBar"></div>
+
+      <div
+        id="progressBar"
+        class="progressBar"
+      ></div>
+
     </div>
 
-    <div id="progressText" class="progressText">
+    <div
+      id="progressText"
+      class="progressText"
+    >
       0%
     </div>
-  </div>
 
-  <div id="msg" class="msg"></div>
+  </section>
 
-</div>
+  <div
+    id="message"
+    class="message"
+    role="alert"
+    aria-live="assertive"
+  ></div>
+
+  <footer class="footer">
+    安建快速洗車員工系統<br>
+    登入版本 2026.07.23
+  </footer>
+
+</main>
 
 <script>
+"use strict";
+
+/* =========================================================
+ * 基本設定
+ * ========================================================= */
+
 const GAS_URL =
   "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+
+/*
+ * 登入最長等待時間。
+ * 超過時間後自動中止，避免畫面永遠卡在登入中。
+ */
+const LOGIN_TIMEOUT_MS = 30000;
+
+/*
+ * 記住上次選擇分店時使用的 Key。
+ */
+const LAST_STORE_KEY = "aj_last_store_code";
 
 let progressTimer = null;
 let progressValue = 0;
 let loginFinished = false;
+let loginRunning = false;
+let activeController = null;
 
-function showMsg(text){
 
-  const msg =
-    document.getElementById("msg");
+/* =========================================================
+ * 初始化
+ * ========================================================= */
 
-  msg.innerText =
-    text || "";
+document.addEventListener(
+  "DOMContentLoaded",
+  initializeLoginPage
+);
 
-  msg.style.display =
-    text ? "block" : "none";
+window.addEventListener(
+  "online",
+  updateConnectionState
+);
+
+window.addEventListener(
+  "offline",
+  updateConnectionState
+);
+
+window.addEventListener(
+  "beforeunload",
+  function(){
+
+    if(activeController){
+      activeController.abort();
+    }
+
+  }
+);
+
+function initializeLoginPage(){
+
+  const form =
+    document.getElementById("loginForm");
+
+  form.addEventListener(
+    "submit",
+    function(event){
+
+      event.preventDefault();
+
+      login();
+
+    }
+  );
+
+  restoreLastStore();
+  updateConnectionState();
+
+  document
+    .getElementById("staffNo")
+    .addEventListener(
+      "input",
+      normalizeStaffNoInput
+    );
+
+  document
+    .getElementById("storeCode")
+    .addEventListener(
+      "change",
+      saveLastStore
+    );
 }
 
-function hideMsg(){
-  showMsg("");
+
+/* =========================================================
+ * 網路狀態
+ * ========================================================= */
+
+function updateConnectionState(){
+
+  const state =
+    document.getElementById(
+      "connectionState"
+    );
+
+  const online =
+    navigator.onLine;
+
+  state.classList.toggle(
+    "show",
+    !online
+  );
+
+  if(!online && loginRunning){
+
+    if(activeController){
+      activeController.abort();
+    }
+
+    handleLoginFailure(
+      new Error(
+        "網路連線已中斷，請確認網路後重新登入"
+      )
+    );
+  }
 }
+
+
+/* =========================================================
+ * 分店記憶
+ * ========================================================= */
+
+function saveLastStore(){
+
+  const storeCode =
+    document
+      .getElementById("storeCode")
+      .value
+      .trim();
+
+  try{
+
+    if(storeCode){
+
+      localStorage.setItem(
+        LAST_STORE_KEY,
+        storeCode
+      );
+
+    }else{
+
+      localStorage.removeItem(
+        LAST_STORE_KEY
+      );
+    }
+
+  }catch(error){
+
+    console.log(
+      "無法儲存上次分店",
+      error
+    );
+  }
+}
+
+function restoreLastStore(){
+
+  try{
+
+    const lastStore =
+      String(
+        localStorage.getItem(
+          LAST_STORE_KEY
+        ) || ""
+      ).trim();
+
+    if(!lastStore){
+      return;
+    }
+
+    const storeSelect =
+      document.getElementById(
+        "storeCode"
+      );
+
+    const optionExists =
+      Array
+        .from(storeSelect.options)
+        .some(function(option){
+
+          return option.value === lastStore;
+
+        });
+
+    if(optionExists){
+      storeSelect.value = lastStore;
+    }
+
+  }catch(error){
+
+    console.log(
+      "無法讀取上次分店",
+      error
+    );
+  }
+}
+
+
+/* =========================================================
+ * 工號處理
+ * ========================================================= */
+
+function normalizeStaffNoInput(event){
+
+  const input =
+    event.target;
+
+  /*
+   * 工號只保留數字。
+   */
+  input.value =
+    String(input.value || "")
+      .replace(/[^\d]/g,"");
+}
+
+function formatStaffNo(value){
+
+  const numbers =
+    String(value || "")
+      .replace(/[^\d]/g,"");
+
+  if(!numbers){
+    return "";
+  }
+
+  return numbers.padStart(3,"0");
+}
+
+
+/* =========================================================
+ * 密碼顯示
+ * ========================================================= */
+
+function togglePassword(){
+
+  const passwordInput =
+    document.getElementById(
+      "password"
+    );
+
+  const toggleButton =
+    document.getElementById(
+      "passwordToggle"
+    );
+
+  const currentlyHidden =
+    passwordInput.type === "password";
+
+  passwordInput.type =
+    currentlyHidden
+      ? "text"
+      : "password";
+
+  toggleButton.innerText =
+    currentlyHidden
+      ? "隱藏"
+      : "顯示";
+
+  toggleButton.setAttribute(
+    "aria-label",
+    currentlyHidden
+      ? "隱藏密碼"
+      : "顯示密碼"
+  );
+
+  passwordInput.focus();
+}
+
+
+/* =========================================================
+ * 訊息顯示
+ * ========================================================= */
+
+function clearMessage(){
+
+  const message =
+    document.getElementById(
+      "message"
+    );
+
+  message.className =
+    "message";
+
+  message.innerText =
+    "";
+}
+
+function showMessage(text,type){
+
+  const message =
+    document.getElementById(
+      "message"
+    );
+
+  message.className =
+    "message " + (type || "error");
+
+  message.innerText =
+    String(text || "");
+}
+
+
+/* =========================================================
+ * 進度條
+ * ========================================================= */
 
 function updateProgress(value,text){
 
   const wrap =
-    document.getElementById("progressWrap");
+    document.getElementById(
+      "progressWrap"
+    );
 
   const bar =
-    document.getElementById("progressBar");
+    document.getElementById(
+      "progressBar"
+    );
 
   const label =
-    document.getElementById("progressText");
+    document.getElementById(
+      "progressText"
+    );
 
   progressValue =
     Math.max(
       0,
-      Math.min(100,Number(value || 0))
+      Math.min(
+        100,
+        Number(value || 0)
+      )
     );
 
   wrap.style.display =
@@ -228,21 +1056,27 @@ function updateProgress(value,text){
     progressValue + "%";
 
   label.innerText =
-    progressValue + "%｜" + (text || "處理中");
+    progressValue +
+    "%｜" +
+    (text || "處理中");
 }
 
 function startProgress(){
 
-  clearInterval(progressTimer);
+  clearInterval(
+    progressTimer
+  );
 
   loginFinished = false;
   progressValue = 5;
 
   const bar =
-    document.getElementById("progressBar");
+    document.getElementById(
+      "progressBar"
+    );
 
   bar.style.background =
-    "linear-gradient(135deg,#b7778d,#8d5d70)";
+    "linear-gradient(135deg,#9a6579,#765061)";
 
   updateProgress(
     progressValue,
@@ -250,49 +1084,79 @@ function startProgress(){
   );
 
   progressTimer =
-    setInterval(function(){
+    setInterval(
+      function(){
 
-      if(loginFinished || progressValue >= 90){
-        return;
-      }
+        if(
+          loginFinished ||
+          progressValue >= 91
+        ){
+          return;
+        }
 
-      let step = 1;
+        let step = 1;
 
-      if(progressValue < 35){
-        step = 5;
-      }else if(progressValue < 65){
-        step = 3;
-      }
+        if(progressValue < 30){
+          step = 4;
+        }else if(progressValue < 60){
+          step = 2;
+        }
 
-      progressValue =
-        Math.min(
-          90,
-          progressValue + step
+        progressValue =
+          Math.min(
+            91,
+            progressValue + step
+          );
+
+        let text =
+          "正在載入系統";
+
+        if(progressValue < 32){
+
+          text =
+            "正在連線";
+
+        }else if(progressValue < 62){
+
+          text =
+            "正在驗證帳號";
+
+        }else if(progressValue < 84){
+
+          text =
+            "正在讀取員工資料";
+
+        }else{
+
+          text =
+            "即將完成";
+        }
+
+        updateProgress(
+          progressValue,
+          text
         );
 
-      let text = "正在載入系統";
-
-      if(progressValue < 35){
-        text = "正在連線";
-      }else if(progressValue < 65){
-        text = "正在驗證帳號";
-      }else if(progressValue < 85){
-        text = "正在讀取員工資料";
-      }
-
-      updateProgress(
-        progressValue,
-        text
-      );
-
-    },250);
+      },
+      260
+    );
 }
 
 function finishProgress(){
 
   loginFinished = true;
 
-  clearInterval(progressTimer);
+  clearInterval(
+    progressTimer
+  );
+
+  const bar =
+    document.getElementById(
+      "progressBar"
+    );
+
+  bar.style.background =
+    "linear-gradient(135deg,#29965a,#237a4b)";
 
   updateProgress(
     100,
@@ -304,13 +1168,17 @@ function failProgress(message){
 
   loginFinished = true;
 
-  clearInterval(progressTimer);
+  clearInterval(
+    progressTimer
+  );
 
   const bar =
-    document.getElementById("progressBar");
+    document.getElementById(
+      "progressBar"
+    );
 
   bar.style.background =
-    "#dc2626";
+    "#c93636";
 
   updateProgress(
     100,
@@ -318,188 +1186,635 @@ function failProgress(message){
   );
 }
 
-function resetLoginButton(){
+function resetProgress(){
 
-  const btn =
-    document.getElementById("loginBtn");
+  loginFinished = false;
+  progressValue = 0;
 
-  btn.disabled = false;
-  btn.innerText = "員工登入";
+  clearInterval(
+    progressTimer
+  );
+
+  const wrap =
+    document.getElementById(
+      "progressWrap"
+    );
+
+  const bar =
+    document.getElementById(
+      "progressBar"
+    );
+
+  const label =
+    document.getElementById(
+      "progressText"
+    );
+
+  wrap.style.display =
+    "none";
+
+  bar.style.width =
+    "0%";
+
+  label.innerText =
+    "0%";
 }
 
-function login(){
 
-  hideMsg();
+/* =========================================================
+ * 按鈕狀態
+ * ========================================================= */
+
+function setLoginRunning(running){
+
+  loginRunning =
+    Boolean(running);
+
+  const loginButton =
+    document.getElementById(
+      "loginBtn"
+    );
+
+  const registerButton =
+    document.getElementById(
+      "registerBtn"
+    );
 
   const storeCode =
-    document.getElementById("storeCode").value.trim();
+    document.getElementById(
+      "storeCode"
+    );
 
-  const staffNoRaw =
-    document.getElementById("staffNo").value.trim();
+  const staffNo =
+    document.getElementById(
+      "staffNo"
+    );
 
   const password =
-    document.getElementById("password").value.trim();
+    document.getElementById(
+      "password"
+    );
 
-  if(!storeCode || !staffNoRaw || !password){
+  const passwordToggle =
+    document.getElementById(
+      "passwordToggle"
+    );
 
-    const message =
-      "請完整輸入分店、工號與密碼";
+  loginButton.disabled =
+    loginRunning;
 
-    showMsg(message);
-    failProgress(message);
+  registerButton.disabled =
+    loginRunning;
+
+  storeCode.disabled =
+    loginRunning;
+
+  staffNo.disabled =
+    loginRunning;
+
+  password.disabled =
+    loginRunning;
+
+  passwordToggle.disabled =
+    loginRunning;
+
+  loginButton.innerHTML =
+    loginRunning
+      ? '登入中<span class="loadingDot"></span>'
+      : "員工登入";
+}
+
+
+/* =========================================================
+ * 登入資料驗證
+ * ========================================================= */
+
+function getLoginFormData(){
+
+  const storeCode =
+    document
+      .getElementById("storeCode")
+      .value
+      .trim();
+
+  const staffNoRaw =
+    document
+      .getElementById("staffNo")
+      .value
+      .trim();
+
+  const password =
+    document
+      .getElementById("password")
+      .value
+      .trim();
+
+  if(!storeCode){
+
+    throw new Error(
+      "請選擇所屬分店"
+    );
+  }
+
+  if(!staffNoRaw){
+
+    throw new Error(
+      "請輸入員工工號"
+    );
+  }
+
+  const staffNo =
+    formatStaffNo(
+      staffNoRaw
+    );
+
+  if(!staffNo){
+
+    throw new Error(
+      "員工工號格式不正確"
+    );
+  }
+
+  if(!password){
+
+    throw new Error(
+      "請輸入登入密碼"
+    );
+  }
+
+  return {
+    storeCode:storeCode,
+    staffNo:staffNo,
+    password:password
+  };
+}
+
+
+/* =========================================================
+ * Fetch 逾時控制
+ * ========================================================= */
+
+async function fetchWithTimeout(
+  url,
+  options,
+  timeoutMs
+){
+
+  const controller =
+    new AbortController();
+
+  activeController =
+    controller;
+
+  const timeoutId =
+    setTimeout(
+      function(){
+
+        controller.abort();
+
+      },
+      timeoutMs
+    );
+
+  try{
+
+    const response =
+      await fetch(
+        url,
+        Object.assign(
+          {},
+          options || {},
+          {
+            signal:
+              controller.signal,
+
+            /*
+             * GAS Web App 可能發生轉址。
+             */
+            redirect:
+              "follow"
+          }
+        )
+      );
+
+    return response;
+
+  }finally{
+
+    clearTimeout(
+      timeoutId
+    );
+
+    if(
+      activeController ===
+      controller
+    ){
+      activeController = null;
+    }
+  }
+}
+
+
+/* =========================================================
+ * 登入
+ * ========================================================= */
+
+async function login(){
+
+  if(loginRunning){
+    return false;
+  }
+
+  clearMessage();
+  resetProgress();
+
+  if(!navigator.onLine){
+
+    showMessage(
+      "目前沒有網路連線，請確認網路後再登入",
+      "error"
+    );
 
     return false;
   }
 
-  const staffNo =
-    staffNoRaw
-      .replace(/\s/g,"")
-      .padStart(3,"0");
+  let loginData;
 
-  const btn =
-    document.getElementById("loginBtn");
+  try{
 
-  btn.disabled = true;
-  btn.innerText = "登入中...";
+    loginData =
+      getLoginFormData();
 
+  }catch(error){
+
+    const message =
+      error &&
+      error.message
+        ? error.message
+        : "請完整填寫登入資料";
+
+    showMessage(
+      message,
+      "error"
+    );
+
+    return false;
+  }
+
+  saveLastStore();
+
+  setLoginRunning(true);
   startProgress();
 
-  const form =
-    new URLSearchParams();
+  try{
 
-  form.append("type","loginStaff");
-  form.append("storeCode",storeCode);
-  form.append("staffNo",staffNo);
-  form.append("password",password);
+    const form =
+      new URLSearchParams();
 
-  fetch(GAS_URL,{
-    method:"POST",
-    body:form
-  })
-  .then(function(response){
+    form.append(
+      "type",
+      "loginStaff"
+    );
+
+    form.append(
+      "storeCode",
+      loginData.storeCode
+    );
+
+    form.append(
+      "staffNo",
+      loginData.staffNo
+    );
+
+    form.append(
+      "password",
+      loginData.password
+    );
+
+    const response =
+      await fetchWithTimeout(
+        GAS_URL,
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/x-www-form-urlencoded;charset=UTF-8"
+          },
+
+          body:
+            form.toString(),
+
+          cache:
+            "no-store"
+        },
+        LOGIN_TIMEOUT_MS
+      );
 
     if(!response.ok){
+
       throw new Error(
-        "伺服器連線失敗：" +
+        "伺服器連線失敗，錯誤代碼：" +
         response.status
       );
     }
 
     updateProgress(
-      Math.max(progressValue,45),
+      Math.max(
+        progressValue,
+        46
+      ),
       "正在驗證帳號"
     );
 
-    return response.text();
-  })
-  .then(function(text){
+    const text =
+      await response.text();
 
-    let res;
-
-    try{
-
-      res =
-        JSON.parse(text);
-
-    }catch(e){
-
-      console.log(
-        "SERVER_TEXT",
-        text
-      );
+    if(!text || !text.trim()){
 
       throw new Error(
-        "伺服器回傳不是 JSON，請確認 GAS 已重新部署"
+        "伺服器沒有回傳資料，請稍後重新登入"
       );
     }
 
-    if(!res || res.status !== "OK"){
+    let result;
+
+    try{
+
+      result =
+        JSON.parse(text);
+
+    }catch(error){
+
+      console.log(
+        "LOGIN_SERVER_RESPONSE",
+        text
+      );
+
+      /*
+       * GAS 若權限或部署有問題，
+       * 有時會回傳 HTML 錯誤頁面。
+       */
+      if(
+        text.indexOf("<!DOCTYPE") !== -1 ||
+        text.indexOf("<html") !== -1
+      ){
+
+        throw new Error(
+          "GAS 登入服務目前無法使用，請確認部署權限或重新部署"
+        );
+      }
 
       throw new Error(
-        (res && res.message) ||
-        "登入失敗，請確認帳號密碼"
+        "伺服器回傳格式錯誤，請確認 GAS 已部署最新版本"
+      );
+    }
+
+    if(
+      !result ||
+      result.status !== "OK"
+    ){
+
+      throw new Error(
+        result &&
+        result.message
+          ? result.message
+          : "登入失敗，請確認分店、工號與密碼"
       );
     }
 
     updateProgress(
-      88,
+      86,
       "正在建立登入資料"
     );
 
     const loginText =
-      JSON.stringify(res);
+      JSON.stringify(result);
 
-    /*
-      GitHub 網域自己的登入備份。
-      真正進入 GAS 後，index.html 會再透過 loginData
-      建立 GAS 網域的 localStorage。
-    */
-    try{
-      localStorage.setItem(
-        "aj_staff",
+    saveLoginStorage(
+      loginText
+    );
+
+    const encodedLoginData =
+      encodeLoginData(
         loginText
-      );
-
-      localStorage.setItem(
-        "staff",
-        loginText
-      );
-    }catch(e){
-      console.log(
-        "GitHub localStorage 寫入失敗",
-        e
-      );
-    }
-
-    try{
-      sessionStorage.setItem(
-        "aj_staff",
-        loginText
-      );
-    }catch(e){
-      console.log(
-        "GitHub sessionStorage 寫入失敗",
-        e
-      );
-    }
-
-    const loginData =
-      btoa(
-        unescape(
-          encodeURIComponent(
-            loginText
-          )
-        )
       );
 
     finishProgress();
 
+    showMessage(
+      "登入成功，正在進入系統",
+      "success"
+    );
+
     /*
-      稍微停留，讓使用者看得到 100%。
-    */
-    setTimeout(function(){
+     * 稍微停留，讓使用者看得到登入成功。
+     */
+    await wait(350);
 
-      window.location.replace(
-        GAS_URL +
-        "?page=index&loginData=" +
-        encodeURIComponent(loginData)
-      );
+    window.location.replace(
+      GAS_URL +
+      "?page=index&loginData=" +
+      encodeURIComponent(
+        encodedLoginData
+      )
+    );
 
-    },350);
-  })
-  .catch(function(err){
+  }catch(error){
 
-    const message =
-      err && err.message
-        ? err.message
-        : String(err);
-
-    showMsg(message);
-    failProgress(message);
-    resetLoginButton();
-  });
+    handleLoginFailure(
+      error
+    );
+  }
 
   return false;
+}
+
+
+/* =========================================================
+ * 登入成功資料
+ * ========================================================= */
+
+function saveLoginStorage(loginText){
+
+  /*
+   * GitHub Pages 與 GAS 是不同網域。
+   * 此處資料主要作為 GitHub 網域備份。
+   * GAS index 會透過 loginData 建立自己的 localStorage。
+   */
+  try{
+
+    localStorage.setItem(
+      "aj_staff",
+      loginText
+    );
+
+    localStorage.setItem(
+      "staff",
+      loginText
+    );
+
+  }catch(error){
+
+    console.log(
+      "GitHub localStorage 寫入失敗",
+      error
+    );
+  }
+
+  try{
+
+    sessionStorage.setItem(
+      "aj_staff",
+      loginText
+    );
+
+  }catch(error){
+
+    console.log(
+      "GitHub sessionStorage 寫入失敗",
+      error
+    );
+  }
+}
+
+function encodeLoginData(loginText){
+
+  try{
+
+    return btoa(
+      unescape(
+        encodeURIComponent(
+          loginText
+        )
+      )
+    );
+
+  }catch(error){
+
+    throw new Error(
+      "登入資料編碼失敗，請重新登入"
+    );
+  }
+}
+
+
+/* =========================================================
+ * 登入失敗處理
+ * ========================================================= */
+
+function handleLoginFailure(error){
+
+  let message =
+    error &&
+    error.message
+      ? error.message
+      : String(error || "登入失敗");
+
+  if(
+    error &&
+    error.name === "AbortError"
+  ){
+
+    if(!navigator.onLine){
+
+      message =
+        "網路連線已中斷，請確認網路後重新登入";
+
+    }else{
+
+      message =
+        "登入等待超過30秒，伺服器可能忙碌，請稍後重新登入";
+    }
+  }
+
+  console.error(
+    "LOGIN_ERROR",
+    error
+  );
+
+  showMessage(
+    message,
+    "error"
+  );
+
+  failProgress(
+    message
+  );
+
+  setLoginRunning(false);
+}
+
+
+/* =========================================================
+ * 註冊
+ * ========================================================= */
+
+function goRegister(){
+
+  if(loginRunning){
+    return;
+  }
+
+  clearMessage();
+
+  if(!navigator.onLine){
+
+    showMessage(
+      "目前沒有網路連線，無法開啟員工註冊",
+      "error"
+    );
+
+    return;
+  }
+
+  const storeCode =
+    document
+      .getElementById("storeCode")
+      .value
+      .trim();
+
+  saveLastStore();
+
+  let registerUrl =
+    GAS_URL +
+    "?page=staff_apply";
+
+  /*
+   * 若註冊頁支援 storeCode，
+   * 可以直接預帶分店。
+   * 即使後端目前沒有使用這個參數，
+   * 也不會影響頁面正常開啟。
+   */
+  if(storeCode){
+
+    registerUrl +=
+      "&storeCode=" +
+      encodeURIComponent(
+        storeCode
+      );
+  }
+
+  window.location.href =
+    registerUrl;
+}
+
+
+/* =========================================================
+ * 共用工具
+ * ========================================================= */
+
+function wait(milliseconds){
+
+  return new Promise(
+    function(resolve){
+
+      setTimeout(
+        resolve,
+        milliseconds
+      );
+    }
+  );
 }
 </script>
 
