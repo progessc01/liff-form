@@ -167,11 +167,6 @@ function redeemCard() {
   .then(r => r.text())
   .then(t => JSON.parse(t))
   .then(data => {
-
-  //console.log(data);
-
-  alert(JSON.stringify(data));
-
     if(data.status === "NOT_FOUND") {
       result.innerHTML = `
         <div class="card">
