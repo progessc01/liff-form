@@ -852,64 +852,12 @@ async function useCard(
       "核銷成功"
     );
 
-    clearAfterSuccess();
-
-    result.innerHTML = `
-      <div class="card">
-        <h2>✅ 核銷成功</h2>
-
-        <p>
-          <b>卡號：</b>
-          ${escapeHtml(data.cardNo)}
-        </p>
-
-        <p>
-          <b>使用服務：</b>
-          ${escapeHtml(data.packageType)}
-        </p>
-
-        <p>
-          <b>核銷分店：</b>
-          ${escapeHtml(data.storeCode)}
-          ${escapeHtml(data.storeName)}
-        </p>
-
-        <p>
-          <b>核銷人員：</b>
-          ${escapeHtml(data.staffName)}
-        </p>
-
-        <p>
-          <b>扣除次數：</b>
-          1
-        </p>
-
-        <p>
-          <b>剩餘次數：</b>
-          ${escapeHtml(data.afterTimes)}
-        </p>
-
-        <p style="
-          color:red;
-          font-weight:bold;
-        ">
-          畫面已清空，請勿重複核銷。
-        </p>
-      </div>
-    `;
-
-    setTimeout(function() {
-
-      result.innerHTML = `
-        <div class="card">
-          <h2>✅ 核銷完成</h2>
-          <p>
-            資料已清空，請關閉此頁面。
-          </p>
-        </div>
-      `;
-
-    }, 3000);
+    /*
+     * 核銷成功後不自動清空、不自動關閉。
+     * 成功資訊會一直保留，
+     * 直到員工按下「完成並離開」。
+     */
+    showSuccessScreen(data);
 
   } catch(err) {
 
@@ -995,14 +943,181 @@ function buildAccount(
 
 
 /**
- * 核銷成功後清空
+ * 顯示固定核銷成功畫面
+ *
+ * 成功資訊不會自動消失，
+ * 必須由員工按下「完成並離開」。
  */
-function clearAfterSuccess() {
+function showSuccessScreen(data) {
 
-  /*
-   * 清除客戶端卡片快取，
-   * 下次開啟卡片頁一定重新抓最新資料。
-   */
+  isUsing = true;
+
+  clearCustomerCardCache();
+
+  mainArea.hidden = true;
+
+  result.innerHTML = `
+    <div class="card" style="
+      border:2px solid #55d697;
+      text-align:center;
+      padding:22px 18px;
+    ">
+
+      <div style="
+        font-size:24px;
+        font-weight:800;
+        color:#55d697;
+        margin-bottom:14px;
+      ">
+        ✅ 核銷成功
+      </div>
+
+      <div style="font-size:14px;color:#9fdfff;">
+        卡號
+      </div>
+
+      <div style="
+        font-size:30px;
+        font-weight:800;
+        color:#ffffff;
+        margin-top:4px;
+        word-break:break-all;
+      ">
+        ${escapeHtml(data.cardNo)}
+      </div>
+
+      <hr style="
+        margin:18px 0;
+        border:0;
+        border-top:1px solid rgba(255,255,255,0.2);
+      ">
+
+      <div style="font-size:14px;color:#9fdfff;">
+        使用服務
+      </div>
+
+      <div style="
+        font-size:28px;
+        font-weight:800;
+        line-height:1.4;
+        color:#f7d774;
+        margin-top:5px;
+      ">
+        ${escapeHtml(data.packageType)}
+      </div>
+
+      <hr style="
+        margin:18px 0;
+        border:0;
+        border-top:1px solid rgba(255,255,255,0.2);
+      ">
+
+      <div style="
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:12px;
+      ">
+        <div style="
+          padding:12px 8px;
+          border-radius:12px;
+          background:rgba(255,255,255,0.08);
+        ">
+          <div style="font-size:13px;color:#bcd9e8;">
+            本次扣除
+          </div>
+          <div style="
+            margin-top:4px;
+            font-size:25px;
+            font-weight:800;
+            color:#ffffff;
+          ">
+            1 次
+          </div>
+        </div>
+
+        <div style="
+          padding:12px 8px;
+          border-radius:12px;
+          background:rgba(85,214,151,0.12);
+        ">
+          <div style="font-size:13px;color:#bcd9e8;">
+            剩餘次數
+          </div>
+          <div style="
+            margin-top:4px;
+            font-size:25px;
+            font-weight:800;
+            color:#55d697;
+          ">
+            ${escapeHtml(data.afterTimes)} 次
+          </div>
+        </div>
+      </div>
+
+      <div style="
+        margin-top:18px;
+        padding:12px;
+        border-radius:12px;
+        background:rgba(0,184,217,0.10);
+        line-height:1.7;
+      ">
+        <div>
+          <b>核銷分店：</b>
+          ${escapeHtml(data.storeCode)}
+          ${escapeHtml(data.storeName)}
+        </div>
+        <div>
+          <b>核銷人員：</b>
+          ${escapeHtml(data.staffName)}
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onclick="finishAndLeave()"
+        style="
+          width:100%;
+          margin-top:22px;
+          min-height:56px;
+          border:0;
+          border-radius:14px;
+          font-size:20px;
+          font-weight:800;
+          cursor:pointer;
+          background:#198754;
+          color:#ffffff;
+        "
+      >
+        完成並離開
+      </button>
+
+      <div style="
+        margin-top:12px;
+        color:#f7d774;
+        font-size:14px;
+        font-weight:700;
+      ">
+        核銷結果會保留，直到按下按鈕。
+      </div>
+
+    </div>
+  `;
+
+  try {
+    if(navigator.vibrate) {
+      navigator.vibrate(180);
+    }
+  } catch(err) {
+    console.warn("vibrate error:", err);
+  }
+}
+
+
+/**
+ * 清除會員卡快取
+ */
+function clearCustomerCardCache() {
+
   try {
 
     const customerName =
@@ -1018,10 +1133,6 @@ function clearAfterSuccess() {
       String(customerName).replace(/[^\w\u4e00-\u9fff]/g, "");
 
     localStorage.removeItem(cacheKey);
-
-    /*
-     * 目前這張卡資訊也清掉
-     */
     localStorage.removeItem("useCardNo");
     localStorage.removeItem("useCardStatus");
     localStorage.removeItem("useVehicleType");
@@ -1030,23 +1141,50 @@ function clearAfterSuccess() {
     localStorage.removeItem("useTotalTimes");
 
   } catch(err) {
-
-    console.warn(err);
-
+    console.warn("clearCustomerCardCache error:", err);
   }
+}
 
-  mainArea.innerHTML = `
-    <div class="card">
 
+/**
+ * 員工確認完成後離開頁面
+ */
+function finishAndLeave() {
+
+  result.innerHTML = `
+    <div class="card" style="text-align:center;padding:24px 18px;">
       <h2>✅ 核銷完成</h2>
-
-      <p style="color:#ccc;">
-        此頁面已清空，請勿重複操作。
+      <p style="color:#d8efff;line-height:1.7;">
+        正在離開核銷頁面...
       </p>
-
     </div>
   `;
+
+  try {
+    window.close();
+  } catch(err) {
+    console.warn("window.close error:", err);
+  }
+
+  setTimeout(function() {
+
+    if(window.history.length > 1) {
+      window.history.back();
+      return;
+    }
+
+    result.innerHTML = `
+      <div class="card" style="text-align:center;padding:24px 18px;">
+        <h2>✅ 核銷完成</h2>
+        <p style="color:#d8efff;line-height:1.7;">
+          請關閉此頁面，返回相機繼續掃描。
+        </p>
+      </div>
+    `;
+
+  }, 350);
 }
+
 
 
 /**
