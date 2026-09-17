@@ -283,6 +283,28 @@ const cardInfo =
 
 let isUsing = false;
 
+/*
+ * 同一筆核銷從第一次送出到成功/失敗重試，都沿用同一個 requestId。
+ * 只有「同行車輛再次核銷」才建立新的 requestId。
+ */
+let currentUseRequestId = "";
+let lastSuccessData = null;
+
+function createUseRequestId() {
+  if(window.crypto && typeof window.crypto.randomUUID === "function") {
+    return "VIP-" + window.crypto.randomUUID();
+  }
+  return "VIP-" + Date.now() + "-" +
+    Math.random().toString(36).slice(2, 12);
+}
+
+function getOrCreateUseRequestId(forceNew) {
+  if(forceNew || !currentUseRequestId) {
+    currentUseRequestId = createUseRequestId();
+  }
+  return currentUseRequestId;
+}
+
 let useProgressValue = 0;
 let useProgressTimer = null;
 
@@ -561,7 +583,8 @@ async function loadCardInfo() {
  * 核銷卡片
  */
 async function useCard(
-  allowDuplicate
+  allowDuplicate,
+  forceNewRequest
 ) {
 
   if(isUsing) {
@@ -646,6 +669,13 @@ async function useCard(
     }
   }
 
+  /*
+   * 一般重試沿用同一 requestId，避免逾時後再次扣卡。
+   * 只有同行車輛才 forceNewRequest=true。
+   */
+  const clientRequestId =
+    getOrCreateUseRequestId(Boolean(forceNewRequest));
+
   lockUseButton();
   startUseProgress();
 
@@ -690,6 +720,16 @@ async function useCard(
     form.append(
       "allowDuplicate",
       allowDuplicate
+    );
+
+    form.append(
+      "clientRequestId",
+      clientRequestId
+    );
+
+    form.append(
+      "requestId",
+      clientRequestId
     );
 
     form.append(
@@ -766,7 +806,7 @@ async function useCard(
         resetUseButton();
         hideUseProgressImmediately();
 
-        useCard("yes");
+        useCard("yes", true);
 
       } else {
 
@@ -857,6 +897,7 @@ async function useCard(
      * 成功資訊會一直保留，
      * 直到員工按下「完成並離開」。
      */
+    lastSuccessData = data;
     showSuccessScreen(data);
 
   } catch(err) {
@@ -872,7 +913,7 @@ async function useCard(
     if(err.name === "AbortError") {
 
       message =
-        "核銷連線逾時，請重新操作";
+        "核銷連線逾時，可按「重新確認核銷結果」；系統會沿用同一筆交易編號，不會因重送再扣一次";
 
     } else if(
       err.message ===
@@ -951,8 +992,6 @@ function buildAccount(
 function showSuccessScreen(data) {
 
   isUsing = true;
-
-  clearCustomerCardCache();
 
   mainArea.hidden = true;
 
@@ -1074,10 +1113,29 @@ function showSuccessScreen(data) {
 
       <button
         type="button"
-        onclick="finishAndLeave()"
+        onclick="redeemCompanionVehicle()"
         style="
           width:100%;
           margin-top:22px;
+          min-height:58px;
+          border:0;
+          border-radius:14px;
+          font-size:19px;
+          font-weight:800;
+          cursor:pointer;
+          background:#f7d774;
+          color:#17212b;
+        "
+      >
+        同行車輛再次核銷
+      </button>
+
+      <button
+        type="button"
+        onclick="finishAndLeave()"
+        style="
+          width:100%;
+          margin-top:12px;
           min-height:56px;
           border:0;
           border-radius:14px;
@@ -1096,8 +1154,9 @@ function showSuccessScreen(data) {
         color:#f7d774;
         font-size:14px;
         font-weight:700;
+        line-height:1.6;
       ">
-        核銷結果會保留，直到按下按鈕。
+        同行車輛會建立一筆新的核銷交易；一般重送不會重複扣次數。
       </div>
 
     </div>
@@ -1110,6 +1169,48 @@ function showSuccessScreen(data) {
   } catch(err) {
     console.warn("vibrate error:", err);
   }
+}
+
+
+/**
+ * 同行車輛再次核銷
+ *
+ * 這是員工明確要求「再扣一次」，因此建立全新的 requestId。
+ * 分店、工號、密碼保留，不需要重新輸入。
+ */
+function redeemCompanionVehicle() {
+
+  const afterTimes =
+    Number(
+      (lastSuccessData && lastSuccessData.afterTimes) || 0
+    );
+
+  if(afterTimes <= 0) {
+    alert("此卡片已無剩餘次數，無法再次核銷");
+    return;
+  }
+
+  const confirmed =
+    confirm(
+      "確認是同行的另一台車嗎？\n\n" +
+      "按下確定後會再扣 1 次。"
+    );
+
+  if(!confirmed) {
+    return;
+  }
+
+  /*
+   * 成功畫面目前把 mainArea 隱藏，
+   * 重新顯示後直接用原本員工資料送第二筆交易。
+   */
+  result.innerHTML = "";
+  mainArea.hidden = false;
+  isUsing = false;
+  currentUseRequestId = "";
+  lastSuccessData = null;
+
+  useCard("yes", true);
 }
 
 
@@ -1150,6 +1251,10 @@ function clearCustomerCardCache() {
  * 員工確認完成後離開頁面
  */
 function finishAndLeave() {
+
+  clearCustomerCardCache();
+  currentUseRequestId = "";
+  lastSuccessData = null;
 
   result.innerHTML = `
     <div class="card" style="text-align:center;padding:24px 18px;">
