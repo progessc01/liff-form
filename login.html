@@ -760,7 +760,7 @@ select:disabled{
 
   <footer class="footer">
     安建快速洗車員工系統<br>
-    登入版本 2026.07.23
+    登入版本 2026.09.18 穩定診斷版
   </footer>
 
 </main>
@@ -779,9 +779,10 @@ const GAS_URL =
  * 登入最長等待時間。
  * 超過時間後自動中止，避免畫面永遠卡在登入中。
  */
-const LOGIN_TIMEOUT_MS = 30000;
+/* 正式穩定版：單次快速失敗；只有暫時性錯誤才重試。 */
+const LOGIN_TIMEOUT_MS = 12000;
 const LOGIN_MAX_ATTEMPTS = 3;
-const LOGIN_RETRY_DELAYS_MS = [700,1600];
+const LOGIN_RETRY_DELAYS_MS = [350,900];
 
 /*
  * 記住上次選擇分店時使用的 Key。
@@ -795,6 +796,9 @@ let progressValue = 0;
 let loginFinished = false;
 let loginRunning = false;
 let activeController = null;
+
+/* 本次登入追蹤碼：不含密碼。 */
+let loginTraceId = "";
 
 
 /* =========================================================
@@ -1645,11 +1649,15 @@ function loginHttpError_(response,text,attempt){
     "登入服務連線異常（HTTP " + response.status + "），系統已停止本次登入，請再試一次"
   );
   err.httpStatus = response.status;
+  /* 404 多半是部署/轉址問題，不盲目連打三次。 */
   err.retryable =
-    response.status === 404 ||
     response.status === 408 ||
     response.status === 429 ||
-    response.status >= 500;
+    response.status === 500 ||
+    response.status === 502 ||
+    response.status === 503 ||
+    response.status === 504;
+  err.diagnosticCode = "HTTP_" + response.status;
   return err;
 }
 
@@ -1657,6 +1665,8 @@ async function postLoginWithRetry_(formBody){
   let lastError = null;
 
   for(let attempt=1; attempt<=LOGIN_MAX_ATTEMPTS; attempt++){
+    const startedAt = performance.now();
+
     try{
       const response = await fetchWithTimeout(
         GAS_URL,
@@ -1673,27 +1683,32 @@ async function postLoginWithRetry_(formBody){
 
       const text = await response.text();
       const contentType = response.headers.get("content-type") || "";
+      const elapsedMs = Math.round(performance.now() - startedAt);
+
+      console.log("[LOGIN_RESPONSE]",{
+        traceId:loginTraceId,
+        attempt:attempt,
+        elapsedMs:elapsedMs,
+        status:response.status,
+        finalUrl:response.url,
+        contentType:contentType
+      });
 
       if(!response.ok){
         throw loginHttpError_(response,text,attempt);
       }
 
       if(!text || !text.trim()){
-        const err = new Error("伺服器沒有回傳資料，請稍後重新登入");
+        const err = new Error("伺服器沒有回傳資料");
         err.retryable = true;
+        err.diagnosticCode = "EMPTY_RESPONSE";
         throw err;
       }
 
       if(isHtmlResponse_(text,contentType)){
-        console.error("[LOGIN_HTML_RESPONSE]",{
-          attempt:attempt,
-          status:response.status,
-          finalUrl:response.url,
-          contentType:contentType,
-          responsePreview:String(text).replace(/\s+/g," ").slice(0,220)
-        });
-        const err = new Error("Google 登入服務暫時回傳異常頁面，請再試一次");
+        const err = new Error("Google 登入服務暫時回傳異常頁面");
         err.retryable = true;
+        err.diagnosticCode = "HTML_RESPONSE";
         throw err;
       }
 
@@ -1701,32 +1716,46 @@ async function postLoginWithRetry_(formBody){
       try{
         result = JSON.parse(text);
       }catch(parseError){
-        console.error("[LOGIN_NON_JSON]",{
-          attempt:attempt,
-          status:response.status,
-          finalUrl:response.url,
-          contentType:contentType,
-          responsePreview:String(text).replace(/\s+/g," ").slice(0,220)
-        });
-        const err = new Error("登入服務回傳格式異常，請再試一次");
+        const err = new Error("登入服務回傳格式異常");
         err.retryable = true;
+        err.diagnosticCode = "NON_JSON";
         throw err;
       }
 
-      console.log("[LOGIN_HTTP_OK]",{
+      /* 收到合法 JSON 就停止 HTTP 重試。
+         LOGIN_ERROR / DISABLED 等屬正常 API 結果，不重送。 */
+      console.log("[LOGIN_API_OK]",{
+        traceId:loginTraceId,
         attempt:attempt,
-        status:response.status,
-        finalUrl:response.url
+        elapsedMs:elapsedMs,
+        apiStatus:result && result.status,
+        backendElapsedMs:result && result.elapsedMs,
+        cacheHit:result && result.cacheHit
       });
 
       return result;
 
-    }catch(error){
-      lastError = error;
+    }catch(originalError){
+      let error = originalError;
 
       if(error && error.name === "AbortError"){
+        error = new Error(
+          "登入服務單次等待超過 " +
+          Math.round(LOGIN_TIMEOUT_MS / 1000) +
+          " 秒"
+        );
         error.retryable = true;
+        error.diagnosticCode = "TIMEOUT";
       }
+
+      lastError = error;
+
+      console.error("[LOGIN_ATTEMPT_FAIL]",{
+        traceId:loginTraceId,
+        attempt:attempt,
+        code:error && error.diagnosticCode,
+        message:error && error.message
+      });
 
       const canRetry =
         attempt < LOGIN_MAX_ATTEMPTS &&
@@ -1739,11 +1768,13 @@ async function postLoginWithRetry_(formBody){
 
       updateProgress(
         Math.max(progressValue,70),
-        "連線異常，正在自動重試 " + (attempt + 1) + "/" + LOGIN_MAX_ATTEMPTS
+        "連線異常，自動重試 " + (attempt + 1) + "/" + LOGIN_MAX_ATTEMPTS
       );
 
       await sleepMs(
-        LOGIN_RETRY_DELAYS_MS[Math.min(attempt-1,LOGIN_RETRY_DELAYS_MS.length-1)]
+        LOGIN_RETRY_DELAYS_MS[
+          Math.min(attempt-1,LOGIN_RETRY_DELAYS_MS.length-1)
+        ]
       );
     }
   }
@@ -1800,6 +1831,18 @@ async function login(){
 
   saveLastStore();
 
+  loginTraceId =
+    "LOGIN-" +
+    Date.now().toString(36).toUpperCase() +
+    "-" +
+    Math.random().toString(36).slice(2,7).toUpperCase();
+
+  console.log("[LOGIN_START]",{
+    traceId:loginTraceId,
+    storeCode:loginData.storeCode,
+    staffNo:loginData.staffNo
+  });
+
   setLoginRunning(true);
   startProgress();
 
@@ -1826,6 +1869,11 @@ async function login(){
     form.append(
       "password",
       loginData.password
+    );
+
+    form.append(
+      "traceId",
+      loginTraceId
     );
 
     const result =
@@ -1907,15 +1955,20 @@ const encodedLoginData =
     /*
      * 稍微停留，讓使用者看得到登入成功。
      */
-    await wait(350);
+    await wait(180);
 
-    window.location.replace(
+    const indexUrl =
       GAS_URL +
       "?page=index&loginData=" +
-      encodeURIComponent(
-        encodedLoginData
-      )
-    );
+      encodeURIComponent(encodedLoginData);
+
+    /* 到這裡帳密驗證已完成；之後若 index 慢，是導頁問題，不是登入失敗。 */
+    console.log("[LOGIN_AUTH_SUCCESS]",{
+      traceId:loginTraceId,
+      message:"API 驗證成功，準備進入 index"
+    });
+
+    window.location.replace(indexUrl);
 
   }catch(error){
 
@@ -2044,8 +2097,18 @@ function handleLoginFailure(error){
     error
   );
 
+  const diagnosticCode =
+    error && error.diagnosticCode
+      ? error.diagnosticCode
+      : (error && error.name === "AbortError" ? "TIMEOUT" : "LOGIN_ERROR");
+
+  const displayMessage =
+    message +
+    "\n錯誤碼：" + diagnosticCode +
+    "｜追蹤：" + (loginTraceId || "-");
+
   showMessage(
-    message,
+    displayMessage,
     "error"
   );
 
