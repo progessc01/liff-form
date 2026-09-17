@@ -290,6 +290,10 @@ let isUsing = false;
 let currentUseRequestId = "";
 let lastSuccessData = null;
 
+const USE_RESULT_RECOVERY_MAX_ATTEMPTS = 3;
+const USE_RESULT_RECOVERY_DELAYS_MS = [700,1500,2600];
+let isRecoveringUseResult = false;
+
 function createUseRequestId() {
   if(window.crypto && typeof window.crypto.randomUUID === "function") {
     return "VIP-" + window.crypto.randomUUID();
@@ -579,6 +583,112 @@ async function loadCardInfo() {
 }
 
 
+function sleepUseMs_(ms){
+  return new Promise(function(resolve){ setTimeout(resolve,ms); });
+}
+
+function isUseHtmlResponse_(text,contentType){
+  const body=String(text||"").trim().toLowerCase();
+  const ct=String(contentType||"").toLowerCase();
+  return ct.indexOf("text/html")!==-1 ||
+         body.indexOf("<!doctype")===0 ||
+         body.indexOf("<html")!==-1;
+}
+
+async function sendUseCardRequest_(requestId,cardNoValue,account,password,allowDuplicate,timeoutMs){
+  const controller=new AbortController();
+  const timeoutId=setTimeout(function(){controller.abort();},timeoutMs||20000);
+
+  try{
+    const form=new URLSearchParams();
+    form.append("type","useCard");
+    form.append("cardNo",cardNoValue);
+    form.append("account",account);
+    form.append("password",password);
+    form.append("allowDuplicate",allowDuplicate||"no");
+    form.append("clientRequestId",requestId);
+    form.append("requestId",requestId);
+    form.append("_t",String(Date.now()));
+
+    const response=await fetch(GAS_URL,{
+      method:"POST",body:form,cache:"no-store",redirect:"follow",signal:controller.signal
+    });
+
+    const responseText=await response.text();
+    const contentType=response.headers.get("content-type")||"";
+
+    if(!response.ok || !responseText.trim() || isUseHtmlResponse_(responseText,contentType)){
+      console.error("[VIP_USE_RESPONSE_UNKNOWN]",{
+        status:response.status,finalUrl:response.url,contentType:contentType,
+        requestId:requestId,
+        responsePreview:String(responseText||"").replace(/\s+/g," ").slice(0,180)
+      });
+      const err=new Error(!response.ok ? "HTTP_ERROR_"+response.status : "INVALID_SERVER_RESPONSE");
+      err.resultUnknown=true;
+      throw err;
+    }
+
+    try{
+      return JSON.parse(responseText);
+    }catch(parseErr){
+      console.error("[VIP_USE_NON_JSON]",{
+        status:response.status,finalUrl:response.url,contentType:contentType,
+        requestId:requestId,
+        responsePreview:String(responseText||"").replace(/\s+/g," ").slice(0,180)
+      });
+      const err=new Error("INVALID_SERVER_RESPONSE");
+      err.resultUnknown=true;
+      throw err;
+    }
+  }catch(err){
+    if(err && err.name==="AbortError") err.resultUnknown=true;
+    throw err;
+  }finally{
+    clearTimeout(timeoutId);
+  }
+}
+
+async function recoverUseCardResult_(requestId,cardNoValue,account,password,allowDuplicate){
+  if(isRecoveringUseResult) return null;
+  isRecoveringUseResult=true;
+
+  try{
+    for(let attempt=0;attempt<USE_RESULT_RECOVERY_MAX_ATTEMPTS;attempt++){
+      updateUseProgress(
+        Math.max(useProgressValue,82+(attempt*4)),
+        "第一次可能已成功，正在確認核銷結果 "+(attempt+1)+"/"+
+        USE_RESULT_RECOVERY_MAX_ATTEMPTS+"，請勿再次掃描"
+      );
+
+      await sleepUseMs_(USE_RESULT_RECOVERY_DELAYS_MS[
+        Math.min(attempt,USE_RESULT_RECOVERY_DELAYS_MS.length-1)
+      ]);
+
+      try{
+        const data=await sendUseCardRequest_(
+          requestId,cardNoValue,account,password,allowDuplicate,12000
+        );
+        if(data){
+          console.log("[VIP_USE_RECOVERED]",{
+            requestId:requestId,attempt:attempt+1,status:data.status,
+            duplicateRequest:data.duplicateRequest||"",
+            recoveredFromLog:data.recoveredFromLog||""
+          });
+          return data;
+        }
+      }catch(err){
+        console.warn("[VIP_USE_RECOVERY_RETRY]",{
+          requestId:requestId,attempt:attempt+1,
+          message:String(err&&err.message||err)
+        });
+      }
+    }
+    return null;
+  }finally{
+    isRecoveringUseResult=false;
+  }
+}
+
 /**
  * 核銷卡片
  */
@@ -679,14 +789,6 @@ async function useCard(
   lockUseButton();
   startUseProgress();
 
-  const controller =
-    new AbortController();
-
-  const timeoutId =
-    setTimeout(function() {
-      controller.abort();
-    }, 20000);
-
   try {
 
     updateUseProgress(
@@ -694,92 +796,41 @@ async function useCard(
       "正在連接核銷系統..."
     );
 
-    const form =
-      new URLSearchParams();
-
-    form.append(
-      "type",
-      "useCard"
-    );
-
-    form.append(
-      "cardNo",
-      cardNo
-    );
-
-    form.append(
-      "account",
-      account
-    );
-
-    form.append(
-      "password",
-      password
-    );
-
-    form.append(
-      "allowDuplicate",
-      allowDuplicate
-    );
-
-    form.append(
-      "clientRequestId",
-      clientRequestId
-    );
-
-    form.append(
-      "requestId",
-      clientRequestId
-    );
-
-    form.append(
-      "_t",
-      String(Date.now())
-    );
-
-    const response =
-      await fetch(GAS_URL, {
-        method: "POST",
-        body: form,
-        cache: "no-store",
-        signal: controller.signal
-      });
-
-    updateUseProgress(
-      Math.max(
-        useProgressValue,
-        72
-      ),
-      "正在接收核銷結果..."
-    );
-
-    if(!response.ok) {
-      throw new Error(
-        "HTTP_ERROR_" +
-        response.status
-      );
-    }
-
-    const responseText =
-      await response.text();
-
-    let data;
+    let data = null;
 
     try {
-
-      data =
-        JSON.parse(responseText);
-
-    } catch(err) {
-
-      console.error(
-        "useCard 非 JSON 回傳：",
-        responseText
+      data = await sendUseCardRequest_(
+        clientRequestId,
+        cardNo,
+        account,
+        password,
+        allowDuplicate,
+        20000
       );
+    } catch(firstErr) {
 
-      throw new Error(
-        "INVALID_SERVER_RESPONSE"
-      );
+      console.warn("[VIP_USE_RESULT_UNKNOWN]",{
+        requestId:clientRequestId,
+        message:String(firstErr && firstErr.message || firstErr)
+      });
+
+      if(firstErr && firstErr.resultUnknown === true) {
+        data = await recoverUseCardResult_(
+          clientRequestId,
+          cardNo,
+          account,
+          password,
+          allowDuplicate
+        );
+
+        if(!data) {
+          const unknownErr = new Error("USE_RESULT_STILL_UNKNOWN");
+          unknownErr.resultUnknown = true;
+          throw unknownErr;
+        }
+      } else {
+        throw firstErr;
+      }
     }
 
     updateUseProgress(
@@ -793,16 +844,40 @@ async function useCard(
 
       updateUseProgress(
         100,
-        "此卡今天已核銷過，本次未扣次數"
+        "偵測到短時間重複核銷"
       );
 
-      /*
-       * 24 小時內再次掃描同一卡片：
-       * 不跳 confirm、不自動再次核銷。
-       * 直接進入「已核銷過」結果頁。
-       * 只有員工按下「同行車輛再次核銷」才建立新交易再扣 1 次。
-       */
-      showAlreadyUsedScreen(data);
+      const confirmed =
+        confirm(
+          "此卡片剛剛已核銷過，確定要再次核銷嗎？"
+        );
+
+      if(confirmed) {
+
+        resetUseButton();
+        hideUseProgressImmediately();
+
+        useCard("yes", true);
+
+      } else {
+
+        failUseProgress(
+          "已取消連續核銷"
+        );
+
+        result.innerHTML = `
+          <div class="result-info">
+            已取消連續核銷
+          </div>
+        `;
+
+        resetUseButton();
+
+        setTimeout(function() {
+          hideUseProgress();
+        }, 1200);
+      }
+
       return;
     }
 
@@ -886,18 +961,21 @@ async function useCard(
     let message =
       "系統錯誤，請稍後再試";
 
-    if(err.name === "AbortError") {
-
-      message =
-        "核銷連線逾時，可按「重新確認核銷結果」；系統會沿用同一筆交易編號，不會因重送再扣一次";
-
-    } else if(
-      err.message ===
-      "INVALID_SERVER_RESPONSE"
+    if(
+      err &&
+      (
+        err.resultUnknown === true ||
+        err.message === "USE_RESULT_STILL_UNKNOWN"
+      )
     ) {
-
       message =
-        "伺服器回傳格式錯誤";
+        "⚠️ 目前無法確認核銷結果。請勿重新掃描此卡；請按下方「重新確認核銷結果」，系統會沿用同一筆交易編號，不會再次扣次。";
+    } else if(
+      err &&
+      err.message === "INVALID_SERVER_RESPONSE"
+    ) {
+      message =
+        "伺服器回傳格式異常，請重新確認核銷結果";
     }
 
     handleUseError(message);
@@ -916,7 +994,31 @@ function handleUseError(message) {
 
   failUseProgress(message);
 
-  showResultError(message);
+  const isUnknownResult =
+    String(message || "").indexOf("目前無法確認核銷結果") !== -1;
+
+  if(isUnknownResult && currentUseRequestId) {
+    result.innerHTML = `
+      <div class="card" style="border:2px solid #f7d774;padding:18px;text-align:center;">
+        <div style="color:#f7d774;font-size:20px;font-weight:800;line-height:1.6;">
+          ⚠️ 核銷結果確認中斷
+        </div>
+        <div style="margin-top:10px;line-height:1.7;">
+          後端可能已經成功扣次。<br>
+          <b>請勿重新掃描，也不要建立新的核銷。</b>
+        </div>
+        <button
+          type="button"
+          onclick="useCard('no', false)"
+          style="width:100%;margin-top:16px;padding:14px;font-size:18px;font-weight:800;"
+        >
+          🔄 重新確認核銷結果
+        </button>
+      </div>
+    `;
+  } else {
+    showResultError(message);
+  }
 
   resetUseButton();
 
@@ -956,115 +1058,6 @@ function buildAccount(
     "-" +
     normalizedStaffNo
   );
-}
-
-
-/**
- * 顯示「24 小時內已核銷過」畫面。
- * 此畫面本身絕對不扣次數。
- */
-function showAlreadyUsedScreen(data) {
-
-  isUsing = true;
-
-  mainArea.hidden = true;
-
-  lastSuccessData = {
-    afterTimes: data.afterTimes
-  };
-
-  result.innerHTML = `
-    <div class="card" style="
-      border:2px solid #f7d774;
-      text-align:center;
-      padding:22px 18px;
-    ">
-
-      <div style="
-        font-size:24px;
-        font-weight:800;
-        color:#f7d774;
-        margin-bottom:14px;
-      ">
-        ⚠️ 此卡今天已核銷過
-      </div>
-
-      <div style="
-        font-size:17px;
-        line-height:1.8;
-        color:#ffffff;
-      ">
-        本次沒有扣除任何次數
-      </div>
-
-      <div style="
-        margin-top:16px;
-        padding:14px;
-        border-radius:12px;
-        background:rgba(255,255,255,0.08);
-        line-height:1.8;
-        text-align:left;
-      ">
-        ${data.lastUseTime ? `<div><b>上次核銷：</b>${escapeHtml(data.lastUseTime)}</div>` : ""}
-        ${data.lastStoreCode ? `<div><b>核銷分店：</b>${escapeHtml(data.lastStoreCode)} ${escapeHtml(data.lastStoreName || "")}</div>` : ""}
-        ${data.lastStaffName ? `<div><b>核銷人員：</b>${escapeHtml(data.lastStaffName)}</div>` : ""}
-        <div>
-          <b>目前剩餘：</b>
-          <span style="color:#55d697;font-size:22px;font-weight:800;">
-            ${escapeHtml(data.afterTimes)} 次
-          </span>
-        </div>
-      </div>
-
-      <button
-        type="button"
-        onclick="redeemCompanionVehicle()"
-        style="
-          width:100%;
-          margin-top:22px;
-          min-height:58px;
-          border:0;
-          border-radius:14px;
-          font-size:19px;
-          font-weight:800;
-          cursor:pointer;
-          background:#f7d774;
-          color:#17212b;
-        "
-      >
-        同行車輛再次核銷
-      </button>
-
-      <button
-        type="button"
-        onclick="finishAndLeave()"
-        style="
-          width:100%;
-          margin-top:12px;
-          min-height:56px;
-          border:0;
-          border-radius:14px;
-          font-size:20px;
-          font-weight:800;
-          cursor:pointer;
-          background:#198754;
-          color:#ffffff;
-        "
-      >
-        完成並離開
-      </button>
-
-      <div style="
-        margin-top:12px;
-        color:#d8efff;
-        font-size:14px;
-        line-height:1.6;
-      ">
-        只有確定是另一台同行車輛，才按上方按鈕再次扣 1 次。
-      </div>
-
-    </div>
-  `;
 }
 
 
