@@ -793,52 +793,16 @@ async function useCard(
 
       updateUseProgress(
         100,
-        "偵測到 24 小時內已有核銷紀錄"
+        "此卡今天已核銷過，本次未扣次數"
       );
 
-      const lastUseText =
-        data.lastUseTime
-          ? (
-              "\n\n上次核銷：" + data.lastUseTime +
-              (data.lastStoreCode ? "\n分店：" + data.lastStoreCode + " " + (data.lastStoreName || "") : "") +
-              (data.lastStaffName ? "\n人員：" + data.lastStaffName : "") +
-              (data.afterTimes !== undefined ? "\n核銷後剩餘：" + data.afterTimes + " 次" : "")
-            )
-          : "";
-
-      const confirmed =
-        confirm(
-          "⚠️ 此卡片 24 小時內已核銷過。" +
-          lastUseText +
-          "\n\n只有確定是同行的另一台車，才按「確定」再次扣 1 次。"
-        );
-
-      if(confirmed) {
-
-        resetUseButton();
-        hideUseProgressImmediately();
-
-        useCard("yes", true);
-
-      } else {
-
-        failUseProgress(
-          "未再次扣款"
-        );
-
-        result.innerHTML = `
-          <div class="result-info">
-            未再次扣款
-          </div>
-        `;
-
-        resetUseButton();
-
-        setTimeout(function() {
-          hideUseProgress();
-        }, 1200);
-      }
-
+      /*
+       * 24 小時內再次掃描同一卡片：
+       * 不跳 confirm、不自動再次核銷。
+       * 直接進入「已核銷過」結果頁。
+       * 只有員工按下「同行車輛再次核銷」才建立新交易再扣 1 次。
+       */
+      showAlreadyUsedScreen(data);
       return;
     }
 
@@ -992,6 +956,115 @@ function buildAccount(
     "-" +
     normalizedStaffNo
   );
+}
+
+
+/**
+ * 顯示「24 小時內已核銷過」畫面。
+ * 此畫面本身絕對不扣次數。
+ */
+function showAlreadyUsedScreen(data) {
+
+  isUsing = true;
+
+  mainArea.hidden = true;
+
+  lastSuccessData = {
+    afterTimes: data.afterTimes
+  };
+
+  result.innerHTML = `
+    <div class="card" style="
+      border:2px solid #f7d774;
+      text-align:center;
+      padding:22px 18px;
+    ">
+
+      <div style="
+        font-size:24px;
+        font-weight:800;
+        color:#f7d774;
+        margin-bottom:14px;
+      ">
+        ⚠️ 此卡今天已核銷過
+      </div>
+
+      <div style="
+        font-size:17px;
+        line-height:1.8;
+        color:#ffffff;
+      ">
+        本次沒有扣除任何次數
+      </div>
+
+      <div style="
+        margin-top:16px;
+        padding:14px;
+        border-radius:12px;
+        background:rgba(255,255,255,0.08);
+        line-height:1.8;
+        text-align:left;
+      ">
+        ${data.lastUseTime ? `<div><b>上次核銷：</b>${escapeHtml(data.lastUseTime)}</div>` : ""}
+        ${data.lastStoreCode ? `<div><b>核銷分店：</b>${escapeHtml(data.lastStoreCode)} ${escapeHtml(data.lastStoreName || "")}</div>` : ""}
+        ${data.lastStaffName ? `<div><b>核銷人員：</b>${escapeHtml(data.lastStaffName)}</div>` : ""}
+        <div>
+          <b>目前剩餘：</b>
+          <span style="color:#55d697;font-size:22px;font-weight:800;">
+            ${escapeHtml(data.afterTimes)} 次
+          </span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onclick="redeemCompanionVehicle()"
+        style="
+          width:100%;
+          margin-top:22px;
+          min-height:58px;
+          border:0;
+          border-radius:14px;
+          font-size:19px;
+          font-weight:800;
+          cursor:pointer;
+          background:#f7d774;
+          color:#17212b;
+        "
+      >
+        同行車輛再次核銷
+      </button>
+
+      <button
+        type="button"
+        onclick="finishAndLeave()"
+        style="
+          width:100%;
+          margin-top:12px;
+          min-height:56px;
+          border:0;
+          border-radius:14px;
+          font-size:20px;
+          font-weight:800;
+          cursor:pointer;
+          background:#198754;
+          color:#ffffff;
+        "
+      >
+        完成並離開
+      </button>
+
+      <div style="
+        margin-top:12px;
+        color:#d8efff;
+        font-size:14px;
+        line-height:1.6;
+      ">
+        只有確定是另一台同行車輛，才按上方按鈕再次扣 1 次。
+      </div>
+
+    </div>
+  `;
 }
 
 
