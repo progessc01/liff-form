@@ -780,6 +780,8 @@ const GAS_URL =
  * 超過時間後自動中止，避免畫面永遠卡在登入中。
  */
 const LOGIN_TIMEOUT_MS = 30000;
+const LOGIN_MAX_ATTEMPTS = 3;
+const LOGIN_RETRY_DELAYS_MS = [700,1600];
 
 /*
  * 記住上次選擇分店時使用的 Key。
@@ -1610,6 +1612,146 @@ async function fetchWithTimeout(
 }
 
 
+function sleepMs(ms){
+  return new Promise(function(resolve){
+    setTimeout(resolve,ms);
+  });
+}
+
+function isHtmlResponse_(text,contentType){
+  const t = String(text || "").trim().toLowerCase();
+  const ct = String(contentType || "").toLowerCase();
+  return ct.indexOf("text/html") !== -1 ||
+         t.indexOf("<!doctype") === 0 ||
+         t.indexOf("<html") !== -1;
+}
+
+function loginHttpError_(response,text,attempt){
+  const contentType = response.headers.get("content-type") || "";
+  const preview = String(text || "")
+    .replace(/\s+/g," ")
+    .slice(0,220);
+
+  console.error("[LOGIN_HTTP]",{
+    attempt:attempt,
+    status:response.status,
+    statusText:response.statusText,
+    finalUrl:response.url,
+    contentType:contentType,
+    responsePreview:preview
+  });
+
+  const err = new Error(
+    "登入服務連線異常（HTTP " + response.status + "），系統已停止本次登入，請再試一次"
+  );
+  err.httpStatus = response.status;
+  err.retryable =
+    response.status === 404 ||
+    response.status === 408 ||
+    response.status === 429 ||
+    response.status >= 500;
+  return err;
+}
+
+async function postLoginWithRetry_(formBody){
+  let lastError = null;
+
+  for(let attempt=1; attempt<=LOGIN_MAX_ATTEMPTS; attempt++){
+    try{
+      const response = await fetchWithTimeout(
+        GAS_URL,
+        {
+          method:"POST",
+          headers:{
+            "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"
+          },
+          body:formBody,
+          cache:"no-store"
+        },
+        LOGIN_TIMEOUT_MS
+      );
+
+      const text = await response.text();
+      const contentType = response.headers.get("content-type") || "";
+
+      if(!response.ok){
+        throw loginHttpError_(response,text,attempt);
+      }
+
+      if(!text || !text.trim()){
+        const err = new Error("伺服器沒有回傳資料，請稍後重新登入");
+        err.retryable = true;
+        throw err;
+      }
+
+      if(isHtmlResponse_(text,contentType)){
+        console.error("[LOGIN_HTML_RESPONSE]",{
+          attempt:attempt,
+          status:response.status,
+          finalUrl:response.url,
+          contentType:contentType,
+          responsePreview:String(text).replace(/\s+/g," ").slice(0,220)
+        });
+        const err = new Error("Google 登入服務暫時回傳異常頁面，請再試一次");
+        err.retryable = true;
+        throw err;
+      }
+
+      let result;
+      try{
+        result = JSON.parse(text);
+      }catch(parseError){
+        console.error("[LOGIN_NON_JSON]",{
+          attempt:attempt,
+          status:response.status,
+          finalUrl:response.url,
+          contentType:contentType,
+          responsePreview:String(text).replace(/\s+/g," ").slice(0,220)
+        });
+        const err = new Error("登入服務回傳格式異常，請再試一次");
+        err.retryable = true;
+        throw err;
+      }
+
+      console.log("[LOGIN_HTTP_OK]",{
+        attempt:attempt,
+        status:response.status,
+        finalUrl:response.url
+      });
+
+      return result;
+
+    }catch(error){
+      lastError = error;
+
+      if(error && error.name === "AbortError"){
+        error.retryable = true;
+      }
+
+      const canRetry =
+        attempt < LOGIN_MAX_ATTEMPTS &&
+        error &&
+        error.retryable === true;
+
+      if(!canRetry){
+        throw error;
+      }
+
+      updateProgress(
+        Math.max(progressValue,70),
+        "連線異常，正在自動重試 " + (attempt + 1) + "/" + LOGIN_MAX_ATTEMPTS
+      );
+
+      await sleepMs(
+        LOGIN_RETRY_DELAYS_MS[Math.min(attempt-1,LOGIN_RETRY_DELAYS_MS.length-1)]
+      );
+    }
+  }
+
+  throw lastError || new Error("登入服務連線失敗");
+}
+
+
 /* =========================================================
  * 登入
  * ========================================================= */
@@ -1686,84 +1828,18 @@ async function login(){
       loginData.password
     );
 
-    const response =
-      await fetchWithTimeout(
-        GAS_URL,
-        {
-          method:"POST",
-
-          headers:{
-            "Content-Type":
-              "application/x-www-form-urlencoded;charset=UTF-8"
-          },
-
-          body:
-            form.toString(),
-
-          cache:
-            "no-store"
-        },
-        LOGIN_TIMEOUT_MS
+    const result =
+      await postLoginWithRetry_(
+        form.toString()
       );
-
-    if(!response.ok){
-
-      throw new Error(
-        "伺服器連線失敗，錯誤代碼：" +
-        response.status
-      );
-    }
 
     updateProgress(
       Math.max(
         progressValue,
-        46
+        76
       ),
       "正在驗證帳號"
     );
-
-    const text =
-      await response.text();
-
-    if(!text || !text.trim()){
-
-      throw new Error(
-        "伺服器沒有回傳資料，請稍後重新登入"
-      );
-    }
-
-    let result;
-
-    try{
-
-      result =
-        JSON.parse(text);
-
-    }catch(error){
-
-      console.log(
-        "LOGIN_SERVER_RESPONSE",
-        text
-      );
-
-      /*
-       * GAS 若權限或部署有問題，
-       * 有時會回傳 HTML 錯誤頁面。
-       */
-      if(
-        text.indexOf("<!DOCTYPE") !== -1 ||
-        text.indexOf("<html") !== -1
-      ){
-
-        throw new Error(
-          "GAS 登入服務目前無法使用，請確認部署權限或重新部署"
-        );
-      }
-
-      throw new Error(
-        "伺服器回傳格式錯誤，請確認 GAS 已部署最新版本"
-      );
-    }
 
     if(
       !result ||
