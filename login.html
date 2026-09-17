@@ -760,7 +760,7 @@ select:disabled{
 
   <footer class="footer">
     安建快速洗車員工系統<br>
-    登入版本 2026.09.18 穩定診斷版
+    登入版本 2026.09.18 高可用版
   </footer>
 
 </main>
@@ -780,9 +780,9 @@ const GAS_URL =
  * 超過時間後自動中止，避免畫面永遠卡在登入中。
  */
 /* 正式穩定版：單次快速失敗；只有暫時性錯誤才重試。 */
-const LOGIN_TIMEOUT_MS = 12000;
-const LOGIN_MAX_ATTEMPTS = 3;
-const LOGIN_RETRY_DELAYS_MS = [350,900];
+const LOGIN_TIMEOUT_MS = 10000;
+const LOGIN_MAX_ATTEMPTS = 4;
+const LOGIN_RETRY_DELAYS_MS = [250,650,1200];
 
 /*
  * 記住上次選擇分店時使用的 Key。
@@ -1649,8 +1649,12 @@ function loginHttpError_(response,text,attempt){
     "登入服務連線異常（HTTP " + response.status + "），系統已停止本次登入，請再試一次"
   );
   err.httpStatus = response.status;
-  /* 404 多半是部署/轉址問題，不盲目連打三次。 */
+  /*
+   * 燒機已實際抓到 googleusercontent 偶發 404；
+   * 登入是唯讀驗證，可安全以同一組資料重新送出。
+   */
   err.retryable =
+    response.status === 404 ||
     response.status === 408 ||
     response.status === 429 ||
     response.status === 500 ||
@@ -1668,6 +1672,11 @@ async function postLoginWithRetry_(formBody){
     const startedAt = performance.now();
 
     try{
+      const attemptBody =
+        formBody +
+        "&attempt=" + encodeURIComponent(String(attempt)) +
+        "&_ts=" + encodeURIComponent(String(Date.now()));
+
       const response = await fetchWithTimeout(
         GAS_URL,
         {
@@ -1675,7 +1684,7 @@ async function postLoginWithRetry_(formBody){
           headers:{
             "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"
           },
-          body:formBody,
+          body:attemptBody,
           cache:"no-store"
         },
         LOGIN_TIMEOUT_MS
