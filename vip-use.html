@@ -793,12 +793,24 @@ async function useCard(
 
       updateUseProgress(
         100,
-        "偵測到短時間重複核銷"
+        "偵測到 24 小時內已有核銷紀錄"
       );
+
+      const lastUseText =
+        data.lastUseTime
+          ? (
+              "\n\n上次核銷：" + data.lastUseTime +
+              (data.lastStoreCode ? "\n分店：" + data.lastStoreCode + " " + (data.lastStoreName || "") : "") +
+              (data.lastStaffName ? "\n人員：" + data.lastStaffName : "") +
+              (data.afterTimes !== undefined ? "\n核銷後剩餘：" + data.afterTimes + " 次" : "")
+            )
+          : "";
 
       const confirmed =
         confirm(
-          "此卡片剛剛已核銷過，確定要再次核銷嗎？"
+          "⚠️ 此卡片 24 小時內已核銷過。" +
+          lastUseText +
+          "\n\n只有確定是同行的另一台車，才按「確定」再次扣 1 次。"
         );
 
       if(confirmed) {
@@ -811,12 +823,12 @@ async function useCard(
       } else {
 
         failUseProgress(
-          "已取消連續核銷"
+          "未再次扣款"
         );
 
         result.innerHTML = `
           <div class="result-info">
-            已取消連續核銷
+            未再次扣款
           </div>
         `;
 
