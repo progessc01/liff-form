@@ -1,110 +1,1524 @@
-<!DOCTYPE html><html lang="zh-TW"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>安建VIP會員登入</title><style>
-*{box-sizing:border-box}
-html,body{min-height:100%}
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>會員登入</title>
+
+  <style>
 body{
- margin:0;padding:0;font-family:"Microsoft JhengHei",Arial,sans-serif;color:white;
- background:
- radial-gradient(circle at top,rgba(0,217,255,.25),transparent 35%),
- radial-gradient(circle at bottom right,rgba(155,61,255,.28),transparent 40%),
- linear-gradient(135deg,#02040f 0%,#07142b 45%,#02040f 100%);
- background-attachment:fixed;
+  margin:0;
+  padding:0;
+  font-family:"Microsoft JhengHei", sans-serif;
+
+  background:
+  radial-gradient(circle at top, rgba(0,217,255,0.25), transparent 35%),
+  radial-gradient(circle at bottom right, rgba(155,61,255,0.28), transparent 40%),
+  linear-gradient(135deg, #02040f 0%, #07142b 45%, #02040f 100%);
+
+  background-attachment:fixed;
+
+  color:white;
 }
-.container{max-width:500px;margin:auto;padding:20px}
-h1{text-align:center;font-size:34px;margin:12px 0 25px;color:#fff;text-shadow:0 0 10px #00d9ff,0 0 20px #00d9ff}
+
+.container{
+  max-width:500px;
+  margin:auto;
+  padding:20px;
+}
+
+h1{
+  text-align:center;
+  font-size:34px;
+  margin-bottom:25px;
+
+  color:#ffffff;
+
+  text-shadow:
+    0 0 10px #00d9ff,
+    0 0 20px #00d9ff;
+}
+
 .card{
- background:rgba(15,18,35,.82);border:1px solid rgba(0,217,255,.35);border-radius:22px;
- padding:20px;margin-bottom:20px;box-shadow:0 0 20px rgba(0,217,255,.15),0 0 40px rgba(155,61,255,.12);
- backdrop-filter:blur(10px)
+  background:rgba(15,18,35,0.82);
+
+  border:1px solid rgba(0,217,255,0.35);
+
+  border-radius:22px;
+
+  padding:20px;
+
+  margin-bottom:20px;
+
+  box-shadow:
+    0 0 20px rgba(0,217,255,0.15),
+    0 0 40px rgba(155,61,255,0.12);
+
+  backdrop-filter:blur(10px);
 }
-button,.buttonLink{
- width:100%;border:none;border-radius:14px;padding:14px;margin-top:10px;font-size:18px;font-weight:bold;color:white;
- background:linear-gradient(90deg,#00d9ff,#007bff,#9b3dff);
- box-shadow:0 0 12px rgba(0,217,255,.4),0 0 25px rgba(155,61,255,.25);
- cursor:pointer;transition:.25s;text-decoration:none;display:flex;align-items:center;justify-content:center
+
+button{
+  width:100%;
+
+  border:none;
+
+  border-radius:14px;
+
+  padding:14px;
+
+  margin-top:10px;
+
+  font-size:18px;
+  font-weight:bold;
+
+  color:white;
+
+  background:
+    linear-gradient(
+      90deg,
+      #00d9ff,
+      #007bff,
+      #9b3dff
+    );
+
+  box-shadow:
+    0 0 12px rgba(0,217,255,0.4),
+    0 0 25px rgba(155,61,255,0.25);
+
+  cursor:pointer;
+
+  transition:0.25s;
 }
-button:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
-input,select{
- width:100%;padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.15);
- background:rgba(255,255,255,.08);color:white;font-size:16px
+
+button:hover{
+
+  transform:translateY(-2px);
+
+  box-shadow:
+    0 0 18px rgba(0,217,255,0.7),
+    0 0 35px rgba(155,61,255,0.45);
 }
-input::placeholder{color:#ccc} select option{color:#000}
-p{line-height:1.8}.page-info{text-align:center;margin-top:10px;color:#9fdfff;font-size:15px}
-.status-active{color:#00ff9d;font-weight:bold}.status-finished{color:#ff5252;font-weight:bold}.status-refund{color:#ffcc00;font-weight:bold}
-.welcomeBox{text-align:center;margin-bottom:25px}
-.welcomeTop{font-size:20px;font-weight:700;color:#fff;letter-spacing:2px;text-shadow:0 0 10px rgba(0,217,255,.6)}
-.welcomeName{margin:12px 0;font-size:38px;font-weight:900;color:#ffd86b;text-shadow:0 0 5px rgba(255,255,255,.8),0 0 12px rgba(255,215,0,.7),0 0 20px rgba(255,180,0,.5)}
-.welcomeBottom{font-size:18px;color:#cfefff;letter-spacing:3px;text-shadow:0 0 8px rgba(0,217,255,.35)}
-.vipCardWrap{position:relative;width:100%;margin-bottom:18px;aspect-ratio:5/3;overflow:hidden;border-radius:18px;background:#000;box-shadow:0 0 25px rgba(255,0,0,.15),0 10px 30px rgba(0,0,0,.45)}
-.vipCardImg{width:100%;height:100%;object-fit:cover;display:block;border-radius:18px}
-.infoMainNo{font-size:24px;font-weight:600;color:#fff;margin:18px 0 14px;letter-spacing:1px}
-.cardNoText{font-size:30px;font-weight:900;letter-spacing:1px;color:#7fe8ff;text-shadow:0 0 6px rgba(127,232,255,.45),0 0 12px rgba(0,217,255,.35)}
-.cardLoadingPanel,.cardEmptyBox,.cardErrorBox{
- width:100%;margin:12px auto;padding:20px;border-radius:18px;text-align:center;
- background:rgba(15,18,35,.82);border:1px solid rgba(0,217,255,.35);
- box-shadow:0 0 20px rgba(0,217,255,.15),0 0 40px rgba(155,61,255,.12)
+
+button:disabled{
+
+  opacity:0.45;
+
+  cursor:not-allowed;
+
+  box-shadow:none;
 }
-.cardLoadingTitle{font-size:20px;font-weight:900}.cardProgressTrack{height:14px;overflow:hidden;background:rgba(255,255,255,.13);border-radius:999px}
-.cardProgressBar{width:5%;height:100%;border-radius:999px;background:linear-gradient(90deg,#00d9ff,#007bff,#9b3dff);transition:width .3s}
-.cardProgressPercent{margin-top:8px;font-size:14px;font-weight:900;color:#9fdfff}.cardLoadingText{min-height:24px;margin-top:12px;font-weight:700;color:#cfefff}
-.cardRefreshNote{text-align:center;color:#9fdfff;font-size:13px;font-weight:700;margin:8px 0 14px}
-.cardNavigation{display:flex;gap:10px;margin-top:16px}.cardNavigation button{flex:1}.returnButtonWrap{margin-top:16px}
-.cardErrorBox{border:2px solid #ef4444;background:rgba(120,10,20,.35);color:#ffd7d7;font-weight:800}
-.blocked{background:rgba(120,10,20,.45);color:#ffd7d7;border:2px solid #ef4444;padding:12px;border-radius:12px;font-size:18px;font-weight:900;text-align:center;margin:12px 0}
-.formCard{padding:22px}.fieldLabel{display:block;margin:14px 0 7px;color:#cfefff;font-weight:800}
-.helper{text-align:center;color:#9fdfff;font-size:13px;margin-top:10px}.links{display:flex;gap:10px}.links .buttonLink{font-size:15px}
-.progressWrap{display:none;margin-top:18px}.message{display:none;margin-top:14px;padding:12px;border-radius:12px;text-align:center;font-weight:800}
-.message.error{display:block;background:rgba(120,10,20,.45);border:1px solid #ef4444;color:#ffd7d7}
-.successBox{display:none;text-align:center}.loginShell.done .formArea,.loginShell.done .progressWrap,.loginShell.done .loginSub{display:none}.loginShell.done .successBox{display:block}
-.successTitle{font-size:30px;font-weight:900;color:#ffd86b;text-shadow:0 0 12px rgba(255,215,0,.7);margin:10px 0 16px}
-.version{text-align:center;color:#7299ad;font-size:11px;margin-top:18px}
-@media(max-width:430px){
- .container{max-width:100%;padding:14px}.card{padding:14px;border-radius:18px}h1{font-size:30px}
- .welcomeTop{font-size:18px}.welcomeName{font-size:34px}.welcomeBottom{font-size:16px}
- .infoMainNo{font-size:22px}.cardNoText{font-size:27px}
+
+input,
+select{
+
+  width:100%;
+
+  padding:14px;
+
+  border-radius:14px;
+
+  border:1px solid rgba(255,255,255,0.15);
+
+  background:rgba(255,255,255,0.08);
+
+  color:white;
+
+  font-size:16px;
+
+  box-sizing:border-box;
 }
-</style></head><body>
-<div class="container loginShell" id="shell">
-<h1>VIP會員登入</h1>
-<div class="loginSub welcomeBox"><div class="welcomeTop">✨ 安建快速洗車 VIP ✨</div><div class="welcomeBottom" style="margin-top:12px">寶貝您的車，就像我的車</div></div>
-<div class="card formCard formArea">
-<label class="fieldLabel">姓名</label><input id="customerName" autocomplete="name" placeholder="請輸入姓名">
-<label class="fieldLabel">會員密碼</label><input id="password" type="password" autocomplete="current-password" placeholder="請輸入會員密碼">
-<button id="loginBtn" onclick="login()">登入</button>
-<div class="links">
-<a class="buttonLink" href="https://progessc01.github.io/liff-form/customer-register.html" target="_top">會員註冊</a>
-<a class="buttonLink" href="https://progessc01.github.io/liff-form/forgot-password.html" target="_top">忘記密碼</a>
-</div></div>
-<div class="progressWrap" id="progress"><div class="cardLoadingPanel"><div class="cardLoadingTitle">正在登入</div><div class="cardProgressTrack"><div class="cardProgressBar" id="bar"></div></div><div class="cardProgressPercent" id="pct">5%</div><div class="cardLoadingText" id="ptxt">正在驗證會員身分</div></div></div>
-<div class="message" id="msg"></div>
-<div class="successBox">
-<div class="welcomeBox"><div class="welcomeTop">✨ 親愛的VIP會員 ✨</div><div class="welcomeName" id="successName"></div><div class="welcomeBottom">登入成功</div></div>
-<a id="enterBtn" class="buttonLink" href="#" target="_top" style="font-size:20px;padding:17px">進入會員專區</a>
-<div class="helper">手機請點上方按鈕進入，不會再次驗證密碼。</div>
+
+input::placeholder{
+  color:#cccccc;
+}
+
+select option{
+  color:black;
+}
+
+p{
+  line-height:1.8;
+}
+
+a{
+  color:#00d9ff;
+}
+
+.qr-box{
+  text-align:center;
+}
+
+.member-title{
+  text-align:center;
+
+  font-size:18px;
+
+  margin-bottom:20px;
+
+  color:#8fdcff;
+}
+
+.vip-glow{
+
+  color:#f7d774;
+
+  background:linear-gradient(
+    to bottom,
+    #fff6b7 0%,
+    #f7d774 35%,
+    #d4a93a 55%,
+    #fff2a6 75%,
+    #c9921e 100%
+  );
+
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+
+  text-shadow:
+    0 1px 0 #fff6b7,
+    0 2px 2px rgba(0,0,0,0.5),
+    0 0 8px rgba(255,215,0,0.45);
+}
+
+.page-info{
+
+  text-align:center;
+
+  margin-top:10px;
+
+  color:#9fdfff;
+
+  font-size:15px;
+}
+
+.status-active{
+  color:#00ff9d;
+  font-weight:bold;
+}
+
+.status-finished{
+  color:#ff5252;
+  font-weight:bold;
+}
+
+.status-refund{
+  color:#ffcc00;
+  font-weight:bold;
+}
+
+/* 保險：舊版疊在卡片上的姓名、剩餘次數，全部強制隱藏 */
+.vipCardOwner,
+.vipCardRemain{
+  display:none !important;
+}
+
+/* VIP 電子卡：卡片上只放卡號 */
+.vipCardWrap{
+  position:relative;
+  width:100%;
+  margin-bottom:18px;
+  aspect-ratio:5 / 3;
+  overflow:hidden;
+  border-radius:18px;
+  background:#000;
+
+  box-shadow:
+    0 0 25px rgba(255,0,0,.15),
+    0 10px 30px rgba(0,0,0,.45);
+}
+
+.vipCardImg{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  border-radius:18px;
+}
+
+/* 卡號放在右下角銀色框內 */
+.vipCardNo{
+  position:absolute;
+
+  right:4.0%;
+  bottom:9.5%;
+
+  width:43%;
+  text-align:center;
+  white-space:nowrap;
+
+  font-size:clamp(18px, 4.6vw, 30px);
+  font-weight:900;
+  letter-spacing:0.4px;
+
+  font-family:
+    "Arial Black",
+    "Impact",
+    "Microsoft JhengHei",
+    sans-serif;
+
+  color:#050505 !important;
+  -webkit-text-fill-color:#050505 !important;
+
+  background:none !important;
+  -webkit-background-clip:initial !important;
+  background-clip:initial !important;
+  -webkit-text-stroke:0 !important;
+
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.55),
+    0 -1px 0 rgba(0,0,0,.18);
+}
+
+/* 下方資訊欄卡號：普通白字，不用特殊金色 */
+.infoMainNo{
+  font-size:28px;
+  font-weight:700;
+  color:#ffffff;
+  text-shadow:none;
+  margin:18px 0 14px;
+}
+
+@media (max-width:430px){
+
+  .container{
+    max-width:100%;
+    padding:14px;
+  }
+
+  .card{
+    padding:14px;
+    border-radius:18px;
+  }
+
+  h1{
+    font-size:30px;
+  }
+
+  .vipCardWrap{
+    border-radius:15px;
+  }
+
+  .vipCardImg{
+    border-radius:15px;
+  }
+
+  .vipCardNo{
+    right:5.8%;
+    bottom:11.5%;
+    width:43%;
+    font-size:clamp(17px, 4.5vw, 27px);
+    letter-spacing:0.3px;
+  }
+
+  .infoMainNo{
+    font-size:26px;
+  }
+}
+
+.welcomeBox{
+
+  text-align:center;
+
+  font-size:22px;
+
+  font-weight:600;
+
+  color:#ffffff;
+
+  margin-bottom:20px;
+
+  text-shadow:
+    0 0 10px rgba(0,217,255,.4);
+
+}
+
+.vipName{
+
+  font-size:32px;
+
+  font-weight:900;
+
+  margin:0 8px;
+
+  color:#ffd86b;
+
+  text-shadow:
+    0 0 5px rgba(255,255,255,.8),
+    0 0 12px rgba(255,215,0,.7),
+    0 0 20px rgba(255,180,0,.4);
+
+}
+/* ===== VIP歡迎區 ===== */
+
+.welcomeBox{
+
+  text-align:center;
+
+  margin-bottom:25px;
+
+}
+
+.welcomeTop{
+
+  font-size:20px;
+
+  font-weight:700;
+
+  color:#ffffff;
+
+  letter-spacing:2px;
+
+  text-shadow:
+    0 0 10px rgba(0,217,255,.6);
+
+}
+
+.welcomeName{
+
+  margin-top:12px;
+
+  margin-bottom:12px;
+
+  font-size:38px;
+
+  font-weight:900;
+
+  color:#ffd86b;
+
+  text-shadow:
+    0 0 5px rgba(255,255,255,.8),
+    0 0 12px rgba(255,215,0,.7),
+    0 0 20px rgba(255,180,0,.5);
+
+}
+
+.welcomeBottom{
+
+  font-size:18px;
+
+  color:#cfefff;
+
+  letter-spacing:3px;
+
+  text-shadow:
+    0 0 8px rgba(0,217,255,.35);
+
+}
+
+@media (max-width:430px){
+
+  .welcomeTop{
+    font-size:18px;
+  }
+
+  .welcomeName{
+    font-size:34px;
+  }
+
+  .welcomeBottom{
+    font-size:16px;
+  }
+}
+.infoMainNo{
+
+  font-size:24px;
+
+  font-weight:600;
+
+  color:#ffffff;
+
+  margin:18px 0 14px;
+
+  letter-spacing:1px;
+
+}
+
+.cardNoText{
+
+  font-size:30px;
+
+  font-weight:900;
+
+  letter-spacing:1px;
+
+  color:#7fe8ff;
+
+  text-shadow:
+    0 0 6px rgba(127,232,255,.45),
+    0 0 12px rgba(0,217,255,.35);
+
+}
+</style>
+
+  <link
+    rel="manifest"
+    href="https://progessc01.github.io/liff-form/manifest.json"
+  >
+
+  <meta
+    name="theme-color"
+    content="#0f75bc"
+  >
+
+  <link
+    rel="apple-touch-icon"
+    href="https://progessc01.github.io/liff-form/ajlogo.jpg"
+  >
+
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-title"
+    content="安建VIP"
+  >
+
+  <style>
+    /* =========================================
+       登入頁進度條
+    ========================================= */
+
+    .login-progress {
+      width: 100%;
+      margin-top: 16px;
+      opacity: 1;
+      transform: translateY(0);
+      transition:
+        opacity 0.25s ease,
+        transform 0.25s ease;
+    }
+
+    .login-progress[hidden] {
+      display: none !important;
+    }
+
+    .login-progress.is-hiding {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+
+    .login-progress-track {
+      width: 100%;
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #dce7ef;
+      box-shadow:
+        inset 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    .login-progress-bar {
+      width: 0%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(
+        90deg,
+        #0f75bc 0%,
+        #38a3db 55%,
+        #0f75bc 100%
+      );
+      background-size: 200% 100%;
+      transition: width 0.35s ease;
+      animation: loginProgressShine 1.2s linear infinite;
+    }
+
+    .login-progress-bar.is-success {
+      background: linear-gradient(
+        90deg,
+        #198754 0%,
+        #42b883 55%,
+        #198754 100%
+      );
+      background-size: 200% 100%;
+    }
+
+    .login-progress-bar.is-error {
+      background: #d93025;
+      animation: none;
+    }
+
+    .login-progress-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 8px;
+      min-height: 22px;
+      font-size: 14px;
+      color: #425466;
+    }
+
+    .login-progress-text {
+      flex: 1;
+      text-align: left;
+    }
+
+    .login-progress-percent {
+      min-width: 40px;
+      text-align: right;
+      font-weight: 700;
+      color: #0f75bc;
+    }
+
+    .login-progress-percent.is-success {
+      color: #198754;
+    }
+
+    .login-progress-percent.is-error {
+      color: #d93025;
+    }
+
+    #loginBtn:disabled {
+      cursor: not-allowed;
+      opacity: 0.72;
+    }
+
+    #result {
+      min-height: 24px;
+      line-height: 1.6;
+    }
+
+    .login-result-error {
+      color: #c62828;
+      font-weight: 700;
+    }
+
+    .login-result-success {
+      color: #198754;
+      font-weight: 700;
+    }
+
+    @keyframes loginProgressShine {
+      from {
+        background-position: 200% 0;
+      }
+
+      to {
+        background-position: -200% 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .login-progress,
+      .login-progress-bar {
+        transition: none;
+        animation: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>會員登入</h1>
+
+  <input
+    type="text"
+    id="customerName"
+    placeholder="請輸入姓名"
+    autocomplete="name"
+    enterkeyhint="next"
+  >
+
+  <br><br>
+
+  <div style="position:relative;">
+
+    <input
+      type="password"
+      id="password"
+      placeholder="請輸入會員密碼"
+      autocomplete="current-password"
+      inputmode="text"
+      enterkeyhint="go"
+      style="
+        width:100%;
+        box-sizing:border-box;
+        padding-right:48px;
+      "
+    >
+
+    <button
+      type="button"
+      id="togglePasswordBtn"
+      onclick="togglePassword()"
+      aria-label="顯示密碼"
+      style="
+        position:absolute;
+        right:12px;
+        top:50%;
+        transform:translateY(-50%);
+        width:28px;
+        height:28px;
+        border:none;
+        background:transparent;
+        box-shadow:none;
+        padding:0;
+        margin:0;
+        font-size:18px;
+        line-height:28px;
+        cursor:pointer;
+      "
+    >👁️</button>
+
+  </div>
+
+  <br><br>
+
+  <button
+    type="button"
+    id="loginBtn"
+    onclick="loginCustomer()"
+  >
+    登入
+  </button>
+
+  <!-- 登入進度條 -->
+  <div
+    id="loginProgress"
+    class="login-progress"
+    aria-live="polite"
+    hidden
+  >
+    <div class="login-progress-track">
+      <div
+        id="loginProgressBar"
+        class="login-progress-bar"
+      ></div>
+    </div>
+
+    <div class="login-progress-info">
+      <span
+        id="loginProgressText"
+        class="login-progress-text"
+      >
+        準備登入...
+      </span>
+
+      <span
+        id="loginProgressPercent"
+        class="login-progress-percent"
+      >
+        0%
+      </span>
+    </div>
+  </div>
+
+  <br><br>
+
+  <button
+    type="button"
+    id="registerBtn"
+    onclick="window.open('https://progessc01.github.io/liff-form/customer-register.html','_top')"
+  >
+    註冊
+  </button>
+
+  <br><br>
+
+  <button
+    type="button"
+    id="forgotPasswordBtn"
+    onclick="window.open('https://progessc01.github.io/liff-form/forgot-password.html','_top')"
+  >
+    忘記密碼
+  </button>
+
+  <br><br>
+
+  <div
+    id="result"
+    role="status"
+    aria-live="polite"
+  ></div>
+
 </div>
-<div class="version">2026.09.18｜Customer GAS-RPC 原風格版</div>
-</div>
+
 <script>
-"use strict";
-const BRIDGE_URL="https://progessc01.github.io/liff-form/customer-rpc-bridge.html";
-let running=false,timer=null,progress=5;
-document.getElementById("password").addEventListener("keydown",e=>{if(e.key==="Enter")login();});
-function startP(){document.getElementById("progress").style.display="block";progress=5;setP(5,"正在驗證會員身分");timer=setInterval(()=>{if(progress<88){progress+=progress<45?3:1;setP(progress,progress<45?"正在驗證會員身分":progress<72?"正在連接會員系統":"等待伺服器回應");}},300);}
-function setP(n,t){document.getElementById("bar").style.width=n+"%";document.getElementById("pct").innerText=n+"%";document.getElementById("ptxt").innerText=t;}
-function rpc(data,ms){return new Promise((ok,bad)=>{let done=false;const tid=setTimeout(()=>{if(done)return;done=true;bad(new Error("伺服器回應逾時"));},ms);google.script.run.withSuccessHandler(r=>{if(done)return;done=true;clearTimeout(tid);ok(r);}).withFailureHandler(e=>{if(done)return;done=true;clearTimeout(tid);bad(new Error(e&&e.message?e.message:"RPC連線失敗"));}).loginCustomerRpc(data);});}
-async function login(){
- if(running)return;const name=String(document.getElementById("customerName").value||"").trim().replace(/\s+/g," ");const password=String(document.getElementById("password").value||"").trim();
- const msg=document.getElementById("msg");msg.className="message";msg.innerText="";
- if(!name||!password){msg.className="message error";msg.innerText="請輸入姓名與會員密碼";return;}
- if(password.length<8){msg.className="message error";msg.innerText="會員密碼至少需要 8 位";return;}
- running=true;document.getElementById("loginBtn").disabled=true;startP();
- try{
-  let data,last;for(let i=0;i<3;i++){try{data=await rpc({name,password,_ts:String(Date.now())},[8000,12000,16000][i]);break;}catch(e){last=e;if(i<2)setP(Math.max(progress,70),"連線異常，自動重試 "+(i+2)+"/3");}}
-  if(!data)throw last||new Error("登入失敗");if(data.status!=="OK")throw new Error(data.message||"姓名或密碼錯誤");
-  clearInterval(timer);setP(100,"登入成功");const actual=String(data.name||name),phone=String(data.phone||"");
-  document.getElementById("successName").innerText=actual;document.getElementById("enterBtn").href=BRIDGE_URL+"?customerName="+encodeURIComponent(actual)+"&phone="+encodeURIComponent(phone);
-  document.getElementById("shell").classList.add("done");
- }catch(e){clearInterval(timer);setP(100,"登入失敗");msg.className="message error";msg.innerText=e.message||"登入失敗";running=false;document.getElementById("loginBtn").disabled=false;}
-}
-</script></body></html>
+  const GAS_URL =
+    "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+
+  let isLoggingIn = false;
+  let loginProgressValue = 0;
+  let loginProgressTimer = null;
+  let loginProgressStageTimer = null;
+
+
+  /**
+   * 顯示／隱藏密碼
+   */
+  function togglePassword() {
+
+    const input =
+      document.getElementById("password");
+
+    const btn =
+      document.getElementById(
+        "togglePasswordBtn"
+      );
+
+    const showPassword =
+      input.type === "password";
+
+    input.type =
+      showPassword
+        ? "text"
+        : "password";
+
+    btn.innerText =
+      showPassword
+        ? "🙈"
+        : "👁️";
+
+    btn.setAttribute(
+      "aria-label",
+      showPassword
+        ? "隱藏密碼"
+        : "顯示密碼"
+    );
+  }
+
+
+  /**
+   * 客戶登入
+   */
+  async function loginCustomer() {
+
+    if(isLoggingIn) {
+      return;
+    }
+
+    const nameInput =
+      document.getElementById(
+        "customerName"
+      );
+
+    const passwordInput =
+      document.getElementById(
+        "password"
+      );
+
+    const result =
+      document.getElementById("result");
+
+    const name =
+      normalizeCustomerName(
+        nameInput.value
+      );
+
+    const password =
+      String(passwordInput.value || "")
+        .trim();
+
+    result.innerHTML = "";
+
+    if(!name || !password) {
+
+      showLoginError(
+        "請輸入姓名與會員密碼"
+      );
+
+      if(!name) {
+        nameInput.focus();
+      } else {
+        passwordInput.focus();
+      }
+
+      return;
+    }
+
+    if(password.length < 8) {
+
+      showLoginError(
+        "會員密碼至少需要 8 位"
+      );
+
+      passwordInput.focus();
+      return;
+    }
+
+    setLoginLoading(true);
+    startLoginProgress();
+
+    try {
+
+      updateLoginProgress(
+        12,
+        "正在建立安全連線..."
+      );
+
+      const data =
+        await new Promise(function(resolve, reject) {
+
+          let finished = false;
+
+          const timeoutId =
+            setTimeout(function() {
+
+              if(finished) {
+                return;
+              }
+
+              finished = true;
+
+              reject(
+                new Error(
+                  "RPC_TIMEOUT"
+                )
+              );
+
+            }, 15000);
+
+          google.script.run
+            .withSuccessHandler(function(response) {
+
+              if(finished) {
+                return;
+              }
+
+              finished = true;
+
+              clearTimeout(
+                timeoutId
+              );
+
+              resolve(
+                response
+              );
+            })
+            .withFailureHandler(function(error) {
+
+              if(finished) {
+                return;
+              }
+
+              finished = true;
+
+              clearTimeout(
+                timeoutId
+              );
+
+              reject(
+                new Error(
+                  error &&
+                  error.message
+                    ? error.message
+                    : "RPC_ERROR"
+                )
+              );
+            })
+            .loginCustomerRpc({
+              name: name,
+              password: password,
+              _t: String(Date.now())
+            });
+        });
+
+      updateLoginProgress(
+        Math.max(
+          loginProgressValue,
+          72
+        ),
+        "正在接收會員資料..."
+      );
+
+      updateLoginProgress(
+        94,
+        "正在確認登入結果..."
+      );
+
+      if(data.status !== "OK") {
+
+        failLoginProgress(
+          "姓名或密碼錯誤"
+        );
+
+        showLoginError(
+          data.message ||
+          "姓名或密碼錯誤"
+        );
+
+        setLoginLoading(false);
+
+        setTimeout(function() {
+          hideLoginProgress();
+        }, 1200);
+
+        return;
+      }
+
+      completeLoginProgress(
+        "登入成功"
+      );
+
+      const bridgeUrl =
+        "https://progessc01.github.io/liff-form/customer-rpc-bridge.html" +
+        "?customerName=" +
+        encodeURIComponent(
+          String(data.name || name)
+        ) +
+        "&phone=" +
+        encodeURIComponent(
+          String(data.phone || "")
+        );
+
+      result.innerHTML =
+        '<div class="login-result-success">' +
+        "✓ 登入成功" +
+        "</div>" +
+        '<a id="customerEnterBtn" ' +
+        'href="' + bridgeUrl + '" ' +
+        'target="_top" ' +
+        'style="display:block;text-decoration:none;margin-top:14px;">' +
+        '<button type="button" style="width:100%;">進入會員專區</button>' +
+        "</a>";
+
+    } catch(err) {
+
+      console.error(
+        "loginCustomer error:",
+        err
+      );
+
+      let errorMessage =
+        "登入失敗，請稍後再試";
+
+      if(err.message === "RPC_TIMEOUT") {
+
+        errorMessage =
+          "連線逾時，請重新登入";
+
+      } else if(
+        err.message ===
+        "INVALID_SERVER_RESPONSE"
+      ) {
+
+        errorMessage =
+          "伺服器回傳格式錯誤，請稍後再試";
+      }
+
+      failLoginProgress(
+        errorMessage
+      );
+
+      showLoginError(
+        errorMessage
+      );
+
+      setLoginLoading(false);
+
+      setTimeout(function() {
+        hideLoginProgress();
+      }, 1500);
+    }
+  }
+
+
+  /**
+   * 啟動登入進度
+   *
+   * fetch 無法取得 GAS 真實執行百分比，
+   * 因此進度會平順前進到 88%，
+   * 收到回應後才完成至 100%。
+   */
+  function startLoginProgress() {
+
+    stopLoginProgressTimers();
+
+    const progress =
+      document.getElementById(
+        "loginProgress"
+      );
+
+    const bar =
+      document.getElementById(
+        "loginProgressBar"
+      );
+
+    const percent =
+      document.getElementById(
+        "loginProgressPercent"
+      );
+
+    progress.hidden = false;
+    progress.classList.remove(
+      "is-hiding"
+    );
+
+    bar.classList.remove(
+      "is-success",
+      "is-error"
+    );
+
+    percent.classList.remove(
+      "is-success",
+      "is-error"
+    );
+
+    loginProgressValue = 4;
+
+    updateLoginProgress(
+      4,
+      "準備登入..."
+    );
+
+    loginProgressStageTimer =
+      setTimeout(function() {
+
+        updateLoginProgress(
+          18,
+          "正在連接會員系統..."
+        );
+
+      }, 250);
+
+    loginProgressTimer =
+      setInterval(function() {
+
+        if(loginProgressValue >= 88) {
+          return;
+        }
+
+        let increase = 1;
+
+        if(loginProgressValue < 35) {
+
+          increase =
+            randomInteger(2, 5);
+
+        } else if(
+          loginProgressValue < 65
+        ) {
+
+          increase =
+            randomInteger(1, 3);
+
+        } else {
+
+          increase = 1;
+        }
+
+        const nextValue =
+          Math.min(
+            loginProgressValue +
+            increase,
+            88
+          );
+
+        let statusText =
+          "正在驗證會員資料...";
+
+        if(nextValue >= 68) {
+
+          statusText =
+            "正在等待伺服器回應...";
+
+        } else if(nextValue >= 38) {
+
+          statusText =
+            "正在確認姓名與密碼...";
+        }
+
+        updateLoginProgress(
+          nextValue,
+          statusText
+        );
+
+      }, 420);
+  }
+
+
+  /**
+   * 更新進度條
+   */
+  function updateLoginProgress(
+    value,
+    text
+  ) {
+
+    const bar =
+      document.getElementById(
+        "loginProgressBar"
+      );
+
+    const textElement =
+      document.getElementById(
+        "loginProgressText"
+      );
+
+    const percent =
+      document.getElementById(
+        "loginProgressPercent"
+      );
+
+    const safeValue =
+      Math.max(
+        0,
+        Math.min(
+          100,
+          Math.round(
+            Number(value) || 0
+          )
+        )
+      );
+
+    loginProgressValue =
+      safeValue;
+
+    bar.style.width =
+      safeValue + "%";
+
+    percent.innerText =
+      safeValue + "%";
+
+    if(text) {
+      textElement.innerText = text;
+    }
+  }
+
+
+  /**
+   * 登入成功
+   */
+  function completeLoginProgress(text) {
+
+    stopLoginProgressTimers();
+
+    const bar =
+      document.getElementById(
+        "loginProgressBar"
+      );
+
+    const percent =
+      document.getElementById(
+        "loginProgressPercent"
+      );
+
+    bar.classList.remove(
+      "is-error"
+    );
+
+    bar.classList.add(
+      "is-success"
+    );
+
+    percent.classList.remove(
+      "is-error"
+    );
+
+    percent.classList.add(
+      "is-success"
+    );
+
+    updateLoginProgress(
+      100,
+      text ||
+      "登入成功"
+    );
+  }
+
+
+  /**
+   * 登入失敗
+   */
+  function failLoginProgress(text) {
+
+    stopLoginProgressTimers();
+
+    const bar =
+      document.getElementById(
+        "loginProgressBar"
+      );
+
+    const percent =
+      document.getElementById(
+        "loginProgressPercent"
+      );
+
+    bar.classList.remove(
+      "is-success"
+    );
+
+    bar.classList.add(
+      "is-error"
+    );
+
+    percent.classList.remove(
+      "is-success"
+    );
+
+    percent.classList.add(
+      "is-error"
+    );
+
+    document
+      .getElementById(
+        "loginProgressText"
+      )
+      .innerText =
+        text || "登入失敗";
+  }
+
+
+  /**
+   * 收起進度條
+   */
+  function hideLoginProgress() {
+
+    stopLoginProgressTimers();
+
+    const progress =
+      document.getElementById(
+        "loginProgress"
+      );
+
+    progress.classList.add(
+      "is-hiding"
+    );
+
+    setTimeout(function() {
+
+      progress.hidden = true;
+
+      progress.classList.remove(
+        "is-hiding"
+      );
+
+      resetLoginProgress();
+
+    }, 260);
+  }
+
+
+  /**
+   * 重設進度條
+   */
+  function resetLoginProgress() {
+
+    loginProgressValue = 0;
+
+    const bar =
+      document.getElementById(
+        "loginProgressBar"
+      );
+
+    const percent =
+      document.getElementById(
+        "loginProgressPercent"
+      );
+
+    bar.style.width = "0%";
+
+    bar.classList.remove(
+      "is-success",
+      "is-error"
+    );
+
+    percent.innerText = "0%";
+
+    percent.classList.remove(
+      "is-success",
+      "is-error"
+    );
+
+    document
+      .getElementById(
+        "loginProgressText"
+      )
+      .innerText =
+        "準備登入...";
+  }
+
+
+  /**
+   * 停止所有進度計時器
+   */
+  function stopLoginProgressTimers() {
+
+    if(loginProgressTimer) {
+
+      clearInterval(
+        loginProgressTimer
+      );
+
+      loginProgressTimer = null;
+    }
+
+    if(loginProgressStageTimer) {
+
+      clearTimeout(
+        loginProgressStageTimer
+      );
+
+      loginProgressStageTimer = null;
+    }
+  }
+
+
+  /**
+   * 登入按鈕與輸入欄狀態
+   */
+  function setLoginLoading(loading) {
+
+    const loginBtn =
+      document.getElementById(
+        "loginBtn"
+      );
+
+    const nameInput =
+      document.getElementById(
+        "customerName"
+      );
+
+    const passwordInput =
+      document.getElementById(
+        "password"
+      );
+
+    const registerBtn =
+      document.getElementById(
+        "registerBtn"
+      );
+
+    const forgotPasswordBtn =
+      document.getElementById(
+        "forgotPasswordBtn"
+      );
+
+    isLoggingIn =
+      Boolean(loading);
+
+    loginBtn.disabled =
+      Boolean(loading);
+
+    nameInput.disabled =
+      Boolean(loading);
+
+    passwordInput.disabled =
+      Boolean(loading);
+
+    registerBtn.disabled =
+      Boolean(loading);
+
+    forgotPasswordBtn.disabled =
+      Boolean(loading);
+
+    loginBtn.innerText =
+      loading
+        ? "登入中..."
+        : "登入";
+  }
+
+
+  /**
+   * 顯示錯誤訊息
+   */
+  function showLoginError(message) {
+
+    document
+      .getElementById("result")
+      .innerHTML =
+        '<div class="login-result-error">' +
+        escapeHtml(message) +
+        "</div>";
+  }
+
+
+  /**
+   * 統一姓名格式
+   */
+  function normalizeCustomerName(value) {
+
+    return String(value || "")
+      .replace(/\u3000/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+
+  /**
+   * HTML 安全處理
+   */
+  function escapeHtml(value) {
+
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+
+  /**
+   * 隨機整數
+   */
+  function randomInteger(
+    min,
+    max
+  ) {
+
+    return Math.floor(
+      Math.random() *
+      (max - min + 1)
+    ) + min;
+  }
+
+
+  /**
+   * 姓名按 Enter 後跳到密碼
+   */
+  document
+    .getElementById(
+      "customerName"
+    )
+    .addEventListener(
+      "keydown",
+      function(event) {
+
+        if(event.key === "Enter") {
+
+          event.preventDefault();
+
+          document
+            .getElementById(
+              "password"
+            )
+            .focus();
+        }
+      }
+    );
+
+
+  /**
+   * 密碼按 Enter 直接登入
+   */
+  document
+    .getElementById(
+      "password"
+    )
+    .addEventListener(
+      "keydown",
+      function(event) {
+
+        if(event.key === "Enter") {
+
+          event.preventDefault();
+
+          loginCustomer();
+        }
+      }
+    );
+</script>
+
+</body>
+</html>

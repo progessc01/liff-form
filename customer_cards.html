@@ -1,115 +1,2558 @@
-<!DOCTYPE html><html lang="zh-TW"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>卡片查詢</title><style>
-*{box-sizing:border-box}
-html,body{min-height:100%}
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>卡片查詢</title>
+
+  <style>
 body{
- margin:0;padding:0;font-family:"Microsoft JhengHei",Arial,sans-serif;color:white;
- background:
- radial-gradient(circle at top,rgba(0,217,255,.25),transparent 35%),
- radial-gradient(circle at bottom right,rgba(155,61,255,.28),transparent 40%),
- linear-gradient(135deg,#02040f 0%,#07142b 45%,#02040f 100%);
- background-attachment:fixed;
+  margin:0;
+  padding:0;
+  font-family:"Microsoft JhengHei", sans-serif;
+
+  background:
+  radial-gradient(circle at top, rgba(0,217,255,0.25), transparent 35%),
+  radial-gradient(circle at bottom right, rgba(155,61,255,0.28), transparent 40%),
+  linear-gradient(135deg, #02040f 0%, #07142b 45%, #02040f 100%);
+
+  background-attachment:fixed;
+
+  color:white;
 }
-.container{max-width:500px;margin:auto;padding:20px}
-h1{text-align:center;font-size:34px;margin:12px 0 25px;color:#fff;text-shadow:0 0 10px #00d9ff,0 0 20px #00d9ff}
+
+.container{
+  max-width:500px;
+  margin:auto;
+  padding:20px;
+}
+
+h1{
+  text-align:center;
+  font-size:34px;
+  margin-bottom:25px;
+
+  color:#ffffff;
+
+  text-shadow:
+    0 0 10px #00d9ff,
+    0 0 20px #00d9ff;
+}
+
 .card{
- background:rgba(15,18,35,.82);border:1px solid rgba(0,217,255,.35);border-radius:22px;
- padding:20px;margin-bottom:20px;box-shadow:0 0 20px rgba(0,217,255,.15),0 0 40px rgba(155,61,255,.12);
- backdrop-filter:blur(10px)
+  background:rgba(15,18,35,0.82);
+
+  border:1px solid rgba(0,217,255,0.35);
+
+  border-radius:22px;
+
+  padding:20px;
+
+  margin-bottom:20px;
+
+  box-shadow:
+    0 0 20px rgba(0,217,255,0.15),
+    0 0 40px rgba(155,61,255,0.12);
+
+  backdrop-filter:blur(10px);
 }
-button,.buttonLink{
- width:100%;border:none;border-radius:14px;padding:14px;margin-top:10px;font-size:18px;font-weight:bold;color:white;
- background:linear-gradient(90deg,#00d9ff,#007bff,#9b3dff);
- box-shadow:0 0 12px rgba(0,217,255,.4),0 0 25px rgba(155,61,255,.25);
- cursor:pointer;transition:.25s;text-decoration:none;display:flex;align-items:center;justify-content:center
+
+button{
+  width:100%;
+
+  border:none;
+
+  border-radius:14px;
+
+  padding:14px;
+
+  margin-top:10px;
+
+  font-size:18px;
+  font-weight:bold;
+
+  color:white;
+
+  background:
+    linear-gradient(
+      90deg,
+      #00d9ff,
+      #007bff,
+      #9b3dff
+    );
+
+  box-shadow:
+    0 0 12px rgba(0,217,255,0.4),
+    0 0 25px rgba(155,61,255,0.25);
+
+  cursor:pointer;
+
+  transition:0.25s;
 }
-button:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
-input,select{
- width:100%;padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.15);
- background:rgba(255,255,255,.08);color:white;font-size:16px
+
+button:hover{
+
+  transform:translateY(-2px);
+
+  box-shadow:
+    0 0 18px rgba(0,217,255,0.7),
+    0 0 35px rgba(155,61,255,0.45);
 }
-input::placeholder{color:#ccc} select option{color:#000}
-p{line-height:1.8}.page-info{text-align:center;margin-top:10px;color:#9fdfff;font-size:15px}
-.status-active{color:#00ff9d;font-weight:bold}.status-finished{color:#ff5252;font-weight:bold}.status-refund{color:#ffcc00;font-weight:bold}
-.welcomeBox{text-align:center;margin-bottom:25px}
-.welcomeTop{font-size:20px;font-weight:700;color:#fff;letter-spacing:2px;text-shadow:0 0 10px rgba(0,217,255,.6)}
-.welcomeName{margin:12px 0;font-size:38px;font-weight:900;color:#ffd86b;text-shadow:0 0 5px rgba(255,255,255,.8),0 0 12px rgba(255,215,0,.7),0 0 20px rgba(255,180,0,.5)}
-.welcomeBottom{font-size:18px;color:#cfefff;letter-spacing:3px;text-shadow:0 0 8px rgba(0,217,255,.35)}
-.vipCardWrap{position:relative;width:100%;margin-bottom:18px;aspect-ratio:5/3;overflow:hidden;border-radius:18px;background:#000;box-shadow:0 0 25px rgba(255,0,0,.15),0 10px 30px rgba(0,0,0,.45)}
-.vipCardImg{width:100%;height:100%;object-fit:cover;display:block;border-radius:18px}
-.infoMainNo{font-size:24px;font-weight:600;color:#fff;margin:18px 0 14px;letter-spacing:1px}
-.cardNoText{font-size:30px;font-weight:900;letter-spacing:1px;color:#7fe8ff;text-shadow:0 0 6px rgba(127,232,255,.45),0 0 12px rgba(0,217,255,.35)}
-.cardLoadingPanel,.cardEmptyBox,.cardErrorBox{
- width:100%;margin:12px auto;padding:20px;border-radius:18px;text-align:center;
- background:rgba(15,18,35,.82);border:1px solid rgba(0,217,255,.35);
- box-shadow:0 0 20px rgba(0,217,255,.15),0 0 40px rgba(155,61,255,.12)
+
+button:disabled{
+
+  opacity:0.45;
+
+  cursor:not-allowed;
+
+  box-shadow:none;
 }
-.cardLoadingTitle{font-size:20px;font-weight:900}.cardProgressTrack{height:14px;overflow:hidden;background:rgba(255,255,255,.13);border-radius:999px}
-.cardProgressBar{width:5%;height:100%;border-radius:999px;background:linear-gradient(90deg,#00d9ff,#007bff,#9b3dff);transition:width .3s}
-.cardProgressPercent{margin-top:8px;font-size:14px;font-weight:900;color:#9fdfff}.cardLoadingText{min-height:24px;margin-top:12px;font-weight:700;color:#cfefff}
-.cardRefreshNote{text-align:center;color:#9fdfff;font-size:13px;font-weight:700;margin:8px 0 14px}
-.cardNavigation{display:flex;gap:10px;margin-top:16px}.cardNavigation button{flex:1}.returnButtonWrap{margin-top:16px}
-.cardErrorBox{border:2px solid #ef4444;background:rgba(120,10,20,.35);color:#ffd7d7;font-weight:800}
-.blocked{background:rgba(120,10,20,.45);color:#ffd7d7;border:2px solid #ef4444;padding:12px;border-radius:12px;font-size:18px;font-weight:900;text-align:center;margin:12px 0}
-.formCard{padding:22px}.fieldLabel{display:block;margin:14px 0 7px;color:#cfefff;font-weight:800}
-.helper{text-align:center;color:#9fdfff;font-size:13px;margin-top:10px}.links{display:flex;gap:10px}.links .buttonLink{font-size:15px}
-.progressWrap{display:none;margin-top:18px}.message{display:none;margin-top:14px;padding:12px;border-radius:12px;text-align:center;font-weight:800}
-.message.error{display:block;background:rgba(120,10,20,.45);border:1px solid #ef4444;color:#ffd7d7}
-.successBox{display:none;text-align:center}.loginShell.done .formArea,.loginShell.done .progressWrap,.loginShell.done .loginSub{display:none}.loginShell.done .successBox{display:block}
-.successTitle{font-size:30px;font-weight:900;color:#ffd86b;text-shadow:0 0 12px rgba(255,215,0,.7);margin:10px 0 16px}
-.version{text-align:center;color:#7299ad;font-size:11px;margin-top:18px}
-@media(max-width:430px){
- .container{max-width:100%;padding:14px}.card{padding:14px;border-radius:18px}h1{font-size:30px}
- .welcomeTop{font-size:18px}.welcomeName{font-size:34px}.welcomeBottom{font-size:16px}
- .infoMainNo{font-size:22px}.cardNoText{font-size:27px}
+
+input,
+select{
+
+  width:100%;
+
+  padding:14px;
+
+  border-radius:14px;
+
+  border:1px solid rgba(255,255,255,0.15);
+
+  background:rgba(255,255,255,0.08);
+
+  color:white;
+
+  font-size:16px;
+
+  box-sizing:border-box;
 }
-</style></head><body>
+
+input::placeholder{
+  color:#cccccc;
+}
+
+select option{
+  color:black;
+}
+
+p{
+  line-height:1.8;
+}
+
+a{
+  color:#00d9ff;
+}
+
+.qr-box{
+  text-align:center;
+}
+
+.member-title{
+  text-align:center;
+
+  font-size:18px;
+
+  margin-bottom:20px;
+
+  color:#8fdcff;
+}
+
+.vip-glow{
+
+  color:#f7d774;
+
+  background:linear-gradient(
+    to bottom,
+    #fff6b7 0%,
+    #f7d774 35%,
+    #d4a93a 55%,
+    #fff2a6 75%,
+    #c9921e 100%
+  );
+
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+
+  text-shadow:
+    0 1px 0 #fff6b7,
+    0 2px 2px rgba(0,0,0,0.5),
+    0 0 8px rgba(255,215,0,0.45);
+}
+
+.page-info{
+
+  text-align:center;
+
+  margin-top:10px;
+
+  color:#9fdfff;
+
+  font-size:15px;
+}
+
+.status-active{
+  color:#00ff9d;
+  font-weight:bold;
+}
+
+.status-finished{
+  color:#ff5252;
+  font-weight:bold;
+}
+
+.status-refund{
+  color:#ffcc00;
+  font-weight:bold;
+}
+
+/* 保險：舊版疊在卡片上的姓名、剩餘次數，全部強制隱藏 */
+.vipCardOwner,
+.vipCardRemain{
+  display:none !important;
+}
+
+/* VIP 電子卡：卡片上只放卡號 */
+.vipCardWrap{
+  position:relative;
+  width:100%;
+  margin-bottom:18px;
+  aspect-ratio:5 / 3;
+  overflow:hidden;
+  border-radius:18px;
+  background:#000;
+
+  box-shadow:
+    0 0 25px rgba(255,0,0,.15),
+    0 10px 30px rgba(0,0,0,.45);
+}
+
+.vipCardImg{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  border-radius:18px;
+}
+
+/* 卡號放在右下角銀色框內 */
+.vipCardNo{
+  position:absolute;
+
+  right:4.0%;
+  bottom:9.5%;
+
+  width:43%;
+  text-align:center;
+  white-space:nowrap;
+
+  font-size:clamp(18px, 4.6vw, 30px);
+  font-weight:900;
+  letter-spacing:0.4px;
+
+  font-family:
+    "Arial Black",
+    "Impact",
+    "Microsoft JhengHei",
+    sans-serif;
+
+  color:#050505 !important;
+  -webkit-text-fill-color:#050505 !important;
+
+  background:none !important;
+  -webkit-background-clip:initial !important;
+  background-clip:initial !important;
+  -webkit-text-stroke:0 !important;
+
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.55),
+    0 -1px 0 rgba(0,0,0,.18);
+}
+
+/* 下方資訊欄卡號：普通白字，不用特殊金色 */
+.infoMainNo{
+  font-size:28px;
+  font-weight:700;
+  color:#ffffff;
+  text-shadow:none;
+  margin:18px 0 14px;
+}
+
+@media (max-width:430px){
+
+  .container{
+    max-width:100%;
+    padding:14px;
+  }
+
+  .card{
+    padding:14px;
+    border-radius:18px;
+  }
+
+  h1{
+    font-size:30px;
+  }
+
+  .vipCardWrap{
+    border-radius:15px;
+  }
+
+  .vipCardImg{
+    border-radius:15px;
+  }
+
+  .vipCardNo{
+    right:5.8%;
+    bottom:11.5%;
+    width:43%;
+    font-size:clamp(17px, 4.5vw, 27px);
+    letter-spacing:0.3px;
+  }
+
+  .infoMainNo{
+    font-size:26px;
+  }
+}
+
+.welcomeBox{
+
+  text-align:center;
+
+  font-size:22px;
+
+  font-weight:600;
+
+  color:#ffffff;
+
+  margin-bottom:20px;
+
+  text-shadow:
+    0 0 10px rgba(0,217,255,.4);
+
+}
+
+.vipName{
+
+  font-size:32px;
+
+  font-weight:900;
+
+  margin:0 8px;
+
+  color:#ffd86b;
+
+  text-shadow:
+    0 0 5px rgba(255,255,255,.8),
+    0 0 12px rgba(255,215,0,.7),
+    0 0 20px rgba(255,180,0,.4);
+
+}
+/* ===== VIP歡迎區 ===== */
+
+.welcomeBox{
+
+  text-align:center;
+
+  margin-bottom:25px;
+
+}
+
+.welcomeTop{
+
+  font-size:20px;
+
+  font-weight:700;
+
+  color:#ffffff;
+
+  letter-spacing:2px;
+
+  text-shadow:
+    0 0 10px rgba(0,217,255,.6);
+
+}
+
+.welcomeName{
+
+  margin-top:12px;
+
+  margin-bottom:12px;
+
+  font-size:38px;
+
+  font-weight:900;
+
+  color:#ffd86b;
+
+  text-shadow:
+    0 0 5px rgba(255,255,255,.8),
+    0 0 12px rgba(255,215,0,.7),
+    0 0 20px rgba(255,180,0,.5);
+
+}
+
+.welcomeBottom{
+
+  font-size:18px;
+
+  color:#cfefff;
+
+  letter-spacing:3px;
+
+  text-shadow:
+    0 0 8px rgba(0,217,255,.35);
+
+}
+
+@media (max-width:430px){
+
+  .welcomeTop{
+    font-size:18px;
+  }
+
+  .welcomeName{
+    font-size:34px;
+  }
+
+  .welcomeBottom{
+    font-size:16px;
+  }
+}
+.infoMainNo{
+
+  font-size:24px;
+
+  font-weight:600;
+
+  color:#ffffff;
+
+  margin:18px 0 14px;
+
+  letter-spacing:1px;
+
+}
+
+.cardNoText{
+
+  font-size:30px;
+
+  font-weight:900;
+
+  letter-spacing:1px;
+
+  color:#7fe8ff;
+
+  text-shadow:
+    0 0 6px rgba(127,232,255,.45),
+    0 0 12px rgba(0,217,255,.35);
+
+}
+</style>
+
+  <style>
+
+    .cardLoadingPanel {
+      width: 100%;
+      max-width: 520px;
+      margin: 12px auto;
+      padding: 20px;
+      box-sizing: border-box;
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+      text-align: center;
+    }
+
+    .cardLoadingTitle {
+      margin-bottom: 12px;
+      font-size: 20px;
+      font-weight: 900;
+      color: #222222;
+    }
+
+    .cardLoadingText {
+      min-height: 24px;
+      margin-top: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #555555;
+    }
+
+    .cardProgressTrack {
+      width: 100%;
+      height: 14px;
+      overflow: hidden;
+      background: #e5e7eb;
+      border-radius: 999px;
+    }
+
+    .cardProgressBar {
+      width: 0%;
+      height: 100%;
+      border-radius: 999px;
+
+      background: linear-gradient(
+        90deg,
+        #111827,
+        #374151
+      );
+
+      transition:
+        width 0.3s ease,
+        background 0.3s ease;
+    }
+
+    .cardProgressBar.success {
+      background: #16a34a;
+    }
+
+    .cardProgressBar.error {
+      background: #dc2626;
+    }
+
+    .cardProgressPercent {
+      margin-top: 8px;
+      font-size: 14px;
+      font-weight: 900;
+      color: #374151;
+    }
+
+    .cardLoadHint {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .cardErrorBox {
+      width: 100%;
+      max-width: 520px;
+      margin: 12px auto;
+      padding: 18px;
+      box-sizing: border-box;
+
+      border: 2px solid #ef4444;
+      border-radius: 16px;
+
+      background: #fee2e2;
+      color: #991b1b;
+
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .cardEmptyBox {
+      width: 100%;
+      max-width: 520px;
+      margin: 12px auto;
+      padding: 28px 18px;
+      box-sizing: border-box;
+
+      border-radius: 16px;
+      background: #ffffff;
+
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+
+      text-align: center;
+      font-size: 18px;
+      font-weight: 800;
+      color: #4b5563;
+    }
+
+    .cardRefreshNote {
+      margin: 8px 0 14px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #6b7280;
+    }
+
+    .cardNavigation {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .cardNavigation button {
+      min-width: 110px;
+    }
+
+    .cardNavigation button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .returnButtonWrap {
+      margin-top: 16px;
+      text-align: center;
+    }
+
+    .reloadButton {
+      margin-top: 12px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
 <div class="container">
-<h1>我的卡片</h1>
-<div id="memberInfo"></div><div id="refreshNote"></div>
-<div id="loadingBox" style="display:none"><div class="cardLoadingPanel"><div class="cardLoadingTitle" id="loadingTitle">正在讀取卡片</div><div class="cardProgressTrack"><div class="cardProgressBar" id="progressBar"></div></div><div class="cardProgressPercent" id="progressPercent">5%</div><div class="cardLoadingText" id="loadingText">正在準備會員資料</div><div class="helper">請稍候，不要重複點擊</div></div></div>
-<div id="cardBox"></div>
-<div id="navigationBox" class="cardNavigation" style="display:none"><button id="prevButton" onclick="prevPage()">上一頁</button><button id="nextButton" onclick="nextPage()">下一頁</button></div>
-<div class="returnButtonWrap"><a class="buttonLink" href="https://progessc01.github.io/liff-form/customer-home.html" target="_top">返回</a></div>
-<div class="version">2026.09.18｜Customer Cards GAS-RPC 原風格版</div>
+
+  <h1>我的卡片</h1>
+
+  <div id="memberInfo"></div>
+
+  <div id="refreshNote"></div>
+
+
+  <!-- =========================
+       讀取進度
+  ========================== -->
+
+  <div
+    id="loadingBox"
+    style="display:none;"
+  >
+
+    <div class="cardLoadingPanel">
+
+      <div
+        id="loadingTitle"
+        class="cardLoadingTitle"
+      >
+        正在讀取卡片
+      </div>
+
+      <div class="cardProgressTrack">
+
+        <div
+          id="progressBar"
+          class="cardProgressBar"
+        ></div>
+
+      </div>
+
+      <div
+        id="progressPercent"
+        class="cardProgressPercent"
+      >
+        0%
+      </div>
+
+      <div
+        id="loadingText"
+        class="cardLoadingText"
+      >
+        正在準備會員資料
+      </div>
+
+      <div class="cardLoadHint">
+        請稍候，不要重複點擊
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       卡片內容
+  ========================== -->
+
+  <div id="cardBox"></div>
+
+
+  <!-- =========================
+       卡片切換
+  ========================== -->
+
+  <div
+    id="navigationBox"
+    class="cardNavigation"
+    style="display:none;"
+  >
+
+    <button
+      id="prevButton"
+      type="button"
+      onclick="prevPage()"
+    >
+      上一頁
+    </button>
+
+    <button
+      id="nextButton"
+      type="button"
+      onclick="nextPage()"
+    >
+      下一頁
+    </button>
+
+  </div>
+
+
+  <div class="returnButtonWrap">
+
+    <button
+      type="button"
+      onclick="window.open('https://progessc01.github.io/liff-form/customer-home.html','_top')"
+    >
+      返回
+    </button>
+
+  </div>
+
 </div>
+
+
 <script>
-"use strict";
-const customerName=<?!= JSON.stringify(customerName) ?>,phone=<?!= JSON.stringify(phone) ?>;
-let pages=[],page=0,isLoading=false,loadingTimer=null,progress=5;
-showMemberInfo();loadCards();
-function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
-function showMemberInfo(){document.getElementById("memberInfo").innerHTML=`<div class="welcomeBox"><div class="welcomeTop">✨ 親愛的VIP會員 ✨</div><div class="welcomeName">${esc(customerName)}</div><div class="welcomeBottom">歡迎回來</div></div>`;}
-function rpcCards(ms){return new Promise((ok,bad)=>{let done=false;const tid=setTimeout(()=>{if(done)return;done=true;bad(new Error("卡片讀取逾時"));},ms);google.script.run.withSuccessHandler(r=>{if(done)return;done=true;clearTimeout(tid);ok(r);}).withFailureHandler(e=>{if(done)return;done=true;clearTimeout(tid);bad(new Error(e&&e.message?e.message:"RPC連線失敗"));}).getCustomerCardsRpc({customerName,phone,_ts:String(Date.now())});});}
-function startProgress(){document.getElementById("loadingBox").style.display="block";progress=5;setProgress(5,"正在準備會員資料");loadingTimer=setInterval(()=>{if(progress<88){progress+=progress<50?3:1;setProgress(progress,progress<30?"正在驗證會員身分":progress<55?"正在連接會員系統":progress<78?"正在查詢您的卡片":"正在整理卡片內容");}},350);}
-function setProgress(n,t){document.getElementById("progressBar").style.width=n+"%";document.getElementById("progressPercent").innerText=n+"%";document.getElementById("loadingText").innerText=t;}
-async function loadCards(){
- if(isLoading)return;if(!customerName||!phone){showError("會員資料不完整，請重新登入");return;}isLoading=true;document.getElementById("cardBox").innerHTML="";document.getElementById("navigationBox").style.display="none";startProgress();
- try{let data,last;for(let i=0;i<3;i++){try{data=await rpcCards([8000,12000,16000][i]);break;}catch(e){last=e;if(i<2)setProgress(Math.max(progress,70),"連線異常，自動重試 "+(i+2)+"/3");}}
-  if(!data)throw last||new Error("卡片查詢失敗");if(data.status!=="OK")throw new Error(data.message||"卡片查詢失敗");
-  clearInterval(loadingTimer);setProgress(100,"卡片資料已完成更新");prepare(data.cards||[]);setTimeout(()=>{document.getElementById("loadingBox").style.display="none";render();},250);
- }catch(e){clearInterval(loadingTimer);document.getElementById("loadingBox").style.display="none";showError(e.message||"系統錯誤，請稍後重試");}finally{isLoading=false;}
+
+const GAS_URL =
+  "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+
+
+const customerName =
+  <?!= JSON.stringify(customerName) ?>;
+
+
+const phone =
+  <?!= JSON.stringify(phone) ?>;
+
+
+/*
+ * 本機快取有效顯示時間。
+ *
+ * 注意：
+ * 即使超過 10 分鐘，
+ * 仍可先顯示舊資料，
+ * 然後立刻背景更新。
+ */
+const CARD_CACHE_MAX_AGE =
+  10 * 60 * 1000;
+
+
+let pages = [];
+
+let page = 0;
+
+let isLoading = false;
+
+let loadingTimer = null;
+
+
+/*
+ * 目前保留 controller，
+ * 主要供未來使用。
+ *
+ * 已移除原本 20 秒強制 abort。
+ */
+let activeController = null;
+
+
+
+// =========================================================
+// 初始化
+// =========================================================
+
+if(
+  !customerName ||
+  !phone
+) {
+
+  alert(
+    "請先登入會員"
+  );
+
+  window.open(
+    "https://progessc01.github.io/liff-form/customer-login.html",
+    "_top"
+  );
+
+} else {
+
+  showMemberInfo();
+
+  /*
+   * 先嘗試顯示本機上一次
+   * 成功讀取的卡片。
+   */
+  const hasCache =
+    loadCardsFromCache();
+
+  /*
+   * 不論有沒有 Cache，
+   * 都向後端取得最新內容。
+   */
+  loadCards({
+    silentRefresh:
+      hasCache
+  });
 }
-function blocked(c){const s=String(c.status||"").trim().toUpperCase();return ["VOID","REFUND","作廢","已作廢","已退款"].includes(s);}
-function prepare(cards){const usable=cards.filter(c=>!blocked(c)&&Number(c.remainingTimes||0)>0),finished=cards.filter(c=>!blocked(c)&&Number(c.remainingTimes||0)<=0),bad=cards.filter(blocked);pages=usable.concat(finished,bad);if(page>=pages.length)page=0;}
-function formatNo(v){v=String(v||"").trim();return v.includes("-")?v:v.replace(/^AJ(\d+)$/i,"AJ-$1");}
-function render(){
- const box=document.getElementById("cardBox"),nav=document.getElementById("navigationBox");if(!pages.length){box.innerHTML='<div class="cardEmptyBox">目前尚無卡片</div>';nav.style.display="none";return;}
- const c=pages[page],s=String(c.status||"").trim().toUpperCase(),isVoid=["VOID","作廢","已作廢"].includes(s),isRefund=["REFUND","已退款"].includes(s),isBad=isVoid||isRefund,remain=isBad?0:Number(c.remainingTimes||0),total=Number(c.totalTimes||0);
- const st=isVoid?"已作廢":isRefund?"已退款":remain<=0?"已用完":"可使用",sc=isBad?"status-refund":remain<=0?"status-finished":"status-active";
- const notice=isBad?`<div class="blocked">${isVoid?"此卡已作廢，無法使用":"此卡已退款，無法使用"}</div>`:"";
- box.innerHTML=`<div class="card">
- <div class="vipCardWrap"><img class="vipCardImg" src="https://progessc01.github.io/liff-form/vip-card.jpg?v=cardfix006" alt="安建VIP洗車儲值卡"></div>
- <h2 class="infoMainNo">卡號：<span class="cardNoText">${esc(formatNo(c.cardNo))}</span></h2>${notice}
- <p>剩餘次數：${remain}</p><p>總次數：${total}</p><p>車型：${esc(c.vehicleType||"")}</p><p>服務：${esc(c.packageType||"")}</p>
- <p>狀態：<span class="${sc}">${st}</span></p><p class="page-info">第 ${page+1} 張／共 ${pages.length} 張</p>
- <button ${isBad||remain<=0?"disabled":""} onclick="useCard()">我要使用</button><button onclick="viewLog()">使用紀錄</button></div>`;
- nav.style.display=pages.length>1?"flex":"none";document.getElementById("prevButton").disabled=page<=0;document.getElementById("nextButton").disabled=page>=pages.length-1;
+
+
+
+// =========================================================
+// 顯示會員資訊
+// =========================================================
+
+function showMemberInfo() {
+
+  document
+    .getElementById(
+      "memberInfo"
+    )
+    .innerHTML = `
+
+      <div class="welcomeBox">
+
+        <div class="welcomeTop">
+          ✨ 親愛的VIP會員 ✨
+        </div>
+
+        <div class="welcomeName">
+          ${escapeHtml(customerName)}
+        </div>
+
+        <div class="welcomeBottom">
+          歡迎回來
+        </div>
+
+      </div>
+    `;
 }
-function nextPage(){if(page<pages.length-1){page++;render();scrollTo({top:0,behavior:"smooth"});}}function prevPage(){if(page>0){page--;render();scrollTo({top:0,behavior:"smooth"});}}
-function bridge(path,values){const q=new URLSearchParams();Object.entries(values).forEach(([k,v])=>q.set(k,String(v??"")));location.href="https://progessc01.github.io/liff-form/customer-card-action-bridge.html"+"?next="+encodeURIComponent(path)+"&"+q.toString();}
-function useCard(){const c=pages[page];if(!c||blocked(c)||Number(c.remainingTimes||0)<=0)return;bridge("customer-use.html",{useCardNo:c.cardNo,useCardStatus:c.status,useVehicleType:c.vehicleType,usePackageType:c.packageType,useRemainingTimes:c.remainingTimes,useTotalTimes:c.totalTimes});}
-function viewLog(){const c=pages[page];if(!c)return;bridge("customer-log.html",{logCardNo:c.cardNo});}
-function showError(t){document.getElementById("cardBox").innerHTML=`<div class="cardErrorBox"><div>❌ ${esc(t)}</div><button onclick="loadCards()">重新讀取</button></div>`;}
-</script></body></html>
+
+
+
+// =========================================================
+// 讀取卡片
+// =========================================================
+
+async function loadCards(
+  options = {}
+) {
+
+  if(isLoading) {
+    return;
+  }
+
+
+  const silentRefresh =
+    Boolean(
+      options.silentRefresh
+    );
+
+
+  isLoading = true;
+
+
+  const cardBox =
+    document.getElementById(
+      "cardBox"
+    );
+
+
+  const refreshNote =
+    document.getElementById(
+      "refreshNote"
+    );
+
+
+  // =======================================================
+  // 顯示讀取狀態
+  // =======================================================
+
+  if(silentRefresh) {
+
+    refreshNote.innerHTML = `
+
+      <div class="cardRefreshNote">
+        正在背景更新最新卡片資料…
+      </div>
+    `;
+
+  } else {
+
+    cardBox.innerHTML =
+      "";
+
+
+    document
+      .getElementById(
+        "navigationBox"
+      )
+      .style.display =
+        "none";
+
+
+    startLoadingProgress();
+  }
+
+
+  /*
+   * 保留 AbortController，
+   * 但不再設定固定秒數中斷。
+   */
+  try {
+
+    const form =
+      new URLSearchParams();
+
+
+    form.append(
+      "type",
+      "getCustomerCards"
+    );
+
+
+    form.append(
+      "customerName",
+      customerName
+    );
+
+
+    form.append(
+      "phone",
+      phone
+    );
+
+
+    /*
+     * 避免瀏覽器或中間層快取請求。
+     */
+    form.append(
+      "_t",
+      String(
+        Date.now()
+      )
+    );
+
+
+    if(!silentRefresh) {
+
+      updateLoadingProgress(
+        32,
+        "正在連接會員系統"
+      );
+    }
+
+
+    // =====================================================
+    // 呼叫 GAS-RPC
+    // =====================================================
+
+    const data =
+      await new Promise(function(resolve, reject) {
+
+        let finished = false;
+
+        const timeoutId =
+          setTimeout(function() {
+
+            if(finished) {
+              return;
+            }
+
+            finished = true;
+
+            reject(
+              new Error(
+                "卡片讀取逾時"
+              )
+            );
+
+          }, 20000);
+
+        google.script.run
+          .withSuccessHandler(function(response) {
+
+            if(finished) {
+              return;
+            }
+
+            finished = true;
+
+            clearTimeout(
+              timeoutId
+            );
+
+            resolve(
+              response
+            );
+          })
+          .withFailureHandler(function(error) {
+
+            if(finished) {
+              return;
+            }
+
+            finished = true;
+
+            clearTimeout(
+              timeoutId
+            );
+
+            reject(
+              new Error(
+                error &&
+                error.message
+                  ? error.message
+                  : "卡片查詢連線失敗"
+              )
+            );
+          })
+          .getCustomerCardsRpc({
+            customerName: customerName,
+            phone: phone,
+            _t: String(Date.now())
+          });
+      });
+
+
+    if(!silentRefresh) {
+
+      updateLoadingProgress(
+        62,
+        "正在查詢您的卡片"
+      );
+    }
+
+
+    // =====================================================
+    // GAS 回傳錯誤
+    // =====================================================
+
+    if(
+      data.status !==
+      "OK"
+    ) {
+
+      throw new Error(
+        data.message ||
+        "卡片查詢失敗"
+      );
+    }
+
+
+    if(!silentRefresh) {
+
+      updateLoadingProgress(
+        88,
+        "正在整理卡片資料"
+      );
+    }
+
+
+    const cards =
+      Array.isArray(
+        data.cards
+      )
+        ? data.cards
+        : [];
+
+
+    // =====================================================
+    // 整理畫面資料
+    // =====================================================
+
+    prepareCardPages(
+      cards
+    );
+
+
+    // =====================================================
+    // 儲存本機 Cache
+    // =====================================================
+
+    saveCardsToCache(
+      cards
+    );
+
+
+    // =====================================================
+    // 完成讀取
+    // =====================================================
+
+    if(!silentRefresh) {
+
+      await completeLoadingProgress();
+
+    } else {
+
+      refreshNote.innerHTML = `
+
+        <div class="cardRefreshNote">
+          卡片資料已更新
+        </div>
+      `;
+
+
+      setTimeout(
+        function() {
+
+          refreshNote.innerHTML =
+            "";
+
+        },
+        1800
+      );
+    }
+
+
+    render();
+
+
+  } catch(error) {
+
+    console.error(
+      "loadCards error:",
+      error
+    );
+
+
+    /*
+     * 這版不再使用固定時間 abort。
+     *
+     * AbortError 只可能來自：
+     * - 使用者離頁
+     * - 未來手動取消
+     */
+    const message =
+      error.name ===
+      "AbortError"
+
+        ? "卡片讀取已取消"
+
+        : error.message ||
+          "系統錯誤，請稍後重試";
+
+
+    /*
+     * 如果已有上一次成功資料，
+     * 後端暫時失敗時繼續顯示。
+     */
+    if(
+      silentRefresh &&
+      pages.length > 0
+    ) {
+
+      refreshNote.innerHTML = `
+
+        <div class="cardRefreshNote">
+          暫時無法更新，目前顯示上次成功讀取的資料
+        </div>
+      `;
+
+    } else {
+
+      await failLoadingProgress(
+        message
+      );
+
+
+      showLoadError(
+        message
+      );
+    }
+
+
+  } finally {
+
+    activeController =
+      null;
+
+
+    isLoading =
+      false;
+  }
+}
+
+
+
+// =========================================================
+// 整理卡片順序
+// =========================================================
+
+function prepareCardPages(
+  cards
+) {
+
+  const usableCards =
+    cards.filter(
+      function(card) {
+
+        return (
+
+          !isBlockedCard(
+            card
+          )
+
+          &&
+
+          Number(
+            card.remainingTimes || 0
+          ) > 0
+
+        );
+      }
+    );
+
+
+  const finishedCards =
+    cards.filter(
+      function(card) {
+
+        return (
+
+          !isBlockedCard(
+            card
+          )
+
+          &&
+
+          Number(
+            card.remainingTimes || 0
+          ) <= 0
+
+        );
+      }
+    );
+
+
+  const blockedCards =
+    cards.filter(
+      function(card) {
+
+        return isBlockedCard(
+          card
+        );
+      }
+    );
+
+
+  /*
+   * 排序：
+   *
+   * 1 可使用
+   * 2 已用完
+   * 3 已作廢／退款
+   */
+  pages =
+    usableCards
+      .concat(
+        finishedCards
+      )
+      .concat(
+        blockedCards
+      );
+
+
+  if(
+    page >=
+    pages.length
+  ) {
+
+    page =
+      0;
+  }
+}
+
+
+
+// =========================================================
+// 顯示卡片
+// =========================================================
+
+function render() {
+
+  const cardBox =
+    document.getElementById(
+      "cardBox"
+    );
+
+
+  const navigationBox =
+    document.getElementById(
+      "navigationBox"
+    );
+
+
+  // =======================================================
+  // 沒有卡片
+  // =======================================================
+
+  if(
+    pages.length ===
+    0
+  ) {
+
+    navigationBox
+      .style.display =
+        "none";
+
+
+    cardBox.innerHTML = `
+
+      <div class="cardEmptyBox">
+        目前尚無卡片
+      </div>
+    `;
+
+
+    return;
+  }
+
+
+  const card =
+    pages[page];
+
+
+  const cardNoRaw =
+    card.cardNo ||
+    "";
+
+
+  const cardNoDisplay =
+    formatCardNo(
+      cardNoRaw
+    );
+
+
+  const status =
+    String(
+      card.status || ""
+    )
+      .trim()
+      .toUpperCase();
+
+
+  const isVoid =
+    status === "VOID" ||
+    status === "作廢" ||
+    status === "已作廢";
+
+
+  const isRefund =
+    status === "REFUND" ||
+    status === "已退款";
+
+
+  const isBlocked =
+    isVoid ||
+    isRefund;
+
+
+  let remainingTimes =
+    Number(
+      card.remainingTimes || 0
+    );
+
+
+  if(isBlocked) {
+
+    remainingTimes =
+      0;
+  }
+
+
+  const totalTimes =
+    Number(
+      card.totalTimes || 0
+    );
+
+
+  const vehicleType =
+    card.vehicleType ||
+    "";
+
+
+  const packageType =
+    card.packageType ||
+    "";
+
+
+  const disabledUse =
+    (
+      isBlocked ||
+      remainingTimes <= 0
+    )
+      ? "disabled"
+      : "";
+
+
+  const statusClass =
+    isVoid
+
+      ? "status-refund"
+
+      : isRefund
+
+        ? "status-refund"
+
+        : remainingTimes <= 0
+
+          ? "status-finished"
+
+          : "status-active";
+
+
+  const statusText =
+    isVoid
+
+      ? "已作廢"
+
+      : isRefund
+
+        ? "已退款"
+
+        : remainingTimes <= 0
+
+          ? "已用完"
+
+          : "可使用";
+
+
+  const blockedNotice =
+    isVoid
+
+      ? createBlockedNotice(
+          "此卡已作廢，無法使用"
+        )
+
+      : isRefund
+
+        ? createBlockedNotice(
+            "此卡已退款，無法使用"
+          )
+
+        : "";
+
+
+  cardBox.innerHTML = `
+
+    <div class="card">
+
+      <div class="vipCardWrap">
+
+        <img
+          src="https://progessc01.github.io/liff-form/vip-card.jpg?v=cardfix006"
+          class="vipCardImg"
+          alt="安建VIP洗車儲值卡"
+        >
+
+      </div>
+
+
+      <h2 class="infoMainNo">
+
+        卡號：
+
+        <span class="cardNoText">
+          ${escapeHtml(cardNoDisplay)}
+        </span>
+
+      </h2>
+
+
+      ${blockedNotice}
+
+
+      <p>
+        剩餘次數：
+        ${remainingTimes}
+      </p>
+
+
+      <p>
+        總次數：
+        ${totalTimes}
+      </p>
+
+
+      <p>
+        車型：
+        ${escapeHtml(vehicleType)}
+      </p>
+
+
+      <p>
+        服務：
+        ${escapeHtml(packageType)}
+      </p>
+
+
+      <p>
+
+        狀態：
+
+        <span class="${statusClass}">
+          ${statusText}
+        </span>
+
+      </p>
+
+
+      <p class="page-info">
+
+        第
+        ${page + 1}
+        張／共
+        ${pages.length}
+        張
+
+      </p>
+
+
+      <button
+        type="button"
+        onclick="useCurrentCard()"
+        ${disabledUse}
+      >
+        我要使用
+      </button>
+
+
+      <button
+        type="button"
+        onclick="viewCurrentLog()"
+      >
+        使用紀錄
+      </button>
+
+    </div>
+  `;
+
+
+  navigationBox
+    .style.display =
+      pages.length > 1
+        ? "flex"
+        : "none";
+
+
+  updateNavigationButtons();
+}
+
+
+
+// =========================================================
+// 作廢／退款提示
+// =========================================================
+
+function createBlockedNotice(
+  message
+) {
+
+  return `
+
+    <div
+      style="
+        background:#fee2e2;
+        color:#b91c1c;
+        border:2px solid #ef4444;
+        padding:12px;
+        border-radius:12px;
+        font-size:20px;
+        font-weight:900;
+        text-align:center;
+        margin:12px 0;
+      "
+    >
+
+      ${escapeHtml(message)}
+
+    </div>
+  `;
+}
+
+
+
+// =========================================================
+// 下一張
+// =========================================================
+
+function nextPage() {
+
+  if(
+    page >=
+    pages.length - 1
+  ) {
+
+    return;
+  }
+
+
+  page++;
+
+
+  render();
+
+
+  window.scrollTo({
+    top:
+      0,
+
+    behavior:
+      "smooth"
+  });
+}
+
+
+
+// =========================================================
+// 上一張
+// =========================================================
+
+function prevPage() {
+
+  if(
+    page <=
+    0
+  ) {
+
+    return;
+  }
+
+
+  page--;
+
+
+  render();
+
+
+  window.scrollTo({
+    top:
+      0,
+
+    behavior:
+      "smooth"
+  });
+}
+
+
+
+// =========================================================
+// 更新上一頁／下一頁按鈕
+// =========================================================
+
+function updateNavigationButtons() {
+
+  const prevButton =
+    document.getElementById(
+      "prevButton"
+    );
+
+
+  const nextButton =
+    document.getElementById(
+      "nextButton"
+    );
+
+
+  prevButton.disabled =
+    page <= 0;
+
+
+  nextButton.disabled =
+    page >=
+    pages.length - 1;
+}
+
+
+
+// =========================================================
+// 卡片是否禁止使用
+// =========================================================
+
+function isBlockedCard(
+  card
+) {
+
+  const status =
+    String(
+      card.status || ""
+    )
+      .trim()
+      .toUpperCase();
+
+
+  return (
+
+    status === "VOID" ||
+
+    status === "REFUND" ||
+
+    status === "作廢" ||
+
+    status === "已作廢" ||
+
+    status === "已退款"
+
+  );
+}
+
+
+
+// =========================================================
+// 我要使用
+// =========================================================
+
+function useCurrentCard() {
+
+  const card =
+    pages[page];
+
+
+  if(!card) {
+    return;
+  }
+
+
+  if(
+    isBlockedCard(
+      card
+    )
+  ) {
+
+    const status =
+      String(
+        card.status || ""
+      )
+        .trim()
+        .toUpperCase();
+
+
+    alert(
+
+      status === "VOID" ||
+
+      status === "作廢" ||
+
+      status === "已作廢"
+
+        ? "此卡已作廢，無法使用"
+
+        : "此卡已退款，無法使用"
+
+    );
+
+
+    return;
+  }
+
+
+  const remainingTimes =
+    Number(
+      card.remainingTimes || 0
+    );
+
+
+  if(
+    remainingTimes <=
+    0
+  ) {
+
+    alert(
+      "此卡已無剩餘次數"
+    );
+
+    return;
+  }
+
+
+  const query =
+    new URLSearchParams({
+      next: "customer-use.html",
+      useCardNo: card.cardNo || "",
+      useCardStatus: card.status || "",
+      useVehicleType: card.vehicleType || "",
+      usePackageType: card.packageType || "",
+      useRemainingTimes: String(remainingTimes),
+      useTotalTimes: String(card.totalTimes || "")
+    });
+
+  window.open(
+    "https://progessc01.github.io/liff-form/customer-card-action-bridge.html?" +
+    query.toString(),
+    "_top"
+  );
+}
+
+
+
+// =========================================================
+// 使用紀錄
+// =========================================================
+
+function viewCurrentLog() {
+
+  const card =
+    pages[page];
+
+
+  if(!card) {
+    return;
+  }
+
+
+  const query =
+    new URLSearchParams({
+      next: "customer-log.html",
+      logCardNo: card.cardNo || ""
+    });
+
+  window.open(
+    "https://progessc01.github.io/liff-form/customer-card-action-bridge.html?" +
+    query.toString(),
+    "_top"
+  );
+}
+
+
+
+// =========================================================
+// 啟動進度條
+// =========================================================
+
+function startLoadingProgress() {
+
+  stopLoadingTimer();
+
+
+  const loadingBox =
+    document.getElementById(
+      "loadingBox"
+    );
+
+
+  const progressBar =
+    document.getElementById(
+      "progressBar"
+    );
+
+
+  const progressPercent =
+    document.getElementById(
+      "progressPercent"
+    );
+
+
+  const loadingTitle =
+    document.getElementById(
+      "loadingTitle"
+    );
+
+
+  const loadingText =
+    document.getElementById(
+      "loadingText"
+    );
+
+
+  loadingBox.style.display =
+    "block";
+
+
+  progressBar.className =
+    "cardProgressBar";
+
+
+  progressBar.style.width =
+    "5%";
+
+
+  progressPercent.textContent =
+    "5%";
+
+
+  loadingTitle.textContent =
+    "正在讀取卡片";
+
+
+  loadingText.textContent =
+    "正在準備會員資料";
+
+
+  let progress =
+    5;
+
+
+  loadingTimer =
+    setInterval(
+      function() {
+
+        /*
+         * 沒收到後端結果前
+         * 最多跑到 88%。
+         */
+        if(
+          progress >=
+          88
+        ) {
+
+          return;
+        }
+
+
+        const increase =
+          Math.floor(
+            Math.random() * 4
+          ) + 1;
+
+
+        progress =
+          Math.min(
+            88,
+            progress +
+            increase
+          );
+
+
+        progressBar.style.width =
+          progress +
+          "%";
+
+
+        progressPercent.textContent =
+          progress +
+          "%";
+
+
+        if(
+          progress <
+          30
+        ) {
+
+          loadingText.textContent =
+            "正在驗證會員身分";
+
+
+        } else if(
+          progress <
+          55
+        ) {
+
+          loadingText.textContent =
+            "正在連接會員系統";
+
+
+        } else if(
+          progress <
+          78
+        ) {
+
+          loadingText.textContent =
+            "正在查詢您的卡片";
+
+
+        } else {
+
+          loadingText.textContent =
+            "資料較多，正在整理卡片內容";
+        }
+
+      },
+      450
+    );
+}
+
+
+
+// =========================================================
+// 更新進度
+// =========================================================
+
+function updateLoadingProgress(
+  percent,
+  text
+) {
+
+  const progressBar =
+    document.getElementById(
+      "progressBar"
+    );
+
+
+  const progressPercent =
+    document.getElementById(
+      "progressPercent"
+    );
+
+
+  const loadingText =
+    document.getElementById(
+      "loadingText"
+    );
+
+
+  const value =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        Number(
+          percent || 0
+        )
+      )
+    );
+
+
+  progressBar.style.width =
+    value +
+    "%";
+
+
+  progressPercent.textContent =
+    value +
+    "%";
+
+
+  if(text) {
+
+    loadingText.textContent =
+      text;
+  }
+}
+
+
+
+// =========================================================
+// 讀取完成
+// =========================================================
+
+async function completeLoadingProgress() {
+
+  stopLoadingTimer();
+
+
+  const progressBar =
+    document.getElementById(
+      "progressBar"
+    );
+
+
+  const loadingTitle =
+    document.getElementById(
+      "loadingTitle"
+    );
+
+
+  progressBar
+    .classList
+    .add(
+      "success"
+    );
+
+
+  loadingTitle.textContent =
+    "讀取完成";
+
+
+  updateLoadingProgress(
+    100,
+    "卡片資料已完成更新"
+  );
+
+
+  await wait(
+    350
+  );
+
+
+  document
+    .getElementById(
+      "loadingBox"
+    )
+    .style.display =
+      "none";
+}
+
+
+
+// =========================================================
+// 讀取失敗
+// =========================================================
+
+async function failLoadingProgress(
+  message
+) {
+
+  stopLoadingTimer();
+
+
+  const progressBar =
+    document.getElementById(
+      "progressBar"
+    );
+
+
+  const loadingTitle =
+    document.getElementById(
+      "loadingTitle"
+    );
+
+
+  progressBar
+    .classList
+    .add(
+      "error"
+    );
+
+
+  loadingTitle.textContent =
+    "讀取失敗";
+
+
+  updateLoadingProgress(
+    100,
+    message
+  );
+
+
+  await wait(
+    450
+  );
+
+
+  document
+    .getElementById(
+      "loadingBox"
+    )
+    .style.display =
+      "none";
+}
+
+
+
+// =========================================================
+// 停止進度條
+// =========================================================
+
+function stopLoadingTimer() {
+
+  if(
+    loadingTimer
+  ) {
+
+    clearInterval(
+      loadingTimer
+    );
+
+
+    loadingTimer =
+      null;
+  }
+}
+
+
+
+// =========================================================
+// 錯誤畫面
+// =========================================================
+
+function showLoadError(
+  message
+) {
+
+  const cardBox =
+    document.getElementById(
+      "cardBox"
+    );
+
+
+  document
+    .getElementById(
+      "navigationBox"
+    )
+    .style.display =
+      "none";
+
+
+  cardBox.innerHTML = `
+
+    <div class="cardErrorBox">
+
+      <div>
+        ❌
+        ${escapeHtml(message)}
+      </div>
+
+
+      <button
+        type="button"
+        class="reloadButton"
+        onclick="loadCards()"
+      >
+        重新讀取
+      </button>
+
+    </div>
+  `;
+}
+
+
+
+// =========================================================
+// 本機 Cache Key
+// =========================================================
+
+function getCardCacheKey() {
+
+  return (
+
+    "customerCardsCache_" +
+
+    normalizeCachePart(
+      phone
+    ) +
+
+    "_" +
+
+    normalizeCachePart(
+      customerName
+    )
+
+  );
+}
+
+
+
+// =========================================================
+// 儲存本機 Cache
+// =========================================================
+
+function saveCardsToCache(
+  cards
+) {
+
+  try {
+
+    const cacheData = {
+
+      savedAt:
+        Date.now(),
+
+      cards:
+        cards
+    };
+
+
+    localStorage.setItem(
+
+      getCardCacheKey(),
+
+      JSON.stringify(
+        cacheData
+      )
+
+    );
+
+
+  } catch(error) {
+
+    console.warn(
+      "卡片快取寫入失敗：",
+      error
+    );
+  }
+}
+
+
+
+// =========================================================
+// 載入本機 Cache
+// =========================================================
+
+function loadCardsFromCache() {
+
+  try {
+
+    const raw =
+      localStorage.getItem(
+        getCardCacheKey()
+      );
+
+
+    if(!raw) {
+
+      return false;
+    }
+
+
+    const cacheData =
+      JSON.parse(
+        raw
+      );
+
+
+    if(
+
+      !cacheData ||
+
+      !Array.isArray(
+        cacheData.cards
+      )
+
+    ) {
+
+      return false;
+    }
+
+
+    const savedAt =
+      Number(
+        cacheData.savedAt || 0
+      );
+
+
+    const age =
+      Date.now() -
+      savedAt;
+
+
+    /*
+     * 超過有效時間仍先顯示，
+     * 但一定會背景更新。
+     *
+     * age 保留，
+     * 之後若想顯示「資料較舊」
+     * 可直接使用。
+     */
+    const isExpired =
+      age >
+      CARD_CACHE_MAX_AGE;
+
+
+    prepareCardPages(
+      cacheData.cards
+    );
+
+
+    render();
+
+
+    const timeText =
+      formatTaiwanDateTime(
+        savedAt
+      );
+
+
+    document
+      .getElementById(
+        "refreshNote"
+      )
+      .innerHTML = `
+
+        <div class="cardRefreshNote">
+
+          ${
+            isExpired
+              ? "先顯示上次資料"
+              : "已先載入上次資料"
+          }
+
+          （${escapeHtml(timeText)}），
+
+          正在更新最新內容…
+
+        </div>
+      `;
+
+
+    return true;
+
+
+  } catch(error) {
+
+    console.warn(
+      "卡片快取讀取失敗：",
+      error
+    );
+
+
+    return false;
+  }
+}
+
+
+
+// =========================================================
+// Cache 字串正規化
+// =========================================================
+
+function normalizeCachePart(
+  value
+) {
+
+  return String(
+    value || ""
+  )
+    .replace(
+      /[^a-zA-Z0-9\u4e00-\u9fff]/g,
+      ""
+    );
+}
+
+
+
+// =========================================================
+// 卡號顯示格式
+// =========================================================
+
+function formatCardNo(
+  cardNo
+) {
+
+  const value =
+    String(
+      cardNo || ""
+    )
+      .trim();
+
+
+  if(
+    value.includes(
+      "-"
+    )
+  ) {
+
+    return value;
+  }
+
+
+  return value.replace(
+    /^AJ(\d+)$/i,
+    "AJ-$1"
+  );
+}
+
+
+
+// =========================================================
+// 台灣時間顯示
+// =========================================================
+
+function formatTaiwanDateTime(
+  timestamp
+) {
+
+  const date =
+    new Date(
+      timestamp
+    );
+
+
+  if(
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+
+    return "";
+  }
+
+
+  return new Intl.DateTimeFormat(
+    "zh-TW",
+    {
+
+      timeZone:
+        "Asia/Taipei",
+
+      year:
+        "numeric",
+
+      month:
+        "2-digit",
+
+      day:
+        "2-digit",
+
+      hour:
+        "2-digit",
+
+      minute:
+        "2-digit",
+
+      second:
+        "2-digit",
+
+      hour12:
+        false
+
+    }
+  ).format(
+    date
+  );
+}
+
+
+
+// =========================================================
+// Promise 延遲
+// =========================================================
+
+function wait(
+  ms
+) {
+
+  return new Promise(
+    function(resolve) {
+
+      setTimeout(
+        resolve,
+        ms
+      );
+
+    }
+  );
+}
+
+
+
+// =========================================================
+// HTML escape
+// =========================================================
+
+function escapeHtml(
+  value
+) {
+
+  return String(
+    value ?? ""
+  )
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
+}
+
+</script>
+
+</body>
+
+</html>
