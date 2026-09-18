@@ -1,0 +1,10 @@
+<!DOCTYPE html><html lang="zh-TW"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>我的卡片</title></head>
+<body><div style="font-family:Arial,'Microsoft JhengHei';padding:30px;text-align:center">正在開啟最新卡片資料…</div>
+<script>
+(function(){
+ const n=localStorage.getItem("customerName")||"";const p=localStorage.getItem("phone")||"";
+ if(!n||!p){location.replace("customer-login.html");return;}
+ const u="https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec?page=customer_card"+"&customerName="+encodeURIComponent(n)+"&phone="+encodeURIComponent(p);
+ location.replace(u);
+})();
+</script></body></html>

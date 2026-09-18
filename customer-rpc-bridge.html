@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="zh-TW"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>登入完成</title></head>
+<body><div style="font-family:Arial,'Microsoft JhengHei';padding:30px;text-align:center">登入完成，正在進入會員專區…</div>
+<script>
+(function(){
+  const q=new URLSearchParams(location.search);
+  const name=String(q.get("customerName")||"").trim();
+  const phone=String(q.get("phone")||"").trim();
+  if(!name||!phone){location.replace("customer-login.html");return;}
+  localStorage.setItem("customerName",name);
+  localStorage.setItem("phone",phone);
+  location.replace("customer-home.html");
+})();
+</script></body></html>
