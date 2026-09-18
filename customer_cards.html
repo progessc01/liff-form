@@ -1,0 +1,115 @@
+<!DOCTYPE html><html lang="zh-TW"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>卡片查詢</title><style>
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{
+ margin:0;padding:0;font-family:"Microsoft JhengHei",Arial,sans-serif;color:white;
+ background:
+ radial-gradient(circle at top,rgba(0,217,255,.25),transparent 35%),
+ radial-gradient(circle at bottom right,rgba(155,61,255,.28),transparent 40%),
+ linear-gradient(135deg,#02040f 0%,#07142b 45%,#02040f 100%);
+ background-attachment:fixed;
+}
+.container{max-width:500px;margin:auto;padding:20px}
+h1{text-align:center;font-size:34px;margin:12px 0 25px;color:#fff;text-shadow:0 0 10px #00d9ff,0 0 20px #00d9ff}
+.card{
+ background:rgba(15,18,35,.82);border:1px solid rgba(0,217,255,.35);border-radius:22px;
+ padding:20px;margin-bottom:20px;box-shadow:0 0 20px rgba(0,217,255,.15),0 0 40px rgba(155,61,255,.12);
+ backdrop-filter:blur(10px)
+}
+button,.buttonLink{
+ width:100%;border:none;border-radius:14px;padding:14px;margin-top:10px;font-size:18px;font-weight:bold;color:white;
+ background:linear-gradient(90deg,#00d9ff,#007bff,#9b3dff);
+ box-shadow:0 0 12px rgba(0,217,255,.4),0 0 25px rgba(155,61,255,.25);
+ cursor:pointer;transition:.25s;text-decoration:none;display:flex;align-items:center;justify-content:center
+}
+button:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+input,select{
+ width:100%;padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.15);
+ background:rgba(255,255,255,.08);color:white;font-size:16px
+}
+input::placeholder{color:#ccc} select option{color:#000}
+p{line-height:1.8}.page-info{text-align:center;margin-top:10px;color:#9fdfff;font-size:15px}
+.status-active{color:#00ff9d;font-weight:bold}.status-finished{color:#ff5252;font-weight:bold}.status-refund{color:#ffcc00;font-weight:bold}
+.welcomeBox{text-align:center;margin-bottom:25px}
+.welcomeTop{font-size:20px;font-weight:700;color:#fff;letter-spacing:2px;text-shadow:0 0 10px rgba(0,217,255,.6)}
+.welcomeName{margin:12px 0;font-size:38px;font-weight:900;color:#ffd86b;text-shadow:0 0 5px rgba(255,255,255,.8),0 0 12px rgba(255,215,0,.7),0 0 20px rgba(255,180,0,.5)}
+.welcomeBottom{font-size:18px;color:#cfefff;letter-spacing:3px;text-shadow:0 0 8px rgba(0,217,255,.35)}
+.vipCardWrap{position:relative;width:100%;margin-bottom:18px;aspect-ratio:5/3;overflow:hidden;border-radius:18px;background:#000;box-shadow:0 0 25px rgba(255,0,0,.15),0 10px 30px rgba(0,0,0,.45)}
+.vipCardImg{width:100%;height:100%;object-fit:cover;display:block;border-radius:18px}
+.infoMainNo{font-size:24px;font-weight:600;color:#fff;margin:18px 0 14px;letter-spacing:1px}
+.cardNoText{font-size:30px;font-weight:900;letter-spacing:1px;color:#7fe8ff;text-shadow:0 0 6px rgba(127,232,255,.45),0 0 12px rgba(0,217,255,.35)}
+.cardLoadingPanel,.cardEmptyBox,.cardErrorBox{
+ width:100%;margin:12px auto;padding:20px;border-radius:18px;text-align:center;
+ background:rgba(15,18,35,.82);border:1px solid rgba(0,217,255,.35);
+ box-shadow:0 0 20px rgba(0,217,255,.15),0 0 40px rgba(155,61,255,.12)
+}
+.cardLoadingTitle{font-size:20px;font-weight:900}.cardProgressTrack{height:14px;overflow:hidden;background:rgba(255,255,255,.13);border-radius:999px}
+.cardProgressBar{width:5%;height:100%;border-radius:999px;background:linear-gradient(90deg,#00d9ff,#007bff,#9b3dff);transition:width .3s}
+.cardProgressPercent{margin-top:8px;font-size:14px;font-weight:900;color:#9fdfff}.cardLoadingText{min-height:24px;margin-top:12px;font-weight:700;color:#cfefff}
+.cardRefreshNote{text-align:center;color:#9fdfff;font-size:13px;font-weight:700;margin:8px 0 14px}
+.cardNavigation{display:flex;gap:10px;margin-top:16px}.cardNavigation button{flex:1}.returnButtonWrap{margin-top:16px}
+.cardErrorBox{border:2px solid #ef4444;background:rgba(120,10,20,.35);color:#ffd7d7;font-weight:800}
+.blocked{background:rgba(120,10,20,.45);color:#ffd7d7;border:2px solid #ef4444;padding:12px;border-radius:12px;font-size:18px;font-weight:900;text-align:center;margin:12px 0}
+.formCard{padding:22px}.fieldLabel{display:block;margin:14px 0 7px;color:#cfefff;font-weight:800}
+.helper{text-align:center;color:#9fdfff;font-size:13px;margin-top:10px}.links{display:flex;gap:10px}.links .buttonLink{font-size:15px}
+.progressWrap{display:none;margin-top:18px}.message{display:none;margin-top:14px;padding:12px;border-radius:12px;text-align:center;font-weight:800}
+.message.error{display:block;background:rgba(120,10,20,.45);border:1px solid #ef4444;color:#ffd7d7}
+.successBox{display:none;text-align:center}.loginShell.done .formArea,.loginShell.done .progressWrap,.loginShell.done .loginSub{display:none}.loginShell.done .successBox{display:block}
+.successTitle{font-size:30px;font-weight:900;color:#ffd86b;text-shadow:0 0 12px rgba(255,215,0,.7);margin:10px 0 16px}
+.version{text-align:center;color:#7299ad;font-size:11px;margin-top:18px}
+@media(max-width:430px){
+ .container{max-width:100%;padding:14px}.card{padding:14px;border-radius:18px}h1{font-size:30px}
+ .welcomeTop{font-size:18px}.welcomeName{font-size:34px}.welcomeBottom{font-size:16px}
+ .infoMainNo{font-size:22px}.cardNoText{font-size:27px}
+}
+</style></head><body>
+<div class="container">
+<h1>我的卡片</h1>
+<div id="memberInfo"></div><div id="refreshNote"></div>
+<div id="loadingBox" style="display:none"><div class="cardLoadingPanel"><div class="cardLoadingTitle" id="loadingTitle">正在讀取卡片</div><div class="cardProgressTrack"><div class="cardProgressBar" id="progressBar"></div></div><div class="cardProgressPercent" id="progressPercent">5%</div><div class="cardLoadingText" id="loadingText">正在準備會員資料</div><div class="helper">請稍候，不要重複點擊</div></div></div>
+<div id="cardBox"></div>
+<div id="navigationBox" class="cardNavigation" style="display:none"><button id="prevButton" onclick="prevPage()">上一頁</button><button id="nextButton" onclick="nextPage()">下一頁</button></div>
+<div class="returnButtonWrap"><a class="buttonLink" href="https://progessc01.github.io/liff-form/customer-home.html" target="_top">返回</a></div>
+<div class="version">2026.09.18｜Customer Cards GAS-RPC 原風格版</div>
+</div>
+<script>
+"use strict";
+const customerName=<?!= JSON.stringify(customerName) ?>,phone=<?!= JSON.stringify(phone) ?>;
+let pages=[],page=0,isLoading=false,loadingTimer=null,progress=5;
+showMemberInfo();loadCards();
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
+function showMemberInfo(){document.getElementById("memberInfo").innerHTML=`<div class="welcomeBox"><div class="welcomeTop">✨ 親愛的VIP會員 ✨</div><div class="welcomeName">${esc(customerName)}</div><div class="welcomeBottom">歡迎回來</div></div>`;}
+function rpcCards(ms){return new Promise((ok,bad)=>{let done=false;const tid=setTimeout(()=>{if(done)return;done=true;bad(new Error("卡片讀取逾時"));},ms);google.script.run.withSuccessHandler(r=>{if(done)return;done=true;clearTimeout(tid);ok(r);}).withFailureHandler(e=>{if(done)return;done=true;clearTimeout(tid);bad(new Error(e&&e.message?e.message:"RPC連線失敗"));}).getCustomerCardsRpc({customerName,phone,_ts:String(Date.now())});});}
+function startProgress(){document.getElementById("loadingBox").style.display="block";progress=5;setProgress(5,"正在準備會員資料");loadingTimer=setInterval(()=>{if(progress<88){progress+=progress<50?3:1;setProgress(progress,progress<30?"正在驗證會員身分":progress<55?"正在連接會員系統":progress<78?"正在查詢您的卡片":"正在整理卡片內容");}},350);}
+function setProgress(n,t){document.getElementById("progressBar").style.width=n+"%";document.getElementById("progressPercent").innerText=n+"%";document.getElementById("loadingText").innerText=t;}
+async function loadCards(){
+ if(isLoading)return;if(!customerName||!phone){showError("會員資料不完整，請重新登入");return;}isLoading=true;document.getElementById("cardBox").innerHTML="";document.getElementById("navigationBox").style.display="none";startProgress();
+ try{let data,last;for(let i=0;i<3;i++){try{data=await rpcCards([8000,12000,16000][i]);break;}catch(e){last=e;if(i<2)setProgress(Math.max(progress,70),"連線異常，自動重試 "+(i+2)+"/3");}}
+  if(!data)throw last||new Error("卡片查詢失敗");if(data.status!=="OK")throw new Error(data.message||"卡片查詢失敗");
+  clearInterval(loadingTimer);setProgress(100,"卡片資料已完成更新");prepare(data.cards||[]);setTimeout(()=>{document.getElementById("loadingBox").style.display="none";render();},250);
+ }catch(e){clearInterval(loadingTimer);document.getElementById("loadingBox").style.display="none";showError(e.message||"系統錯誤，請稍後重試");}finally{isLoading=false;}
+}
+function blocked(c){const s=String(c.status||"").trim().toUpperCase();return ["VOID","REFUND","作廢","已作廢","已退款"].includes(s);}
+function prepare(cards){const usable=cards.filter(c=>!blocked(c)&&Number(c.remainingTimes||0)>0),finished=cards.filter(c=>!blocked(c)&&Number(c.remainingTimes||0)<=0),bad=cards.filter(blocked);pages=usable.concat(finished,bad);if(page>=pages.length)page=0;}
+function formatNo(v){v=String(v||"").trim();return v.includes("-")?v:v.replace(/^AJ(\d+)$/i,"AJ-$1");}
+function render(){
+ const box=document.getElementById("cardBox"),nav=document.getElementById("navigationBox");if(!pages.length){box.innerHTML='<div class="cardEmptyBox">目前尚無卡片</div>';nav.style.display="none";return;}
+ const c=pages[page],s=String(c.status||"").trim().toUpperCase(),isVoid=["VOID","作廢","已作廢"].includes(s),isRefund=["REFUND","已退款"].includes(s),isBad=isVoid||isRefund,remain=isBad?0:Number(c.remainingTimes||0),total=Number(c.totalTimes||0);
+ const st=isVoid?"已作廢":isRefund?"已退款":remain<=0?"已用完":"可使用",sc=isBad?"status-refund":remain<=0?"status-finished":"status-active";
+ const notice=isBad?`<div class="blocked">${isVoid?"此卡已作廢，無法使用":"此卡已退款，無法使用"}</div>`:"";
+ box.innerHTML=`<div class="card">
+ <div class="vipCardWrap"><img class="vipCardImg" src="https://progessc01.github.io/liff-form/vip-card.jpg?v=cardfix006" alt="安建VIP洗車儲值卡"></div>
+ <h2 class="infoMainNo">卡號：<span class="cardNoText">${esc(formatNo(c.cardNo))}</span></h2>${notice}
+ <p>剩餘次數：${remain}</p><p>總次數：${total}</p><p>車型：${esc(c.vehicleType||"")}</p><p>服務：${esc(c.packageType||"")}</p>
+ <p>狀態：<span class="${sc}">${st}</span></p><p class="page-info">第 ${page+1} 張／共 ${pages.length} 張</p>
+ <button ${isBad||remain<=0?"disabled":""} onclick="useCard()">我要使用</button><button onclick="viewLog()">使用紀錄</button></div>`;
+ nav.style.display=pages.length>1?"flex":"none";document.getElementById("prevButton").disabled=page<=0;document.getElementById("nextButton").disabled=page>=pages.length-1;
+}
+function nextPage(){if(page<pages.length-1){page++;render();scrollTo({top:0,behavior:"smooth"});}}function prevPage(){if(page>0){page--;render();scrollTo({top:0,behavior:"smooth"});}}
+function bridge(path,values){const q=new URLSearchParams();Object.entries(values).forEach(([k,v])=>q.set(k,String(v??"")));location.href="https://progessc01.github.io/liff-form/customer-card-action-bridge.html"+"?next="+encodeURIComponent(path)+"&"+q.toString();}
+function useCard(){const c=pages[page];if(!c||blocked(c)||Number(c.remainingTimes||0)<=0)return;bridge("customer-use.html",{useCardNo:c.cardNo,useCardStatus:c.status,useVehicleType:c.vehicleType,usePackageType:c.packageType,useRemainingTimes:c.remainingTimes,useTotalTimes:c.totalTimes});}
+function viewLog(){const c=pages[page];if(!c)return;bridge("customer-log.html",{logCardNo:c.cardNo});}
+function showError(t){document.getElementById("cardBox").innerHTML=`<div class="cardErrorBox"><div>❌ ${esc(t)}</div><button onclick="loadCards()">重新讀取</button></div>`;}
+</script></body></html>
