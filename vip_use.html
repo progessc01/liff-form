@@ -1,0 +1,1953 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>卡片核銷</title>
+
+  <link
+    rel="stylesheet"
+    href="customer-style.css"
+  >
+
+  <style>
+    /* =========================================
+       核銷進度條
+    ========================================= */
+
+    .use-progress {
+      width: 100%;
+      margin-top: 16px;
+      opacity: 1;
+      transform: translateY(0);
+      transition:
+        opacity 0.25s ease,
+        transform 0.25s ease;
+    }
+
+    .use-progress[hidden] {
+      display: none !important;
+    }
+
+    .use-progress.is-hiding {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+
+    .use-progress-track {
+      width: 100%;
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      box-shadow:
+        inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .use-progress-bar {
+      width: 0%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(
+        90deg,
+        #00b8d9 0%,
+        #45e3ff 55%,
+        #00b8d9 100%
+      );
+      background-size: 200% 100%;
+      transition: width 0.35s ease;
+      animation: useProgressShine 1.2s linear infinite;
+    }
+
+    .use-progress-bar.is-success {
+      background: linear-gradient(
+        90deg,
+        #198754 0%,
+        #55d697 55%,
+        #198754 100%
+      );
+      background-size: 200% 100%;
+    }
+
+    .use-progress-bar.is-error {
+      background: #d93025;
+      animation: none;
+    }
+
+    .use-progress-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 8px;
+      min-height: 22px;
+      font-size: 14px;
+      color: #d8efff;
+    }
+
+    .use-progress-text {
+      flex: 1;
+      text-align: left;
+    }
+
+    .use-progress-percent {
+      min-width: 42px;
+      text-align: right;
+      font-weight: 700;
+      color: #45e3ff;
+    }
+
+    .use-progress-percent.is-success {
+      color: #55d697;
+    }
+
+    .use-progress-percent.is-error {
+      color: #ff7770;
+    }
+
+    #useBtn:disabled {
+      cursor: not-allowed;
+      opacity: 0.72;
+    }
+
+    #result {
+      min-height: 24px;
+      line-height: 1.6;
+    }
+
+    .result-error {
+      color: #ff6b6b;
+      font-weight: 700;
+    }
+
+    .result-info {
+      color: #f7d774;
+      font-weight: 700;
+    }
+
+    @keyframes useProgressShine {
+      from {
+        background-position: 200% 0;
+      }
+
+      to {
+        background-position: -200% 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .use-progress,
+      .use-progress-bar {
+        transition: none;
+        animation: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>卡片核銷</h1>
+
+  <div id="mainArea">
+
+    <div class="card">
+      <p>核銷卡號：</p>
+
+      <h2 id="cardNoText">
+        讀取中...
+      </h2>
+
+      <div
+        id="cardInfo"
+        style="margin-top:15px;"
+      >
+        ⏳ 讀取卡片資料中...
+      </div>
+    </div>
+
+    <br>
+
+    <select id="storeCode">
+      <option value="">請選擇分店</option>
+      <option value="AJ01">AJ01 總店</option>
+      <option value="AJ02">AJ02 員林店</option>
+      <option value="AJ03">AJ03 彰南店</option>
+      <option value="AJ04">AJ04 山福店</option>
+    </select>
+
+    <br><br>
+
+    <input
+      type="text"
+      id="staffNo"
+      placeholder="請輸入工號，例如：001"
+      inputmode="numeric"
+      autocomplete="off"
+      enterkeyhint="next"
+    >
+
+    <br><br>
+
+    <input
+      type="password"
+      id="password"
+      placeholder="請輸入密碼"
+      autocomplete="current-password"
+      inputmode="text"
+      enterkeyhint="go"
+    >
+
+    <br><br>
+
+    <button
+      type="button"
+      id="useBtn"
+      onclick="useCard('no')"
+    >
+      確認核銷
+    </button>
+
+    <div
+      id="useProgress"
+      class="use-progress"
+      aria-live="polite"
+      hidden
+    >
+      <div class="use-progress-track">
+        <div
+          id="useProgressBar"
+          class="use-progress-bar"
+        ></div>
+      </div>
+
+      <div class="use-progress-info">
+        <span
+          id="useProgressText"
+          class="use-progress-text"
+        >
+          準備核銷...
+        </span>
+
+        <span
+          id="useProgressPercent"
+          class="use-progress-percent"
+        >
+          0%
+        </span>
+      </div>
+    </div>
+
+  </div>
+
+  <br>
+
+  <div
+    id="result"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+</div>
+
+<script>
+
+const GAS_URL =
+  "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+
+
+/*
+ * 電子 VIP 核銷穩定版：
+ * 舊 QR / GitHub 靜態頁仍可沿用。
+ * 若目前不是 GAS HtmlService，就把 cardNo 帶到 GAS 的 vip_use 頁。
+ * 進入 GAS 後所有查卡/核銷改走 google.script.run，避開 fetch /exec redirect 鏈。
+ */
+(function enterVipUseGasRpcPage_(){
+  const hasGasRpc =
+    typeof google !== "undefined" &&
+    google.script &&
+    google.script.run;
+
+  if(hasGasRpc){
+    return;
+  }
+
+  const p = new URLSearchParams(window.location.search);
+  const c = String(p.get("cardNo") || "").trim();
+
+  if(!c){
+    return;
+  }
+
+  const target =
+    GAS_URL +
+    "?page=vip_use&cardNo=" +
+    encodeURIComponent(c);
+
+  if(window.location.href !== target){
+    window.location.replace(target);
+  }
+})();
+
+const params =
+  new URLSearchParams(
+    window.location.search
+  );
+
+const cardNo =
+  String(
+    params.get("cardNo") || ""
+  ).trim();
+
+const result =
+  document.getElementById("result");
+
+const mainArea =
+  document.getElementById("mainArea");
+
+const cardInfo =
+  document.getElementById("cardInfo");
+
+let isUsing = false;
+
+/*
+ * 同一筆核銷從第一次送出到成功/失敗重試，都沿用同一個 requestId。
+ * 只有「同行車輛再次核銷」才建立新的 requestId。
+ */
+let currentUseRequestId = "";
+let lastSuccessData = null;
+
+const USE_RESULT_RECOVERY_MAX_ATTEMPTS = 3;
+const USE_RESULT_RECOVERY_DELAYS_MS = [700,1500,2600];
+let isRecoveringUseResult = false;
+
+function createUseRequestId() {
+  if(window.crypto && typeof window.crypto.randomUUID === "function") {
+    return "VIP-" + window.crypto.randomUUID();
+  }
+  return "VIP-" + Date.now() + "-" +
+    Math.random().toString(36).slice(2, 12);
+}
+
+function getOrCreateUseRequestId(forceNew) {
+  if(forceNew || !currentUseRequestId) {
+    currentUseRequestId = createUseRequestId();
+  }
+  return currentUseRequestId;
+}
+
+let useProgressValue = 0;
+let useProgressTimer = null;
+
+
+/**
+ * 初始化頁面
+ */
+if(!cardNo) {
+
+  document
+    .getElementById("cardNoText")
+    .innerText =
+      "無卡號";
+
+  cardInfo.innerHTML = "";
+
+  showResultError(
+    "QR CODE 錯誤，沒有卡號"
+  );
+
+} else {
+
+  document
+    .getElementById("cardNoText")
+    .innerText =
+      cardNo;
+
+  loadCardInfo();
+}
+
+
+/**
+ * 讀取卡片資料
+ */
+async function loadCardInfo() {
+
+  try {
+
+    const data =
+      await vipSearchCardRpcPromise_(cardNo, 12000);
+
+    if(data.status !== "OK") {
+
+      cardInfo.innerHTML = `
+        <div style="
+          color:#ff5555;
+          font-weight:bold;
+        ">
+          ❌ 查無此卡號
+        </div>
+      `;
+
+      return;
+    }
+
+    const card =
+      data.card || {};
+
+    let statusText =
+      String(card.status || "");
+
+    if(statusText === "SOLD") {
+      statusText = "可使用";
+    }
+
+    if(statusText === "FINISHED") {
+      statusText = "已用完";
+    }
+
+    if(statusText === "REFUND") {
+      statusText = "已退款";
+    }
+
+    if(statusText === "VOID") {
+      statusText = "已作廢";
+    }
+
+    let remainingTimes =
+      Number(
+        card.remainingTimes || 0
+      );
+
+    if(
+      card.status === "VOID" ||
+      card.status === "REFUND"
+    ) {
+      remainingTimes = 0;
+    }
+
+    const vehicleType =
+      escapeHtml(
+        card.vehicleType ||
+        "未設定"
+      );
+
+    const packageType =
+      escapeHtml(
+        card.packageType ||
+        "未設定"
+      );
+
+    const totalTimes =
+      escapeHtml(
+        card.totalTimes || ""
+      );
+
+    cardInfo.innerHTML = `
+      <div style="
+        background:rgba(0,217,255,0.12);
+        border:2px solid #00d9ff;
+        border-radius:16px;
+        padding:16px;
+        margin-top:15px;
+        text-align:center;
+      ">
+
+        <div style="
+          font-size:15px;
+          color:#9fdfff;
+        ">
+          本卡適用車型
+        </div>
+
+        <div style="
+          font-size:34px;
+          font-weight:bold;
+          color:#ffffff;
+          margin-top:6px;
+        ">
+          ${vehicleType}
+        </div>
+
+        <hr style="
+          border-color:rgba(255,255,255,0.2);
+        ">
+
+        <div style="
+          font-size:15px;
+          color:#9fdfff;
+        ">
+          使用服務
+        </div>
+
+        <div style="
+          font-size:26px;
+          font-weight:bold;
+          color:#f7d774;
+          margin-top:6px;
+          line-height:1.4;
+        ">
+          ${packageType}
+        </div>
+
+        <hr style="
+          border-color:rgba(255,255,255,0.2);
+        ">
+
+        <div style="
+          font-size:18px;
+          font-weight:bold;
+        ">
+          剩餘次數：
+          ${remainingTimes} /
+          ${totalTimes}
+        </div>
+
+        <div style="
+          margin-top:8px;
+          font-size:16px;
+          font-weight:bold;
+          color:${
+            card.status === "SOLD"
+              ? "#00ff99"
+              : (
+                  card.status === "VOID" ||
+                  card.status === "REFUND" ||
+                  card.status === "FINISHED"
+                )
+                ? "#ff5555"
+                : "#ffcc00"
+          };
+        ">
+          狀態：
+          ${escapeHtml(statusText)}
+        </div>
+
+      </div>
+    `;
+
+  } catch(err) {
+
+    console.error(
+      "loadCardInfo RPC error:",
+      err
+    );
+
+    if(err && err.message === "RPC_TIMEOUT") {
+      cardInfo.innerHTML =
+        "❌ 卡片資料讀取逾時，請重新整理";
+    } else {
+      cardInfo.innerHTML =
+        "❌ 卡片資料讀取失敗";
+    }
+  }
+}
+
+
+function vipSearchCardRpcPromise_(cardNoValue, timeoutMs){
+  return new Promise(function(resolve,reject){
+
+    if(
+      typeof google === "undefined" ||
+      !google.script ||
+      !google.script.run
+    ){
+      reject(new Error("GAS_RPC_UNAVAILABLE"));
+      return;
+    }
+
+    let settled = false;
+
+    const timer = setTimeout(function(){
+      if(settled) return;
+      settled = true;
+      reject(new Error("RPC_TIMEOUT"));
+    }, timeoutMs || 12000);
+
+    google.script.run
+      .withSuccessHandler(function(data){
+        if(settled) return;
+        settled = true;
+        clearTimeout(timer);
+        resolve(data || {
+          status:"ERROR",
+          message:"查卡沒有回傳資料"
+        });
+      })
+      .withFailureHandler(function(err){
+        if(settled) return;
+        settled = true;
+        clearTimeout(timer);
+        reject(
+          new Error(
+            String(
+              err && err.message ||
+              err ||
+              "RPC_ERROR"
+            )
+          )
+        );
+      })
+      .searchCardRpc(cardNoValue);
+  });
+}
+
+
+function sleepUseMs_(ms){
+  return new Promise(function(resolve){ setTimeout(resolve,ms); });
+}
+
+function isUseHtmlResponse_(text,contentType){
+  const body=String(text||"").trim().toLowerCase();
+  const ct=String(contentType||"").toLowerCase();
+  return ct.indexOf("text/html")!==-1 ||
+         body.indexOf("<!doctype")===0 ||
+         body.indexOf("<html")!==-1;
+}
+
+async function sendUseCardRequest_(
+  requestId,
+  cardNoValue,
+  account,
+  password,
+  allowDuplicate,
+  timeoutMs
+){
+  return new Promise(function(resolve,reject){
+
+    if(
+      typeof google === "undefined" ||
+      !google.script ||
+      !google.script.run
+    ){
+      const err = new Error("GAS_RPC_UNAVAILABLE");
+      err.resultUnknown = false;
+      reject(err);
+      return;
+    }
+
+    let settled = false;
+
+    /*
+     * RPC timeout 只代表「前端沒有收到結果」，
+     * 不代表後端一定沒有完成核銷。
+     * 因此 timeout / failure 一律標記 resultUnknown，
+     * 上層會用完全相同 requestId 再查一次結果。
+     */
+    const timer = setTimeout(function(){
+      if(settled) return;
+      settled = true;
+
+      const err = new Error("RPC_TIMEOUT");
+      err.resultUnknown = true;
+      reject(err);
+    }, timeoutMs || 20000);
+
+    const payload = {
+      cardNo:cardNoValue,
+      account:account,
+      password:password,
+      allowDuplicate:allowDuplicate || "no",
+      clientRequestId:requestId,
+      requestId:requestId
+    };
+
+    google.script.run
+      .withSuccessHandler(function(data){
+        if(settled) return;
+        settled = true;
+        clearTimeout(timer);
+
+        if(!data || typeof data !== "object"){
+          const err = new Error("INVALID_SERVER_RESPONSE");
+          err.resultUnknown = true;
+          reject(err);
+          return;
+        }
+
+        resolve(data);
+      })
+      .withFailureHandler(function(err){
+        if(settled) return;
+        settled = true;
+        clearTimeout(timer);
+
+        const rpcErr =
+          new Error(
+            String(
+              err && err.message ||
+              err ||
+              "RPC_ERROR"
+            )
+          );
+
+        rpcErr.resultUnknown = true;
+        reject(rpcErr);
+      })
+      .useCardRpc(payload);
+  });
+}
+
+
+async function recoverUseCardResult_(requestId,cardNoValue,account,password,allowDuplicate){
+  if(isRecoveringUseResult) return null;
+  isRecoveringUseResult=true;
+
+  try{
+    for(let attempt=0;attempt<USE_RESULT_RECOVERY_MAX_ATTEMPTS;attempt++){
+      updateUseProgress(
+        Math.max(useProgressValue,82+(attempt*4)),
+        "第一次可能已成功，正在確認核銷結果 "+(attempt+1)+"/"+
+        USE_RESULT_RECOVERY_MAX_ATTEMPTS+"，請勿再次掃描"
+      );
+
+      await sleepUseMs_(USE_RESULT_RECOVERY_DELAYS_MS[
+        Math.min(attempt,USE_RESULT_RECOVERY_DELAYS_MS.length-1)
+      ]);
+
+      try{
+        const data=await sendUseCardRequest_(
+          requestId,cardNoValue,account,password,allowDuplicate,12000
+        );
+        if(data){
+          console.log("[VIP_USE_RECOVERED]",{
+            requestId:requestId,attempt:attempt+1,status:data.status,
+            duplicateRequest:data.duplicateRequest||"",
+            recoveredFromLog:data.recoveredFromLog||""
+          });
+          return data;
+        }
+      }catch(err){
+        console.warn("[VIP_USE_RECOVERY_RETRY]",{
+          requestId:requestId,attempt:attempt+1,
+          message:String(err&&err.message||err)
+        });
+      }
+    }
+    return null;
+  }finally{
+    isRecoveringUseResult=false;
+  }
+}
+
+/**
+ * 核銷卡片
+ */
+async function useCard(
+  allowDuplicate,
+  forceNewRequest
+) {
+
+  if(isUsing) {
+    return;
+  }
+
+  const storeCodeElement =
+    document.getElementById(
+      "storeCode"
+    );
+
+  const staffNoElement =
+    document.getElementById(
+      "staffNo"
+    );
+
+  const passwordElement =
+    document.getElementById(
+      "password"
+    );
+
+  if(
+    !storeCodeElement ||
+    !staffNoElement ||
+    !passwordElement
+  ) {
+    return;
+  }
+
+  const storeCode =
+    storeCodeElement.value.trim();
+
+  const staffNo =
+    staffNoElement.value.trim();
+
+  const password =
+    passwordElement.value.trim();
+
+  const account =
+    buildAccount(
+      storeCode,
+      staffNo
+    );
+
+  allowDuplicate =
+    allowDuplicate || "no";
+
+  result.innerHTML = "";
+
+  if(!cardNo) {
+    alert("沒有卡號，無法核銷");
+    return;
+  }
+
+  if(!storeCode) {
+    alert("請選擇分店");
+    storeCodeElement.focus();
+    return;
+  }
+
+  if(!staffNo) {
+    alert("請輸入工號");
+    staffNoElement.focus();
+    return;
+  }
+
+  if(!password) {
+    alert("請輸入密碼");
+    passwordElement.focus();
+    return;
+  }
+
+  if(allowDuplicate !== "yes") {
+
+    const confirmed =
+      confirm(
+        "確認要核銷此卡片嗎？"
+      );
+
+    if(!confirmed) {
+      return;
+    }
+  }
+
+  /*
+   * 一般重試沿用同一 requestId，避免逾時後再次扣卡。
+   * 只有同行車輛才 forceNewRequest=true。
+   */
+  const clientRequestId =
+    getOrCreateUseRequestId(Boolean(forceNewRequest));
+
+  lockUseButton();
+  startUseProgress();
+
+  try {
+
+    updateUseProgress(
+      12,
+      "正在連接核銷系統..."
+    );
+
+    let data = null;
+
+    try {
+      data = await sendUseCardRequest_(
+        clientRequestId,
+        cardNo,
+        account,
+        password,
+        allowDuplicate,
+        20000
+      );
+    } catch(firstErr) {
+
+      console.warn("[VIP_USE_RESULT_UNKNOWN]",{
+        requestId:clientRequestId,
+        message:String(firstErr && firstErr.message || firstErr)
+      });
+
+      if(firstErr && firstErr.resultUnknown === true) {
+        data = await recoverUseCardResult_(
+          clientRequestId,
+          cardNo,
+          account,
+          password,
+          allowDuplicate
+        );
+
+        if(!data) {
+          const unknownErr = new Error("USE_RESULT_STILL_UNKNOWN");
+          unknownErr.resultUnknown = true;
+          throw unknownErr;
+        }
+      } else {
+        throw firstErr;
+      }
+    }
+
+    updateUseProgress(
+      94,
+      "正在確認核銷結果..."
+    );
+
+    if(data.status === "NEED_CONFIRM") {
+
+      stopUseProgressTimers();
+
+      updateUseProgress(
+        100,
+        "偵測到短時間重複核銷"
+      );
+
+      const confirmed =
+        confirm(
+          "此卡片剛剛已核銷過，確定要再次核銷嗎？"
+        );
+
+      if(confirmed) {
+
+        resetUseButton();
+        hideUseProgressImmediately();
+
+        useCard("yes", true);
+
+      } else {
+
+        failUseProgress(
+          "已取消連續核銷"
+        );
+
+        result.innerHTML = `
+          <div class="result-info">
+            已取消連續核銷
+          </div>
+        `;
+
+        resetUseButton();
+
+        setTimeout(function() {
+          hideUseProgress();
+        }, 1200);
+      }
+
+      return;
+    }
+
+    if(data.status === "REFUND") {
+
+      handleUseError(
+        "此卡片已退款，無法使用"
+      );
+
+      return;
+    }
+
+    if(data.status === "LOGIN_ERROR") {
+
+      handleUseError(
+        "分店、工號或密碼錯誤"
+      );
+
+      return;
+    }
+
+    if(data.status === "NOT_FOUND") {
+
+      handleUseError(
+        "查無此卡號"
+      );
+
+      return;
+    }
+
+    if(data.status === "NO_TIMES") {
+
+      handleUseError(
+        "此卡片已無剩餘次數"
+      );
+
+      return;
+    }
+
+    if(data.status === "VOID") {
+
+      handleUseError(
+        "此卡片已作廢，無法使用"
+      );
+
+      return;
+    }
+
+    if(data.status !== "OK") {
+
+      handleUseError(
+        "核銷失敗：" +
+        (
+          data.message ||
+          "未知錯誤"
+        )
+      );
+
+      return;
+    }
+
+    completeUseProgress(
+      "核銷成功"
+    );
+
+    /*
+     * 核銷成功後不自動清空、不自動關閉。
+     * 成功資訊會一直保留，
+     * 直到員工按下「完成並離開」。
+     */
+    lastSuccessData = data;
+    showSuccessScreen(data);
+
+  } catch(err) {
+
+    console.error(
+      "useCard error:",
+      err
+    );
+
+    let message =
+      "系統錯誤，請稍後再試";
+
+    if(
+      err &&
+      (
+        err.resultUnknown === true ||
+        err.message === "USE_RESULT_STILL_UNKNOWN"
+      )
+    ) {
+      message =
+        "⚠️ 目前無法確認核銷結果。請勿重新掃描此卡；請按下方「重新確認核銷結果」，系統會沿用同一筆交易編號，不會再次扣次。";
+    } else if(
+      err &&
+      err.message === "INVALID_SERVER_RESPONSE"
+    ) {
+      message =
+        "伺服器回傳格式異常，請重新確認核銷結果";
+    }
+
+    handleUseError(message);
+
+  } finally {
+
+    clearTimeout(timeoutId);
+  }
+}
+
+
+/**
+ * 錯誤統一處理
+ */
+function handleUseError(message) {
+
+  failUseProgress(message);
+
+  const isUnknownResult =
+    String(message || "").indexOf("目前無法確認核銷結果") !== -1;
+
+  if(isUnknownResult && currentUseRequestId) {
+    result.innerHTML = `
+      <div class="card" style="border:2px solid #f7d774;padding:18px;text-align:center;">
+        <div style="color:#f7d774;font-size:20px;font-weight:800;line-height:1.6;">
+          ⚠️ 核銷結果確認中斷
+        </div>
+        <div style="margin-top:10px;line-height:1.7;">
+          後端可能已經成功扣次。<br>
+          <b>請勿重新掃描，也不要建立新的核銷。</b>
+        </div>
+        <button
+          type="button"
+          onclick="useCard('no', false)"
+          style="width:100%;margin-top:16px;padding:14px;font-size:18px;font-weight:800;"
+        >
+          🔄 重新確認核銷結果
+        </button>
+      </div>
+    `;
+  } else {
+    showResultError(message);
+  }
+
+  resetUseButton();
+
+  setTimeout(function() {
+    hideUseProgress();
+  }, 1500);
+}
+
+
+/**
+ * 組合員工帳號
+ */
+function buildAccount(
+  storeCode,
+  staffNo
+) {
+
+  const normalizedStaffNo =
+    String(staffNo || "")
+      .trim()
+      .replace(/\s/g, "");
+
+  if(!normalizedStaffNo) {
+    return "";
+  }
+
+  if(
+    normalizedStaffNo.includes("-")
+  ) {
+    return normalizedStaffNo
+      .toUpperCase();
+  }
+
+  return (
+    String(storeCode || "")
+      .toUpperCase() +
+    "-" +
+    normalizedStaffNo
+  );
+}
+
+
+/**
+ * 顯示固定核銷成功畫面
+ *
+ * 成功資訊不會自動消失，
+ * 必須由員工按下「完成並離開」。
+ */
+function showSuccessScreen(data) {
+
+  isUsing = true;
+
+  mainArea.hidden = true;
+
+  result.innerHTML = `
+    <div class="card" style="
+      border:2px solid #55d697;
+      text-align:center;
+      padding:22px 18px;
+    ">
+
+      <div style="
+        font-size:24px;
+        font-weight:800;
+        color:#55d697;
+        margin-bottom:14px;
+      ">
+        ✅ 核銷成功
+      </div>
+
+      <div style="font-size:14px;color:#9fdfff;">
+        卡號
+      </div>
+
+      <div style="
+        font-size:30px;
+        font-weight:800;
+        color:#ffffff;
+        margin-top:4px;
+        word-break:break-all;
+      ">
+        ${escapeHtml(data.cardNo)}
+      </div>
+
+      <hr style="
+        margin:18px 0;
+        border:0;
+        border-top:1px solid rgba(255,255,255,0.2);
+      ">
+
+      <div style="font-size:14px;color:#9fdfff;">
+        使用服務
+      </div>
+
+      <div style="
+        font-size:28px;
+        font-weight:800;
+        line-height:1.4;
+        color:#f7d774;
+        margin-top:5px;
+      ">
+        ${escapeHtml(data.packageType)}
+      </div>
+
+      <hr style="
+        margin:18px 0;
+        border:0;
+        border-top:1px solid rgba(255,255,255,0.2);
+      ">
+
+      <div style="
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:12px;
+      ">
+        <div style="
+          padding:12px 8px;
+          border-radius:12px;
+          background:rgba(255,255,255,0.08);
+        ">
+          <div style="font-size:13px;color:#bcd9e8;">
+            本次扣除
+          </div>
+          <div style="
+            margin-top:4px;
+            font-size:25px;
+            font-weight:800;
+            color:#ffffff;
+          ">
+            1 次
+          </div>
+        </div>
+
+        <div style="
+          padding:12px 8px;
+          border-radius:12px;
+          background:rgba(85,214,151,0.12);
+        ">
+          <div style="font-size:13px;color:#bcd9e8;">
+            剩餘次數
+          </div>
+          <div style="
+            margin-top:4px;
+            font-size:25px;
+            font-weight:800;
+            color:#55d697;
+          ">
+            ${escapeHtml(data.afterTimes)} 次
+          </div>
+        </div>
+      </div>
+
+      <div style="
+        margin-top:18px;
+        padding:12px;
+        border-radius:12px;
+        background:rgba(0,184,217,0.10);
+        line-height:1.7;
+      ">
+        <div>
+          <b>核銷分店：</b>
+          ${escapeHtml(data.storeCode)}
+          ${escapeHtml(data.storeName)}
+        </div>
+        <div>
+          <b>核銷人員：</b>
+          ${escapeHtml(data.staffName)}
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onclick="redeemCompanionVehicle()"
+        style="
+          width:100%;
+          margin-top:22px;
+          min-height:58px;
+          border:0;
+          border-radius:14px;
+          font-size:19px;
+          font-weight:800;
+          cursor:pointer;
+          background:#f7d774;
+          color:#17212b;
+        "
+      >
+        同行車輛再次核銷
+      </button>
+
+      <button
+        type="button"
+        onclick="finishAndLeave()"
+        style="
+          width:100%;
+          margin-top:12px;
+          min-height:56px;
+          border:0;
+          border-radius:14px;
+          font-size:20px;
+          font-weight:800;
+          cursor:pointer;
+          background:#198754;
+          color:#ffffff;
+        "
+      >
+        完成並離開
+      </button>
+
+      <div style="
+        margin-top:12px;
+        color:#f7d774;
+        font-size:14px;
+        font-weight:700;
+        line-height:1.6;
+      ">
+        同行車輛會建立一筆新的核銷交易；一般重送不會重複扣次數。
+      </div>
+
+    </div>
+  `;
+
+  try {
+    if(navigator.vibrate) {
+      navigator.vibrate(180);
+    }
+  } catch(err) {
+    console.warn("vibrate error:", err);
+  }
+}
+
+
+/**
+ * 同行車輛再次核銷
+ *
+ * 這是員工明確要求「再扣一次」，因此建立全新的 requestId。
+ * 分店、工號、密碼保留，不需要重新輸入。
+ */
+function redeemCompanionVehicle() {
+
+  const afterTimes =
+    Number(
+      (lastSuccessData && lastSuccessData.afterTimes) || 0
+    );
+
+  if(afterTimes <= 0) {
+    alert("此卡片已無剩餘次數，無法再次核銷");
+    return;
+  }
+
+  const confirmed =
+    confirm(
+      "確認是同行的另一台車嗎？\n\n" +
+      "按下確定後會再扣 1 次。"
+    );
+
+  if(!confirmed) {
+    return;
+  }
+
+  /*
+   * 成功畫面目前把 mainArea 隱藏，
+   * 重新顯示後直接用原本員工資料送第二筆交易。
+   */
+  result.innerHTML = "";
+  mainArea.hidden = false;
+  isUsing = false;
+  currentUseRequestId = "";
+  lastSuccessData = null;
+
+  useCard("yes", true);
+}
+
+
+/**
+ * 清除會員卡快取
+ */
+function clearCustomerCardCache() {
+
+  try {
+
+    const customerName =
+      localStorage.getItem("customerName") || "";
+
+    const phone =
+      localStorage.getItem("phone") || "";
+
+    const cacheKey =
+      "customerCardsCache_" +
+      String(phone).replace(/[^\w\u4e00-\u9fff]/g, "") +
+      "_" +
+      String(customerName).replace(/[^\w\u4e00-\u9fff]/g, "");
+
+    localStorage.removeItem(cacheKey);
+    localStorage.removeItem("useCardNo");
+    localStorage.removeItem("useCardStatus");
+    localStorage.removeItem("useVehicleType");
+    localStorage.removeItem("usePackageType");
+    localStorage.removeItem("useRemainingTimes");
+    localStorage.removeItem("useTotalTimes");
+
+  } catch(err) {
+    console.warn("clearCustomerCardCache error:", err);
+  }
+}
+
+
+/**
+ * 員工確認完成後離開頁面
+ */
+function finishAndLeave() {
+
+  clearCustomerCardCache();
+  currentUseRequestId = "";
+  lastSuccessData = null;
+
+  result.innerHTML = `
+    <div class="card" style="text-align:center;padding:24px 18px;">
+      <h2>✅ 核銷完成</h2>
+      <p style="color:#d8efff;line-height:1.7;">
+        正在離開核銷頁面...
+      </p>
+    </div>
+  `;
+
+  try {
+    window.close();
+  } catch(err) {
+    console.warn("window.close error:", err);
+  }
+
+  setTimeout(function() {
+
+    if(window.history.length > 1) {
+      window.history.back();
+      return;
+    }
+
+    result.innerHTML = `
+      <div class="card" style="text-align:center;padding:24px 18px;">
+        <h2>✅ 核銷完成</h2>
+        <p style="color:#d8efff;line-height:1.7;">
+          請關閉此頁面，返回相機繼續掃描。
+        </p>
+      </div>
+    `;
+
+  }, 350);
+}
+
+
+
+/**
+ * 鎖定核銷按鈕
+ */
+function lockUseButton() {
+
+  isUsing = true;
+
+  const btn =
+    document.getElementById(
+      "useBtn"
+    );
+
+  if(btn) {
+
+    btn.disabled = true;
+    btn.innerText = "核銷中...";
+  }
+
+  setUseFormDisabled(true);
+}
+
+
+/**
+ * 恢復核銷按鈕
+ */
+function resetUseButton() {
+
+  isUsing = false;
+
+  const btn =
+    document.getElementById(
+      "useBtn"
+    );
+
+  if(btn) {
+
+    btn.disabled = false;
+    btn.innerText = "確認核銷";
+  }
+
+  setUseFormDisabled(false);
+}
+
+
+/**
+ * 鎖定或恢復表單
+ */
+function setUseFormDisabled(
+  disabled
+) {
+
+  [
+    "storeCode",
+    "staffNo",
+    "password"
+  ].forEach(function(id) {
+
+    const element =
+      document.getElementById(id);
+
+    if(element) {
+      element.disabled =
+        Boolean(disabled);
+    }
+  });
+}
+
+
+/**
+ * 啟動進度條
+ */
+function startUseProgress() {
+
+  stopUseProgressTimers();
+
+  const progress =
+    document.getElementById(
+      "useProgress"
+    );
+
+  const bar =
+    document.getElementById(
+      "useProgressBar"
+    );
+
+  const percent =
+    document.getElementById(
+      "useProgressPercent"
+    );
+
+  progress.hidden = false;
+
+  progress.classList.remove(
+    "is-hiding"
+  );
+
+  bar.classList.remove(
+    "is-success",
+    "is-error"
+  );
+
+  percent.classList.remove(
+    "is-success",
+    "is-error"
+  );
+
+  useProgressValue = 4;
+
+  updateUseProgress(
+    4,
+    "準備核銷..."
+  );
+
+  useProgressTimer =
+    setInterval(function() {
+
+      if(useProgressValue >= 88) {
+        return;
+      }
+
+      let increase = 1;
+
+      if(useProgressValue < 35) {
+
+        increase =
+          randomInteger(2, 5);
+
+      } else if(
+        useProgressValue < 65
+      ) {
+
+        increase =
+          randomInteger(1, 3);
+
+      }
+
+      const nextValue =
+        Math.min(
+          useProgressValue +
+          increase,
+          88
+        );
+
+      let text =
+        "正在驗證員工資料...";
+
+      if(nextValue >= 70) {
+
+        text =
+          "正在等待核銷結果...";
+
+      } else if(nextValue >= 42) {
+
+        text =
+          "正在確認卡片狀態...";
+      }
+
+      updateUseProgress(
+        nextValue,
+        text
+      );
+
+    }, 420);
+}
+
+
+/**
+ * 更新進度
+ */
+function updateUseProgress(
+  value,
+  text
+) {
+
+  const bar =
+    document.getElementById(
+      "useProgressBar"
+    );
+
+  const textElement =
+    document.getElementById(
+      "useProgressText"
+    );
+
+  const percent =
+    document.getElementById(
+      "useProgressPercent"
+    );
+
+  if(
+    !bar ||
+    !textElement ||
+    !percent
+  ) {
+    return;
+  }
+
+  const safeValue =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        Math.round(
+          Number(value) || 0
+        )
+      )
+    );
+
+  useProgressValue =
+    safeValue;
+
+  bar.style.width =
+    safeValue + "%";
+
+  percent.innerText =
+    safeValue + "%";
+
+  if(text) {
+    textElement.innerText = text;
+  }
+}
+
+
+/**
+ * 核銷成功
+ */
+function completeUseProgress(text) {
+
+  stopUseProgressTimers();
+
+  const bar =
+    document.getElementById(
+      "useProgressBar"
+    );
+
+  const percent =
+    document.getElementById(
+      "useProgressPercent"
+    );
+
+  if(bar) {
+    bar.classList.remove(
+      "is-error"
+    );
+
+    bar.classList.add(
+      "is-success"
+    );
+  }
+
+  if(percent) {
+    percent.classList.remove(
+      "is-error"
+    );
+
+    percent.classList.add(
+      "is-success"
+    );
+  }
+
+  updateUseProgress(
+    100,
+    text || "核銷成功"
+  );
+}
+
+
+/**
+ * 核銷失敗
+ */
+function failUseProgress(text) {
+
+  stopUseProgressTimers();
+
+  const bar =
+    document.getElementById(
+      "useProgressBar"
+    );
+
+  const percent =
+    document.getElementById(
+      "useProgressPercent"
+    );
+
+  if(bar) {
+    bar.classList.remove(
+      "is-success"
+    );
+
+    bar.classList.add(
+      "is-error"
+    );
+  }
+
+  if(percent) {
+    percent.classList.remove(
+      "is-success"
+    );
+
+    percent.classList.add(
+      "is-error"
+    );
+  }
+
+  const textElement =
+    document.getElementById(
+      "useProgressText"
+    );
+
+  if(textElement) {
+    textElement.innerText =
+      text || "核銷失敗";
+  }
+}
+
+
+/**
+ * 收起進度條
+ */
+function hideUseProgress() {
+
+  stopUseProgressTimers();
+
+  const progress =
+    document.getElementById(
+      "useProgress"
+    );
+
+  if(!progress) {
+    return;
+  }
+
+  progress.classList.add(
+    "is-hiding"
+  );
+
+  setTimeout(function() {
+
+    progress.hidden = true;
+
+    progress.classList.remove(
+      "is-hiding"
+    );
+
+    resetUseProgress();
+
+  }, 260);
+}
+
+
+/**
+ * 立刻隱藏進度條
+ */
+function hideUseProgressImmediately() {
+
+  stopUseProgressTimers();
+
+  const progress =
+    document.getElementById(
+      "useProgress"
+    );
+
+  if(progress) {
+    progress.hidden = true;
+  }
+
+  resetUseProgress();
+}
+
+
+/**
+ * 重設進度條
+ */
+function resetUseProgress() {
+
+  useProgressValue = 0;
+
+  const bar =
+    document.getElementById(
+      "useProgressBar"
+    );
+
+  const percent =
+    document.getElementById(
+      "useProgressPercent"
+    );
+
+  const text =
+    document.getElementById(
+      "useProgressText"
+    );
+
+  if(bar) {
+
+    bar.style.width = "0%";
+
+    bar.classList.remove(
+      "is-success",
+      "is-error"
+    );
+  }
+
+  if(percent) {
+
+    percent.innerText = "0%";
+
+    percent.classList.remove(
+      "is-success",
+      "is-error"
+    );
+  }
+
+  if(text) {
+    text.innerText =
+      "準備核銷...";
+  }
+}
+
+
+/**
+ * 停止進度計時器
+ */
+function stopUseProgressTimers() {
+
+  if(useProgressTimer) {
+
+    clearInterval(
+      useProgressTimer
+    );
+
+    useProgressTimer = null;
+  }
+}
+
+
+/**
+ * 顯示錯誤
+ */
+function showResultError(message) {
+
+  result.innerHTML = `
+    <div class="result-error">
+      ❌ ${escapeHtml(message)}
+    </div>
+  `;
+}
+
+
+/**
+ * HTML 安全處理
+ */
+function escapeHtml(value) {
+
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+
+/**
+ * 隨機整數
+ */
+function randomInteger(
+  min,
+  max
+) {
+
+  return Math.floor(
+    Math.random() *
+    (max - min + 1)
+  ) + min;
+}
+
+
+/**
+ * 工號按 Enter 跳至密碼
+ */
+const staffNoElement =
+  document.getElementById(
+    "staffNo"
+  );
+
+if(staffNoElement) {
+
+  staffNoElement.addEventListener(
+    "keydown",
+    function(event) {
+
+      if(event.key === "Enter") {
+
+        event.preventDefault();
+
+        document
+          .getElementById(
+            "password"
+          )
+          .focus();
+      }
+    }
+  );
+}
+
+
+/**
+ * 密碼按 Enter 執行核銷
+ */
+const passwordElement =
+  document.getElementById(
+    "password"
+  );
+
+if(passwordElement) {
+
+  passwordElement.addEventListener(
+    "keydown",
+    function(event) {
+
+      if(event.key === "Enter") {
+
+        event.preventDefault();
+
+        useCard("no");
+      }
+    }
+  );
+}
+
+</script>
+
+</body>
+</html>
