@@ -216,6 +216,57 @@
     </button>
 
     <div
+      id="burnInPanel"
+      style="
+        margin-top:24px;
+        padding:18px;
+        border:1px solid rgba(247,215,116,.55);
+        border-radius:16px;
+        background:rgba(247,215,116,.08);
+      "
+    >
+      <div style="font-size:18px;font-weight:900;color:#f7d774;">
+        VIP 核銷燒機測試
+      </div>
+
+      <div style="margin-top:8px;font-size:14px;line-height:1.6;opacity:.9;">
+        20 輪完整讀取路徑測試。<b>不扣次數、不寫核銷紀錄。</b>
+      </div>
+
+      <button
+        type="button"
+        id="burnInBtn"
+        onclick="runVipBurnIn20()"
+        style="
+          width:100%;
+          margin-top:14px;
+          padding:14px;
+          font-size:18px;
+          font-weight:900;
+          background:#7a5b00;
+        "
+      >
+        開始 20 輪燒機
+      </button>
+
+      <pre
+        id="burnInResult"
+        style="
+          display:none;
+          margin-top:14px;
+          padding:14px;
+          white-space:pre-wrap;
+          word-break:break-word;
+          border-radius:12px;
+          background:rgba(0,0,0,.28);
+          font-size:13px;
+          line-height:1.55;
+          color:#fff;
+        "
+      ></pre>
+    </div>
+
+    <div
       id="useProgress"
       class="use-progress"
       aria-live="polite"
@@ -261,6 +312,40 @@
 
 const GAS_URL =
   "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
+
+
+/*
+ * 電子 VIP 核銷穩定版：
+ * 舊 QR / GitHub 靜態頁仍可沿用。
+ * 若目前不是 GAS HtmlService，就把 cardNo 帶到 GAS 的 vip_use 頁。
+ * 進入 GAS 後所有查卡/核銷改走 google.script.run，避開 fetch /exec redirect 鏈。
+ */
+(function enterVipUseGasRpcPage_(){
+  const hasGasRpc =
+    typeof google !== "undefined" &&
+    google.script &&
+    google.script.run;
+
+  if(hasGasRpc){
+    return;
+  }
+
+  const p = new URLSearchParams(window.location.search);
+  const c = String(p.get("cardNo") || "").trim();
+
+  if(!c){
+    return;
+  }
+
+  const target =
+    GAS_URL +
+    "?page=vip_use&cardNo=" +
+    encodeURIComponent(c);
+
+  if(window.location.href !== target){
+    window.location.replace(target);
+  }
+})();
 
 const params =
   new URLSearchParams(
@@ -345,70 +430,10 @@ if(!cardNo) {
  */
 async function loadCardInfo() {
 
-  const controller =
-    new AbortController();
-
-  const timeoutId =
-    setTimeout(function() {
-      controller.abort();
-    }, 15000);
-
   try {
 
-    const form =
-      new URLSearchParams();
-
-    form.append(
-      "type",
-      "searchCard"
-    );
-
-    form.append(
-      "cardNo",
-      cardNo
-    );
-
-    form.append(
-      "_t",
-      String(Date.now())
-    );
-
-    const response =
-      await fetch(GAS_URL, {
-        method: "POST",
-        body: form,
-        cache: "no-store",
-        signal: controller.signal
-      });
-
-    if(!response.ok) {
-      throw new Error(
-        "HTTP_ERROR_" +
-        response.status
-      );
-    }
-
-    const responseText =
-      await response.text();
-
-    let data;
-
-    try {
-
-      data =
-        JSON.parse(responseText);
-
-    } catch(err) {
-
-      console.error(
-        "searchCard 非 JSON 回傳：",
-        responseText
-      );
-
-      throw new Error(
-        "INVALID_SERVER_RESPONSE"
-      );
-    }
+    const data =
+      await vipSearchCardRpcPromise_(cardNo, 12000);
 
     if(data.status !== "OK") {
 
@@ -561,25 +586,67 @@ async function loadCardInfo() {
   } catch(err) {
 
     console.error(
-      "loadCardInfo error:",
+      "loadCardInfo RPC error:",
       err
     );
 
-    if(err.name === "AbortError") {
-
+    if(err && err.message === "RPC_TIMEOUT") {
       cardInfo.innerHTML =
-        "❌ 卡片資料讀取逾時";
-
+        "❌ 卡片資料讀取逾時，請重新整理";
     } else {
-
       cardInfo.innerHTML =
         "❌ 卡片資料讀取失敗";
     }
-
-  } finally {
-
-    clearTimeout(timeoutId);
   }
+}
+
+
+function vipSearchCardRpcPromise_(cardNoValue, timeoutMs){
+  return new Promise(function(resolve,reject){
+
+    if(
+      typeof google === "undefined" ||
+      !google.script ||
+      !google.script.run
+    ){
+      reject(new Error("GAS_RPC_UNAVAILABLE"));
+      return;
+    }
+
+    let settled = false;
+
+    const timer = setTimeout(function(){
+      if(settled) return;
+      settled = true;
+      reject(new Error("RPC_TIMEOUT"));
+    }, timeoutMs || 12000);
+
+    google.script.run
+      .withSuccessHandler(function(data){
+        if(settled) return;
+        settled = true;
+        clearTimeout(timer);
+        resolve(data || {
+          status:"ERROR",
+          message:"查卡沒有回傳資料"
+        });
+      })
+      .withFailureHandler(function(err){
+        if(settled) return;
+        settled = true;
+        clearTimeout(timer);
+        reject(
+          new Error(
+            String(
+              err && err.message ||
+              err ||
+              "RPC_ERROR"
+            )
+          )
+        );
+      })
+      .searchCardRpc(cardNoValue);
+  });
 }
 
 
@@ -595,58 +662,89 @@ function isUseHtmlResponse_(text,contentType){
          body.indexOf("<html")!==-1;
 }
 
-async function sendUseCardRequest_(requestId,cardNoValue,account,password,allowDuplicate,timeoutMs){
-  const controller=new AbortController();
-  const timeoutId=setTimeout(function(){controller.abort();},timeoutMs||20000);
+async function sendUseCardRequest_(
+  requestId,
+  cardNoValue,
+  account,
+  password,
+  allowDuplicate,
+  timeoutMs
+){
+  return new Promise(function(resolve,reject){
 
-  try{
-    const form=new URLSearchParams();
-    form.append("type","useCard");
-    form.append("cardNo",cardNoValue);
-    form.append("account",account);
-    form.append("password",password);
-    form.append("allowDuplicate",allowDuplicate||"no");
-    form.append("clientRequestId",requestId);
-    form.append("requestId",requestId);
-    form.append("_t",String(Date.now()));
-
-    const response=await fetch(GAS_URL,{
-      method:"POST",body:form,cache:"no-store",redirect:"follow",signal:controller.signal
-    });
-
-    const responseText=await response.text();
-    const contentType=response.headers.get("content-type")||"";
-
-    if(!response.ok || !responseText.trim() || isUseHtmlResponse_(responseText,contentType)){
-      console.error("[VIP_USE_RESPONSE_UNKNOWN]",{
-        status:response.status,finalUrl:response.url,contentType:contentType,
-        requestId:requestId,
-        responsePreview:String(responseText||"").replace(/\s+/g," ").slice(0,180)
-      });
-      const err=new Error(!response.ok ? "HTTP_ERROR_"+response.status : "INVALID_SERVER_RESPONSE");
-      err.resultUnknown=true;
-      throw err;
+    if(
+      typeof google === "undefined" ||
+      !google.script ||
+      !google.script.run
+    ){
+      const err = new Error("GAS_RPC_UNAVAILABLE");
+      err.resultUnknown = false;
+      reject(err);
+      return;
     }
 
-    try{
-      return JSON.parse(responseText);
-    }catch(parseErr){
-      console.error("[VIP_USE_NON_JSON]",{
-        status:response.status,finalUrl:response.url,contentType:contentType,
-        requestId:requestId,
-        responsePreview:String(responseText||"").replace(/\s+/g," ").slice(0,180)
-      });
-      const err=new Error("INVALID_SERVER_RESPONSE");
-      err.resultUnknown=true;
-      throw err;
-    }
-  }catch(err){
-    if(err && err.name==="AbortError") err.resultUnknown=true;
-    throw err;
-  }finally{
-    clearTimeout(timeoutId);
-  }
+    let settled = false;
+
+    /*
+     * RPC timeout 只代表「前端沒有收到結果」，
+     * 不代表後端一定沒有完成核銷。
+     * 因此 timeout / failure 一律標記 resultUnknown，
+     * 上層會用完全相同 requestId 再查一次結果。
+     */
+    const timer = setTimeout(function(){
+      if(settled) return;
+      settled = true;
+
+      const err = new Error("RPC_TIMEOUT");
+      err.resultUnknown = true;
+      reject(err);
+    }, timeoutMs || 20000);
+
+    const payload = {
+      cardNo:cardNoValue,
+      account:account,
+      password:password,
+      allowDuplicate:allowDuplicate || "no",
+      clientRequestId:requestId,
+      requestId:requestId
+    };
+
+    google.script.run
+      .withSuccessHandler(function(data){
+        if(settled) return;
+        settled = true;
+        clearTimeout(timer);
+
+        if(!data || typeof data !== "object"){
+          const err = new Error("INVALID_SERVER_RESPONSE");
+          err.resultUnknown = true;
+          reject(err);
+          return;
+        }
+
+        resolve(data);
+      })
+      .withFailureHandler(function(err){
+        if(settled) return;
+        settled = true;
+        clearTimeout(timer);
+
+        const rpcErr =
+          new Error(
+            String(
+              err && err.message ||
+              err ||
+              "RPC_ERROR"
+            )
+          );
+
+        rpcErr.resultUnknown = true;
+        reject(rpcErr);
+      })
+      .useCardRpc(payload);
+  });
 }
+
 
 async function recoverUseCardResult_(requestId,cardNoValue,account,password,allowDuplicate){
   if(isRecoveringUseResult) return null;
@@ -1898,6 +1996,242 @@ if(passwordElement) {
       }
     }
   );
+}
+
+
+
+function vipBurnProbeOnce_(payload, timeoutMs){
+  return new Promise(function(resolve,reject){
+    let settled=false;
+
+    const timer=setTimeout(function(){
+      if(settled)return;
+      settled=true;
+      reject(new Error("RPC_TIMEOUT"));
+    },timeoutMs||15000);
+
+    google.script.run
+      .withSuccessHandler(function(data){
+        if(settled)return;
+        settled=true;
+        clearTimeout(timer);
+        resolve(data||{status:"ERROR",message:"沒有回傳資料"});
+      })
+      .withFailureHandler(function(err){
+        if(settled)return;
+        settled=true;
+        clearTimeout(timer);
+        reject(
+          new Error(
+            String(
+              err&&err.message||
+              err||
+              "RPC_ERROR"
+            )
+          )
+        );
+      })
+      .vipUseBurnInProbeRpc(payload);
+  });
+}
+
+
+function vipPercentile_(values,p){
+  if(!values.length)return 0;
+  const a=values.slice().sort(function(x,y){return x-y;});
+  const i=Math.min(
+    a.length-1,
+    Math.max(0,Math.ceil((p/100)*a.length)-1)
+  );
+  return a[i];
+}
+
+
+async function runVipBurnIn20(){
+  const btn=document.getElementById("burnInBtn");
+  const box=document.getElementById("burnInResult");
+
+  const storeCode=
+    document.getElementById("storeCode").value.trim();
+
+  const staffNo=
+    document.getElementById("staffNo").value.trim();
+
+  const password=
+    document.getElementById("password").value;
+
+  const account=
+    buildAccount(storeCode,staffNo);
+
+  if(!cardNo){
+    alert("缺少卡號");
+    return;
+  }
+
+  if(!storeCode||!staffNo||!password||!account){
+    alert("請先選擇分店並輸入工號、密碼");
+    return;
+  }
+
+  btn.disabled=true;
+  box.style.display="block";
+
+  const rows=[];
+  let success=0;
+  let timeout=0;
+  let busy=0;
+  let fail=0;
+
+  for(let i=1;i<=20;i++){
+    box.textContent=
+      "VIP 核銷燒機進行中...\n"+
+      "第 "+i+" / 20 輪\n"+
+      "注意：不會扣卡、不會寫 usage_log";
+
+    const started=performance.now();
+
+    try{
+      const data=
+        await vipBurnProbeOnce_({
+          cardNo:cardNo,
+          account:account,
+          password:password,
+          requestId:
+            "BURNIN_"+Date.now()+"_"+i+"_"+Math.random().toString(36).slice(2,8)
+        },15000);
+
+      const clientMs=
+        Math.round(performance.now()-started);
+
+      const row={
+        round:i,
+        ok:data&&data.status==="OK",
+        status:String(data&&data.status||"NO_DATA"),
+        clientMs:clientMs,
+        serverMs:Number(data&&data.elapsedMs||0),
+        stageMs:data&&data.stageMs||{}
+      };
+
+      rows.push(row);
+
+      if(row.ok)success++;
+      else if(row.status==="BUSY")busy++;
+      else fail++;
+
+    }catch(err){
+      const clientMs=
+        Math.round(performance.now()-started);
+
+      const isTimeout=
+        String(err&&err.message||err)==="RPC_TIMEOUT";
+
+      if(isTimeout)timeout++;
+      else fail++;
+
+      rows.push({
+        round:i,
+        ok:false,
+        status:isTimeout?"TIMEOUT":"RPC_ERROR",
+        clientMs:clientMs,
+        serverMs:0,
+        stageMs:{}
+      });
+    }
+
+    await new Promise(function(resolve){
+      setTimeout(resolve,350);
+    });
+  }
+
+  const clientTimes=
+    rows
+      .filter(function(x){return x.ok;})
+      .map(function(x){return x.clientMs;});
+
+  const serverTimes=
+    rows
+      .filter(function(x){return x.ok;})
+      .map(function(x){return x.serverMs;});
+
+  function avg(a){
+    if(!a.length)return 0;
+    return Math.round(
+      a.reduce(function(s,x){return s+x;},0)/a.length
+    );
+  }
+
+  const stageNames=[
+    "staff",
+    "cardLookup",
+    "requestIdLookup",
+    "guard24hLookup",
+    "lockWait",
+    "cardRead"
+  ];
+
+  const stageSummary={};
+
+  stageNames.forEach(function(name){
+    const vals=
+      rows
+        .filter(function(x){
+          return x.ok &&
+            Number.isFinite(Number(x.stageMs&&x.stageMs[name]));
+        })
+        .map(function(x){
+          return Number(x.stageMs[name]);
+        });
+
+    stageSummary[name]={
+      avg:avg(vals),
+      p95:vipPercentile_(vals,95),
+      max:vals.length?Math.max.apply(null,vals):0
+    };
+  });
+
+  const finalRate=
+    Math.round((success/20)*10000)/100;
+
+  const pass=
+    success>=19 &&
+    timeout===0 &&
+    vipPercentile_(clientTimes,95)<=5000;
+
+  const lines=[
+    "====== VIP 核銷 20 輪燒機 ======",
+    "卡號："+cardNo,
+    "成功："+success+" / 20（"+finalRate+"%）",
+    "Timeout："+timeout,
+    "BUSY："+busy,
+    "其他失敗："+fail,
+    "",
+    "【前端完整 RPC】",
+    "平均："+avg(clientTimes)+" ms",
+    "P50："+vipPercentile_(clientTimes,50)+" ms",
+    "P95："+vipPercentile_(clientTimes,95)+" ms",
+    "最慢："+(clientTimes.length?Math.max.apply(null,clientTimes):0)+" ms",
+    "",
+    "【GAS 後端】",
+    "平均："+avg(serverTimes)+" ms",
+    "P95："+vipPercentile_(serverTimes,95)+" ms",
+    "",
+    "【後端分段 AVG / P95 / MAX】",
+    "員工驗證："+stageSummary.staff.avg+" / "+stageSummary.staff.p95+" / "+stageSummary.staff.max+" ms",
+    "卡片索引："+stageSummary.cardLookup.avg+" / "+stageSummary.cardLookup.p95+" / "+stageSummary.cardLookup.max+" ms",
+    "Request ID 查詢："+stageSummary.requestIdLookup.avg+" / "+stageSummary.requestIdLookup.p95+" / "+stageSummary.requestIdLookup.max+" ms",
+    "24H 防重複查詢："+stageSummary.guard24hLookup.avg+" / "+stageSummary.guard24hLookup.p95+" / "+stageSummary.guard24hLookup.max+" ms",
+    "交易鎖等待："+stageSummary.lockWait.avg+" / "+stageSummary.lockWait.p95+" / "+stageSummary.lockWait.max+" ms",
+    "卡片最新資料："+stageSummary.cardRead.avg+" / "+stageSummary.cardRead.p95+" / "+stageSummary.cardRead.max+" ms",
+    "",
+    "結果："+(pass?"PASS":"需要檢查"),
+    "",
+    "※ 本測試沒有 setValue / setValues，不扣次數、不新增 usage_log。"
+  ];
+
+  box.textContent=lines.join("\n");
+  btn.disabled=false;
+
+  console.table(rows);
 }
 
 </script>
