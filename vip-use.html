@@ -263,39 +263,6 @@ const GAS_URL =
   "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
 
 
-/*
- * 電子 VIP 核銷穩定版：
- * 舊 QR / GitHub 靜態頁仍可沿用。
- * 若目前不是 GAS HtmlService，就把 cardNo 帶到 GAS 的 vip_use 頁。
- * 進入 GAS 後所有查卡/核銷改走 google.script.run，避開 fetch /exec redirect 鏈。
- */
-(function enterVipUseGasRpcPage_(){
-  const hasGasRpc =
-    typeof google !== "undefined" &&
-    google.script &&
-    google.script.run;
-
-  if(hasGasRpc){
-    return;
-  }
-
-  const p = new URLSearchParams(window.location.search);
-  const c = String(p.get("cardNo") || "").trim();
-
-  if(!c){
-    return;
-  }
-
-  const target =
-    GAS_URL +
-    "?page=vip_use&cardNo=" +
-    encodeURIComponent(c);
-
-  if(window.location.href !== target){
-    window.location.replace(target);
-  }
-})();
-
 const params =
   new URLSearchParams(
     window.location.search
@@ -550,54 +517,61 @@ async function loadCardInfo() {
 }
 
 
-function vipSearchCardRpcPromise_(cardNoValue, timeoutMs){
-  return new Promise(function(resolve,reject){
+async function vipSearchCardRpcPromise_(cardNoValue, timeoutMs){
+  const controller = new AbortController();
+  const timer = setTimeout(function(){
+    controller.abort();
+  }, timeoutMs || 12000);
 
-    if(
-      typeof google === "undefined" ||
-      !google.script ||
-      !google.script.run
-    ){
-      reject(new Error("GAS_RPC_UNAVAILABLE"));
-      return;
+  try{
+    const url =
+      GAS_URL +
+      "?action=searchCard&cardNo=" +
+      encodeURIComponent(cardNoValue) +
+      "&_ts=" +
+      Date.now();
+
+    const response = await fetch(url,{
+      method:"GET",
+      cache:"no-store",
+      redirect:"follow",
+      signal:controller.signal
+    });
+
+    const contentType =
+      String(response.headers.get("content-type") || "");
+
+    const text = await response.text();
+
+    if(!response.ok){
+      throw new Error("HTTP_"+response.status);
     }
 
-    let settled = false;
+    if(isUseHtmlResponse_(text,contentType)){
+      throw new Error("INVALID_SERVER_RESPONSE");
+    }
 
-    const timer = setTimeout(function(){
-      if(settled) return;
-      settled = true;
-      reject(new Error("RPC_TIMEOUT"));
-    }, timeoutMs || 12000);
+    let data;
+    try{
+      data = JSON.parse(text);
+    }catch(e){
+      throw new Error("INVALID_SERVER_RESPONSE");
+    }
 
-    google.script.run
-      .withSuccessHandler(function(data){
-        if(settled) return;
-        settled = true;
-        clearTimeout(timer);
-        resolve(data || {
-          status:"ERROR",
-          message:"查卡沒有回傳資料"
-        });
-      })
-      .withFailureHandler(function(err){
-        if(settled) return;
-        settled = true;
-        clearTimeout(timer);
-        reject(
-          new Error(
-            String(
-              err && err.message ||
-              err ||
-              "RPC_ERROR"
-            )
-          )
-        );
-      })
-      .searchCardRpc(cardNoValue);
-  });
+    return data || {
+      status:"ERROR",
+      message:"查卡沒有回傳資料"
+    };
+
+  }catch(err){
+    if(err && err.name === "AbortError"){
+      throw new Error("RPC_TIMEOUT");
+    }
+    throw err;
+  }finally{
+    clearTimeout(timer);
+  }
 }
-
 
 function sleepUseMs_(ms){
   return new Promise(function(resolve){ setTimeout(resolve,ms); });
@@ -619,81 +593,84 @@ async function sendUseCardRequest_(
   allowDuplicate,
   timeoutMs
 ){
-  return new Promise(function(resolve,reject){
+  const controller = new AbortController();
+  const timer = setTimeout(function(){
+    controller.abort();
+  }, timeoutMs || 20000);
 
-    if(
-      typeof google === "undefined" ||
-      !google.script ||
-      !google.script.run
-    ){
-      const err = new Error("GAS_RPC_UNAVAILABLE");
-      err.resultUnknown = false;
-      reject(err);
-      return;
+  const payload = {
+    action:"useCard",
+    cardNo:cardNoValue,
+    account:account,
+    password:password,
+    allowDuplicate:allowDuplicate || "no",
+    clientRequestId:requestId,
+    requestId:requestId
+  };
+
+  try{
+    const response = await fetch(GAS_URL,{
+      method:"POST",
+      headers:{
+        "Content-Type":"text/plain;charset=utf-8"
+      },
+      body:JSON.stringify(payload),
+      cache:"no-store",
+      redirect:"follow",
+      signal:controller.signal
+    });
+
+    const contentType =
+      String(response.headers.get("content-type") || "");
+
+    const text = await response.text();
+
+    if(!response.ok){
+      const err = new Error("HTTP_"+response.status);
+      err.resultUnknown = true;
+      throw err;
     }
 
-    let settled = false;
-
-    /*
-     * RPC timeout 只代表「前端沒有收到結果」，
-     * 不代表後端一定沒有完成核銷。
-     * 因此 timeout / failure 一律標記 resultUnknown，
-     * 上層會用完全相同 requestId 再查一次結果。
-     */
-    const timer = setTimeout(function(){
-      if(settled) return;
-      settled = true;
-
-      const err = new Error("RPC_TIMEOUT");
+    if(isUseHtmlResponse_(text,contentType)){
+      const err = new Error("INVALID_SERVER_RESPONSE");
       err.resultUnknown = true;
-      reject(err);
-    }, timeoutMs || 20000);
+      throw err;
+    }
 
-    const payload = {
-      cardNo:cardNoValue,
-      account:account,
-      password:password,
-      allowDuplicate:allowDuplicate || "no",
-      clientRequestId:requestId,
-      requestId:requestId
-    };
+    let data;
+    try{
+      data = JSON.parse(text);
+    }catch(e){
+      const err = new Error("INVALID_SERVER_RESPONSE");
+      err.resultUnknown = true;
+      throw err;
+    }
 
-    google.script.run
-      .withSuccessHandler(function(data){
-        if(settled) return;
-        settled = true;
-        clearTimeout(timer);
+    if(!data || typeof data !== "object"){
+      const err = new Error("INVALID_SERVER_RESPONSE");
+      err.resultUnknown = true;
+      throw err;
+    }
 
-        if(!data || typeof data !== "object"){
-          const err = new Error("INVALID_SERVER_RESPONSE");
-          err.resultUnknown = true;
-          reject(err);
-          return;
-        }
+    return data;
 
-        resolve(data);
-      })
-      .withFailureHandler(function(err){
-        if(settled) return;
-        settled = true;
-        clearTimeout(timer);
+  }catch(err){
+    if(err && err.name === "AbortError"){
+      const timeoutErr = new Error("RPC_TIMEOUT");
+      timeoutErr.resultUnknown = true;
+      throw timeoutErr;
+    }
 
-        const rpcErr =
-          new Error(
-            String(
-              err && err.message ||
-              err ||
-              "RPC_ERROR"
-            )
-          );
+    if(typeof err.resultUnknown === "undefined"){
+      err.resultUnknown = true;
+    }
 
-        rpcErr.resultUnknown = true;
-        reject(rpcErr);
-      })
-      .useCardRpc(payload);
-  });
+    throw err;
+
+  }finally{
+    clearTimeout(timer);
+  }
 }
-
 
 async function recoverUseCardResult_(requestId,cardNoValue,account,password,allowDuplicate){
   if(isRecoveringUseResult) return null;
@@ -1028,8 +1005,7 @@ async function useCard(
     handleUseError(message);
 
   } finally {
-
-    clearTimeout(timeoutId);
+    // sendUseCardRequest_ 會自行清除各自的 timeout。
   }
 }
 
