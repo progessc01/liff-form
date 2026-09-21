@@ -232,6 +232,24 @@
       <div style="margin-top:8px;font-size:14px;line-height:1.6;opacity:.9;">
         20 輪完整讀取路徑測試。<b>不扣次數、不寫核銷紀錄。</b>
       </div>
+      <input
+        id="burnInCardNo"
+        type="text"
+        inputmode="text"
+        autocomplete="off"
+        placeholder="測試卡號，例如 AJ000017"
+        style="
+          width:100%;
+          margin-top:12px;
+          padding:14px;
+          border-radius:12px;
+          border:1px solid rgba(255,255,255,.25);
+          background:rgba(0,0,0,.22);
+          color:#fff;
+          font-size:18px;
+          font-weight:800;
+        "
+      >
 
       <button
         type="button"
@@ -339,7 +357,7 @@ const GAS_URL =
 
   const target =
     GAS_URL +
-    "?page=vip_use&cardNo=" +
+    "?page=vip-use&cardNo=" +
     encodeURIComponent(c);
 
   if(window.location.href !== target){
@@ -2063,8 +2081,15 @@ async function runVipBurnIn20(){
   const account=
     buildAccount(storeCode,staffNo);
 
-  if(!cardNo){
-    alert("缺少卡號");
+  const testCardNo=String(
+    (document.getElementById("burnInCardNo") &&
+     document.getElementById("burnInCardNo").value) ||
+    cardNo ||
+    ""
+  ).trim().toUpperCase();
+
+  if(!testCardNo){
+    alert("請輸入測試卡號");
     return;
   }
 
@@ -2093,7 +2118,7 @@ async function runVipBurnIn20(){
     try{
       const data=
         await vipBurnProbeOnce_({
-          cardNo:cardNo,
+          cardNo:testCardNo,
           account:account,
           password:password,
           requestId:
@@ -2199,7 +2224,7 @@ async function runVipBurnIn20(){
 
   const lines=[
     "====== VIP 核銷 20 輪燒機 ======",
-    "卡號："+cardNo,
+    "卡號："+testCardNo,
     "成功："+success+" / 20（"+finalRate+"%）",
     "Timeout："+timeout,
     "BUSY："+busy,
@@ -2234,6 +2259,24 @@ async function runVipBurnIn20(){
   console.table(rows);
 }
 
+
+(function(){
+  function fillBurnInCardNo_(){
+    const el=document.getElementById("burnInCardNo");
+    if(!el)return;
+    let v="";
+    try{
+      v=new URLSearchParams(location.search).get("cardNo")||"";
+    }catch(e){}
+    if(!v && typeof cardNo!=="undefined") v=cardNo||"";
+    if(v) el.value=String(v).trim().toUpperCase();
+  }
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",fillBurnInCardNo_);
+  }else{
+    fillBurnInCardNo_();
+  }
+})();
 </script>
 
 </body>
