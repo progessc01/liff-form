@@ -1,12 +1,14 @@
 <!DOCTYPE html>
+
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+
+
 
   <title>卡片核銷</title>
 
@@ -148,6 +150,7 @@
       }
     }
   </style>
+
 </head>
 
 <body>
@@ -158,92 +161,92 @@
 
   <div id="mainArea">
 
-    <div class="card">
-      <p>核銷卡號：</p>
+<div class="card">
+  <p>核銷卡號：</p>
 
-      <h2 id="cardNoText">
-        讀取中...
-      </h2>
+  <h2 id="cardNoText">
+    讀取中...
+  </h2>
 
-      <div
-        id="cardInfo"
-        style="margin-top:15px;"
-      >
-        ⏳ 讀取卡片資料中...
-      </div>
-    </div>
+  <div
+    id="cardInfo"
+    style="margin-top:15px;"
+  >
+    ⏳ 讀取卡片資料中...
+  </div>
+</div>
 
-    <br>
+<br>
 
-    <select id="storeCode">
-      <option value="">請選擇分店</option>
-      <option value="AJ01">AJ01 總店</option>
-      <option value="AJ02">AJ02 員林店</option>
-      <option value="AJ03">AJ03 彰南店</option>
-      <option value="AJ04">AJ04 山福店</option>
-    </select>
+<select id="storeCode">
+  <option value="">請選擇分店</option>
+  <option value="AJ01">AJ01 總店</option>
+  <option value="AJ02">AJ02 員林店</option>
+  <option value="AJ03">AJ03 彰南店</option>
+  <option value="AJ04">AJ04 山福店</option>
+</select>
 
-    <br><br>
+<br><br>
 
-    <input
-      type="text"
-      id="staffNo"
-      placeholder="請輸入工號，例如：001"
-      inputmode="numeric"
-      autocomplete="off"
-      enterkeyhint="next"
-    >
+<input
+  type="text"
+  id="staffNo"
+  placeholder="請輸入工號，例如：001"
+  inputmode="numeric"
+  autocomplete="off"
+  enterkeyhint="next"
+>
 
-    <br><br>
+<br><br>
 
-    <input
-      type="password"
-      id="password"
-      placeholder="請輸入密碼"
-      autocomplete="current-password"
-      inputmode="text"
-      enterkeyhint="go"
-    >
+<input
+  type="password"
+  id="password"
+  placeholder="請輸入密碼"
+  autocomplete="current-password"
+  inputmode="text"
+  enterkeyhint="go"
+>
 
-    <br><br>
+<br><br>
 
-    <button
-      type="button"
-      id="useBtn"
-      onclick="useCard('no')"
-    >
-      確認核銷
-    </button>
+<button
+  type="button"
+  id="useBtn"
+  onclick="useCard('no')"
+>
+  確認核銷
+</button>
 
+<div
+  id="useProgress"
+  class="use-progress"
+  aria-live="polite"
+  hidden
+>
+  <div class="use-progress-track">
     <div
-      id="useProgress"
-      class="use-progress"
-      aria-live="polite"
-      hidden
+      id="useProgressBar"
+      class="use-progress-bar"
+    ></div>
+  </div>
+
+  <div class="use-progress-info">
+    <span
+      id="useProgressText"
+      class="use-progress-text"
     >
-      <div class="use-progress-track">
-        <div
-          id="useProgressBar"
-          class="use-progress-bar"
-        ></div>
-      </div>
+      準備核銷...
+    </span>
 
-      <div class="use-progress-info">
-        <span
-          id="useProgressText"
-          class="use-progress-text"
-        >
-          準備核銷...
-        </span>
-
-        <span
-          id="useProgressPercent"
-          class="use-progress-percent"
-        >
-          0%
-        </span>
-      </div>
-    </div>
+    <span
+      id="useProgressPercent"
+      class="use-progress-percent"
+    >
+      0%
+    </span>
+  </div>
+</div>
 
   </div>
 
@@ -261,7 +264,6 @@
 
 const GAS_URL =
   "https://script.google.com/macros/s/AKfycbzoCWQyCyLRaKtp_7g_IkxdSorfqChbh22mbP9c5ybjKzz35yMkWUDALTEbdB5qqV96KA/exec";
-
 
 const params =
   new URLSearchParams(
@@ -346,10 +348,70 @@ if(!cardNo) {
  */
 async function loadCardInfo() {
 
+  const controller =
+    new AbortController();
+
+  const timeoutId =
+    setTimeout(function() {
+      controller.abort();
+    }, 15000);
+
   try {
 
-    const data =
-      await vipSearchCardRpcPromise_(cardNo, 12000);
+    const form =
+      new URLSearchParams();
+
+    form.append(
+      "type",
+      "searchCard"
+    );
+
+    form.append(
+      "cardNo",
+      cardNo
+    );
+
+    form.append(
+      "_t",
+      String(Date.now())
+    );
+
+    const response =
+      await fetch(GAS_URL, {
+        method: "POST",
+        body: form,
+        cache: "no-store",
+        signal: controller.signal
+      });
+
+    if(!response.ok) {
+      throw new Error(
+        "HTTP_ERROR_" +
+        response.status
+      );
+    }
+
+    const responseText =
+      await response.text();
+
+    let data;
+
+    try {
+
+      data =
+        JSON.parse(responseText);
+
+    } catch(err) {
+
+      console.error(
+        "searchCard 非 JSON 回傳：",
+        responseText
+      );
+
+      throw new Error(
+        "INVALID_SERVER_RESPONSE"
+      );
+    }
 
     if(data.status !== "OK") {
 
@@ -502,76 +564,27 @@ async function loadCardInfo() {
   } catch(err) {
 
     console.error(
-      "loadCardInfo RPC error:",
+      "loadCardInfo error:",
       err
     );
 
-    if(err && err.message === "RPC_TIMEOUT") {
+    if(err.name === "AbortError") {
+
       cardInfo.innerHTML =
-        "❌ 卡片資料讀取逾時，請重新整理";
+        "❌ 卡片資料讀取逾時";
+
     } else {
+
       cardInfo.innerHTML =
         "❌ 卡片資料讀取失敗";
     }
+
+  } finally {
+
+    clearTimeout(timeoutId);
   }
 }
 
-
-async function vipSearchCardRpcPromise_(cardNoValue, timeoutMs){
-  const controller = new AbortController();
-  const timer = setTimeout(function(){
-    controller.abort();
-  }, timeoutMs || 12000);
-
-  try{
-    const url =
-      GAS_URL +
-      "?action=searchCard&cardNo=" +
-      encodeURIComponent(cardNoValue) +
-      "&_ts=" +
-      Date.now();
-
-    const response = await fetch(url,{
-      method:"GET",
-      cache:"no-store",
-      redirect:"follow",
-      signal:controller.signal
-    });
-
-    const contentType =
-      String(response.headers.get("content-type") || "");
-
-    const text = await response.text();
-
-    if(!response.ok){
-      throw new Error("HTTP_"+response.status);
-    }
-
-    if(isUseHtmlResponse_(text,contentType)){
-      throw new Error("INVALID_SERVER_RESPONSE");
-    }
-
-    let data;
-    try{
-      data = JSON.parse(text);
-    }catch(e){
-      throw new Error("INVALID_SERVER_RESPONSE");
-    }
-
-    return data || {
-      status:"ERROR",
-      message:"查卡沒有回傳資料"
-    };
-
-  }catch(err){
-    if(err && err.name === "AbortError"){
-      throw new Error("RPC_TIMEOUT");
-    }
-    throw err;
-  }finally{
-    clearTimeout(timer);
-  }
-}
 
 function sleepUseMs_(ms){
   return new Promise(function(resolve){ setTimeout(resolve,ms); });
@@ -585,90 +598,56 @@ function isUseHtmlResponse_(text,contentType){
          body.indexOf("<html")!==-1;
 }
 
-async function sendUseCardRequest_(
-  requestId,
-  cardNoValue,
-  account,
-  password,
-  allowDuplicate,
-  timeoutMs
-){
-  const controller = new AbortController();
-  const timer = setTimeout(function(){
-    controller.abort();
-  }, timeoutMs || 20000);
-
-  const payload = {
-    action:"useCard",
-    cardNo:cardNoValue,
-    account:account,
-    password:password,
-    allowDuplicate:allowDuplicate || "no",
-    clientRequestId:requestId,
-    requestId:requestId
-  };
+async function sendUseCardRequest_(requestId,cardNoValue,account,password,allowDuplicate,timeoutMs){
+  const controller=new AbortController();
+  const timeoutId=setTimeout(function(){controller.abort();},timeoutMs||20000);
 
   try{
-    const response = await fetch(GAS_URL,{
-      method:"POST",
-      headers:{
-        "Content-Type":"text/plain;charset=utf-8"
-      },
-      body:JSON.stringify(payload),
-      cache:"no-store",
-      redirect:"follow",
-      signal:controller.signal
+    const form=new URLSearchParams();
+    form.append("type","useCard");
+    form.append("cardNo",cardNoValue);
+    form.append("account",account);
+    form.append("password",password);
+    form.append("allowDuplicate",allowDuplicate||"no");
+    form.append("clientRequestId",requestId);
+    form.append("requestId",requestId);
+    form.append("_t",String(Date.now()));
+
+    const response=await fetch(GAS_URL,{
+      method:"POST",body:form,cache:"no-store",redirect:"follow",signal:controller.signal
     });
 
-    const contentType =
-      String(response.headers.get("content-type") || "");
+    const responseText=await response.text();
+    const contentType=response.headers.get("content-type")||"";
 
-    const text = await response.text();
-
-    if(!response.ok){
-      const err = new Error("HTTP_"+response.status);
-      err.resultUnknown = true;
+    if(!response.ok || !responseText.trim() || isUseHtmlResponse_(responseText,contentType)){
+      console.error("[VIP_USE_RESPONSE_UNKNOWN]",{
+        status:response.status,finalUrl:response.url,contentType:contentType,
+        requestId:requestId,
+        responsePreview:String(responseText||"").replace(/\s+/g," ").slice(0,180)
+      });
+      const err=new Error(!response.ok ? "HTTP_ERROR_"+response.status : "INVALID_SERVER_RESPONSE");
+      err.resultUnknown=true;
       throw err;
     }
 
-    if(isUseHtmlResponse_(text,contentType)){
-      const err = new Error("INVALID_SERVER_RESPONSE");
-      err.resultUnknown = true;
-      throw err;
-    }
-
-    let data;
     try{
-      data = JSON.parse(text);
-    }catch(e){
-      const err = new Error("INVALID_SERVER_RESPONSE");
-      err.resultUnknown = true;
+      return JSON.parse(responseText);
+    }catch(parseErr){
+      console.error("[VIP_USE_NON_JSON]",{
+        status:response.status,finalUrl:response.url,contentType:contentType,
+        requestId:requestId,
+        responsePreview:String(responseText||"").replace(/\s+/g," ").slice(0,180)
+      });
+      const err=new Error("INVALID_SERVER_RESPONSE");
+      err.resultUnknown=true;
       throw err;
     }
-
-    if(!data || typeof data !== "object"){
-      const err = new Error("INVALID_SERVER_RESPONSE");
-      err.resultUnknown = true;
-      throw err;
-    }
-
-    return data;
-
   }catch(err){
-    if(err && err.name === "AbortError"){
-      const timeoutErr = new Error("RPC_TIMEOUT");
-      timeoutErr.resultUnknown = true;
-      throw timeoutErr;
-    }
-
-    if(typeof err.resultUnknown === "undefined"){
-      err.resultUnknown = true;
-    }
-
+    if(err && err.name==="AbortError") err.resultUnknown=true;
     throw err;
-
   }finally{
-    clearTimeout(timer);
+    clearTimeout(timeoutId);
   }
 }
 
@@ -1005,7 +984,8 @@ async function useCard(
     handleUseError(message);
 
   } finally {
-    // sendUseCardRequest_ 會自行清除各自的 timeout。
+
+    clearTimeout(timeoutId);
   }
 }
 
